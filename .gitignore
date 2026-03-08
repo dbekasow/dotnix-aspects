@@ -1,0 +1,32 @@
+*
+
+!.gitignore
+
+# editor
+!.helix/
+
+# main files
+!modules/
+!modules/**/
+
+# flake.lock
+!*.lock
+
+# direnv
+!.envrc
+
+# just
+!.justfile
+
+# misc files
+!*.age
+!*.json
+!*.md
+!*.nix
+!*.pub
+!*.toml
+!*.yml
+!*.yaml
+
+# git-hooks
+.pre-commit-config.yaml
