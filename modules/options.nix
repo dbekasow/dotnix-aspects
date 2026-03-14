@@ -8,7 +8,7 @@ let
       options = {
         system = lib.mkOption { type = str; default = "x86_64-linux"; };
         modules = lib.mkOption { type = listOf deferredModule; default = [ ]; };
-        members = lib.mkOption { type = listOf unspecified; default = [ ]; };
+        members = lib.mkOption { type = attrsOf userSubModule; default = { }; };
       };
     }];
   };
@@ -36,5 +36,12 @@ in
     };
     description = "Dotnix configuration namespace";
     default = { };
+  };
+
+  config.flake.modules.nixos.core = {
+    options.dotnix.host = lib.mkOption {
+      type = hostSubModule;
+      default = { };
+    };
   };
 }

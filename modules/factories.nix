@@ -1,13 +1,14 @@
-{ inputs, lib, config, ... }: {
+{ inputs, lib, config, ... }:
+let inherit (config.flake) modules; in {
   config.flake.nixosConfigurations = lib.mapAttrs
-    (hostname: opts:
+    (hostname: hostArgs:
       inputs.nixpkgs.lib.nixosSystem {
-        inherit (opts) system;
-        specialArgs = { inherit inputs; };
+        inherit (hostArgs) system;
         modules = [
           { system.stateVersion = lib.mkDefault "26.05"; }
           { networking.hostName = hostname; }
-          { imports = opts.modules; }
+          { dotnix.host = hostArgs; }
+          modules.nixos.core
         ];
       }
     )

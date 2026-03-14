@@ -22,6 +22,9 @@
 
     treefmt.inputs.nixpkgs.follows = "nixpkgs";
     treefmt.url = "github:numtide/treefmt-nix";
+
+    wsl.url = "github:nix-community/NixOS-WSL/main";
+    wsl.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; }
