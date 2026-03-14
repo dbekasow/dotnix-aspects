@@ -1,6 +1,6 @@
-{ inputs, ... }: {
+{ inputs, lib, ... }: {
   imports = [ inputs.flake-parts.flakeModules.modules ];
 
-  systems = [ "x86_64-linux" ];
-  debug = true;
+  systems = lib.mkDefault [ "x86_64-linux" ];
+  debug = lib.mkDefault true;
 }
