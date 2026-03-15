@@ -4,7 +4,7 @@ let inherit (config.flake) modules; in {
     (hostname: hostArgs:
       inputs.nixpkgs.lib.nixosSystem {
         inherit (hostArgs) system;
-        modules = [
+        modules = hostArgs.modules ++ [
           { system.stateVersion = lib.mkDefault "26.05"; }
           { networking.hostName = hostname; }
           { dotnix.host = hostArgs; }

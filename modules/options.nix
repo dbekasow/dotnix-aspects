@@ -44,4 +44,11 @@ in
       default = { };
     };
   };
+
+  config.flake.modules.homeManager.core = {
+    options.dotnix.user = lib.mkOption {
+      type = userSubModule;
+      default = { };
+    };
+  };
 }

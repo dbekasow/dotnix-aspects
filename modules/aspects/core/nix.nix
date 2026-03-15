@@ -1,7 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.nix = { pkgs, config, ... }: {
-    imports = [ config.dotnix.host.modules ];
-
+  flake.modules.nixos.core = { pkgs, ... }: {
     nix = {
       settings = {
         accept-flake-config = true;
