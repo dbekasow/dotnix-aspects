@@ -39,16 +39,16 @@ in
   };
 
   config.flake.modules.nixos.core = {
-    options.dotnix.host = lib.mkOption {
-      type = hostSubModule;
-      default = { };
+    options.dotnix = {
+      hostname = lib.mkOption { type = str; default = null; };
+      host = lib.mkOption { type = hostSubModule; default = { }; };
     };
   };
 
   config.flake.modules.homeManager.core = {
-    options.dotnix.user = lib.mkOption {
-      type = userSubModule;
-      default = { };
+    options.dotnix = {
+      username = lib.mkOption { type = str; default = null; };
+      user = lib.mkOption { type = userSubModule; default = { }; };
     };
   };
 }
