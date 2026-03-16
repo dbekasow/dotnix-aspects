@@ -22,6 +22,7 @@ let
         isNormalUser = lib.mkOption { type = bool; default = true; };
         extraGroups = lib.mkOption { type = listOf str; default = [ "wheel" ]; };
         modules = lib.mkOption { type = listOf deferredModule; default = [ ]; };
+        theme = lib.mkOption { type = str; default = "catppuccin-mocha"; };
       };
     }];
   };

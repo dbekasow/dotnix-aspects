@@ -23,6 +23,9 @@
     treefmt.inputs.nixpkgs.follows = "nixpkgs";
     treefmt.url = "github:numtide/treefmt-nix";
 
+    stylix.inputs.nixpkgs.follows = "nixpkgs";
+    stylix.url = "github:nix-community/stylix";
+
     wsl.url = "github:nix-community/NixOS-WSL/main";
     wsl.inputs.nixpkgs.follows = "nixpkgs";
   };
