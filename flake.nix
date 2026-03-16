@@ -20,11 +20,14 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
 
-    treefmt.inputs.nixpkgs.follows = "nixpkgs";
-    treefmt.url = "github:numtide/treefmt-nix";
+    nix-index-database.url = "github:nix-community/nix-index-database";
+    nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
     stylix.inputs.nixpkgs.follows = "nixpkgs";
     stylix.url = "github:nix-community/stylix";
+
+    treefmt.inputs.nixpkgs.follows = "nixpkgs";
+    treefmt.url = "github:numtide/treefmt-nix";
 
     wsl.url = "github:nix-community/NixOS-WSL/main";
     wsl.inputs.nixpkgs.follows = "nixpkgs";
