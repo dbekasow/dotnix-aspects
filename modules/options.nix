@@ -17,12 +17,13 @@ let
     specialArgs = { inherit (modules) homeManager; };
     modules = [{
       options = {
-        email = lib.mkOption { type = str; default = null; };
-        fullname = lib.mkOption { type = str; default = null; };
+        email = lib.mkOption { type = nullOr str; default = null; };
+        fullname = lib.mkOption { type = nullOr str; default = null; };
         isNormalUser = lib.mkOption { type = bool; default = true; };
         extraGroups = lib.mkOption { type = listOf str; default = [ "wheel" ]; };
         modules = lib.mkOption { type = listOf deferredModule; default = [ ]; };
         theme = lib.mkOption { type = str; default = "catppuccin-mocha"; };
+        repositories = lib.mkOption { type = attrsOf anything; default = { }; };
       };
     }];
   };

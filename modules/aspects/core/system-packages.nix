@@ -1,0 +1,16 @@
+{
+  flake.modules.nixos.core = { pkgs, ... }: {
+    environment.systemPackages = with pkgs; [
+      # Essential tools
+      git
+      helix
+
+      # Coreutils but in rust
+      uutils-coreutils-noprefix
+
+      # Hardware inspection
+      pciutils
+      usbutils
+    ];
+  };
+}

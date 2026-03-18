@@ -4,7 +4,7 @@
       enable = true;
 
       settings = {
-        inherit (config.metadata) email;
+        inherit (config.dotnix.user) email;
       };
     };
   };

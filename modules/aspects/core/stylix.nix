@@ -1,5 +1,10 @@
-{ inputs, ... }: {
-  flake.modules.nixos.core = {
+{ inputs, ... }:
+let
+  defaultTheme = "catppuccin-mocha";
+  schemeFor = pkgs: theme: "${pkgs.base16-schemes}/share/themes/${theme}.yaml";
+in
+{
+  flake.modules.nixos.core = { pkgs, ... }: {
     imports = [ inputs.stylix.nixosModules.stylix ];
 
     stylix = {
@@ -8,6 +13,7 @@
       # Disable auto-import: we manage HM module manually in homeManager.core
       # to keep HM wiring explicit and allow per-user theme overrides
       homeManagerIntegration.autoImport = false;
+      base16Scheme = schemeFor pkgs defaultTheme;
     };
   };
 
@@ -16,7 +22,7 @@
 
     stylix = let inherit (config.dotnix.user) theme; in {
       enable = true;
-      base16Scheme = "${pkgs.base16-schemes}/share/themes/${theme}.yaml";
+      base16Scheme = schemeFor pkgs theme;
       polarity = "dark";
     };
   };
