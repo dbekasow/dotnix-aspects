@@ -1,5 +1,5 @@
 {
-  config.flake.factory.helix = {
+  flake.factory.helix = {
     withTypos = servers: servers ++ [ "typos-lsp" ];
 
     prettier = pkgs: lang: {
