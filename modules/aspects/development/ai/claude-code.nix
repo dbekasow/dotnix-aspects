@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.development-code = {
+  flake.modules.homeManager.development = {
     programs.claude-code = {
       enable = true;
     };

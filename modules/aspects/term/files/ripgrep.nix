@@ -3,7 +3,12 @@
     programs.ripgrep = {
       enable = true;
 
-      arguments = [ ];
+      arguments = [
+        "--smart-case"
+        "--follow"
+        "--hidden"
+        "--glob=!.git/*"
+      ];
     };
   };
 }

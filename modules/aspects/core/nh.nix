@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.core = { lib, ... }: {
+  flake.modules.nixos.core = { config, lib, ... }: {
     programs.nh = {
       enable = true;
       clean = {
@@ -10,7 +10,12 @@
     };
 
     environment.variables = {
-      NH_FLAKE = lib.mkDefault "home/dns/.dotnix"; # TODO
+      NH_FLAKE =
+        let
+          primaryUser = lib.head (lib.attrNames config.dotnix.host.members);
+          inherit (config.users.users.${primaryUser}) home;
+        in
+        lib.mkDefault "${home}/.dotnix";
     };
   };
 }

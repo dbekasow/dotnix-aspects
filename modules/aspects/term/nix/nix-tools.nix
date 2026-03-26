@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal-tools = { pkgs, ... }: {
+  flake.modules.homeManager.terminal = { pkgs, ... }: {
 
     programs.nix-init.enable = true;
     programs.nix-search-tv.enable = true;

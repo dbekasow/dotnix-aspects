@@ -1,6 +1,11 @@
 {
-  flake.modules.homeManager.devops = { pkgs, ... }: {
+  flake.modules.homeManager.devops = { pkgs, lib, ... }: {
     programs.kubeswitch.enable = true;
+    programs.kubeswitch.settings = {
+      kind = "SwitchConfig";
+      showPrefix = lib.mkDefault false;
+      kubeconfigStores = lib.mkDefault [ ];
+    };
 
     programs.kubecolor.enable = true;
     programs.kubecolor.enableAlias = true;

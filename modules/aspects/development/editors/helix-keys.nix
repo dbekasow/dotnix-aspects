@@ -61,6 +61,7 @@
           # TUI popups (shell-based)
           e = '':sh hx-yazi-picker open "%{buffer_name}"'';
           g = popup "Lazygit" pkgs.lazygit;
+          b = popup "Bottom" pkgs.bottom;
 
           # Helix-native
           d = ":yank-diagnostic";

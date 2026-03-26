@@ -23,9 +23,18 @@ let
         extraGroups = lib.mkOption { type = listOf str; default = [ "wheel" ]; };
         modules = lib.mkOption { type = listOf deferredModule; default = [ ]; };
         theme = lib.mkOption { type = str; default = "catppuccin-mocha"; };
-        repositories = lib.mkOption { type = attrsOf anything; default = { }; };
+        repositories = lib.mkOption { type = listOf repositories; default = [ ]; };
       };
     }];
+  };
+
+  repositories = submodule {
+    options = {
+      url = lib.mkOption { type = str; };
+      projects = lib.mkOption { type = listOf str; };
+      destination = lib.mkOption { type = str; default = "repositories"; };
+      branch = lib.mkOption { type = str; default = "main"; };
+    };
   };
 in
 {
