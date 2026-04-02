@@ -6,10 +6,6 @@ on:
     - cron: "0 4 * * 1" # weekly, Monday 04:00 UTC
   workflow_dispatch: # allow manual trigger
 
-permissions:
-  contents: write # push branches
-  pull-requests: write # open PRs & enable auto-merge
-
 concurrency:
   group: flake-lock-updater
   cancel-in-progress: false
@@ -17,6 +13,10 @@ concurrency:
 jobs:
   update-flake-lock:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # push branches
+      id-token: write # required for FlakeHub / OIDC
+      pull-requests: write # open PRs & enable auto-merge
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/determinate-nix-action@v3
@@ -26,12 +26,6 @@ jobs:
           commit-msg: "chore: update flake inputs"
           pr-title: "chore: update flake inputs"
           pr-labels: maintenance
-          pr-body: |
-            ### Updated inputs
-            {{ range .UpdatedInputs -}}
-            - **{{ .Name }}**: `{{ .OldRevision | truncate 8 }}` → `{{ .NewRevision | truncate 8 }}`
-            {{ end }}
-            > ⚠️ Check if agenix-rekey rekeying is required.
           # runs nix flake check on the PR — catch treefmt/typos regressions
           nix-options: "--accept-flake-config"
 
@@ -41,7 +35,3 @@ jobs:
         env:
           PR_URL: ${{ steps.update.outputs.pull-request-url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  check:
-    needs: update
-    uses: ./.github/workflows/flake-check.yml
