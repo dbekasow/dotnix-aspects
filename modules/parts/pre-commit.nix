@@ -12,5 +12,10 @@
         commitizen.enable = true;
       };
     };
+
+    devshells.default = let inherit (config) pre-commit; in {
+      packages = pre-commit.settings.enabledPackages;
+      devshell.startup.pre-commit.text = pre-commit.installationScript;
+    };
   };
 }

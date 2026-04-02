@@ -12,6 +12,9 @@
       typos.enable = true;
       prettier.enable = true;
     };
+
     formatter = config.treefmt.build.wrapper;
+
+    devshells.default.packages = [ config.treefmt.build.wrapper ];
   };
 }

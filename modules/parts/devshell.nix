@@ -1,12 +1,9 @@
-{
-  perSystem = { config, pkgs, ... }: {
-    devShells.default = pkgs.mkShell {
-      name = "dotnix";
+{ inputs, ... }: {
+  imports = [ inputs.devshell.flakeModule ];
 
-      inputsFrom = [
-        config.pre-commit.devShell
-        config.treefmt.build.devShell
-      ];
+  perSystem = { config, pkgs, ... }: {
+    devshells.default = {
+      name = "dotnix";
 
       packages = with pkgs; [
         # Development
@@ -26,7 +23,6 @@
 
         # Misc
         git
-        just
         direnv
 
         # Agenix
