@@ -39,12 +39,7 @@ let
 in
 {
   options.dotnix = lib.mkOption {
-    type = submodule {
-      options = {
-        hosts = lib.mkOption { type = attrsOf hostSubModule; default = { }; };
-        users = lib.mkOption { type = attrsOf userSubModule; default = { }; };
-      };
-    };
+    type = attrsOf hostSubModule;
     description = "Dotnix configuration namespace";
     default = { };
   };

@@ -43,7 +43,7 @@ Add this flake as an input and import its `flakeModule`. See `modules/options.ni
 
 **Secrets with agenix-rekey** — Host and user secrets are managed through `age.rekey` with local storage mode and a master identity. Password generation is handled declaratively.
 
-**Factory pattern** — `factories.nix` iterates over `dotnix.hosts` and produces `nixosConfigurations`, injecting `core` modules and host metadata automatically.
+**Factory pattern** — `factories.nix` iterates over `dotnix` and produces `nixosConfigurations`, injecting `core` modules and host metadata automatically.
 
 ## License
 

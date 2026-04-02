@@ -12,5 +12,5 @@ let inherit (config.flake) modules; in {
         ];
       }
     )
-    config.dotnix.hosts;
+    config.dotnix;
 }
