@@ -49,7 +49,7 @@
     ];
 
     devshells.default.devshell.motd = ''
-      {147}dotnix{reset} - type {italic}menu{reset}
+      {147}dotnix{reset} - type {italic}menu{reset} for commands
     '';
   };
 }
