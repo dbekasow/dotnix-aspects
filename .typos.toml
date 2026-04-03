@@ -1,2 +1,8 @@
+[files]
+extend-exclude = [
+  "certificates/",
+  "secrets/"
+]
+
 [default.extend-words]
-ba = "ba"  # git alias: branch --all
+ba = "ba" # git alias: branch --all

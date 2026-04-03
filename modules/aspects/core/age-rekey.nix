@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.core = { config, ... }: {
+  flake.modules.nixos.core = { config, lib, ... }: {
     imports = [
       inputs.agenix.nixosModules.default
       inputs.agenix-rekey.nixosModules.default
@@ -9,7 +9,7 @@
       secretsDir = "${inputs.self}/secrets/hosts/${config.dotnix.hostname}";
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
-      hostPubkey = secretsDir + "/host.pub";
+      hostPubkey = lib.readFile (secretsDir + "/host.pub");
       masterIdentities = [{
         identity = inputs.self + "/master-key.age";
         pubkey = "age1kalxvlmjjydtdps5n27qyf5cf6eqwzuaesemj4enp8ulyw3mcsls3rkpd6";

@@ -24,7 +24,7 @@
       {
         category = "deploy";
         name = "test";
-        help = "Rebuild and activate without bootloader entry";
+        help = "Rebuild and activate without bootloader";
         command = ''nh os test -- "''${@}"'';
       }
       {
