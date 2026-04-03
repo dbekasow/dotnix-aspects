@@ -1,7 +1,8 @@
 {
-  flake.modules.homeManager.development = { config, lib, ... }: {
+  flake.modules.homeManager.development = { config, lib, pkgs, ... }: {
     services.git-sync = {
       enable = lib.mkDefault (config.dotnix.user.repositories != [ ]);
+      extraPackages = with pkgs; [ git-lfs ];
 
       repositories =
         let home = config.home.homeDirectory;
@@ -11,9 +12,9 @@
               (project: {
                 name = project;
                 value = {
-                  url = "${group.url}/${project}";
+                  uri = "${group.url}/${project}";
                   path = "${home}/${group.destination}/${project}";
-                  inherit (group) branch;
+                  inherit (group) interval;
                 };
               })
               group.projects)

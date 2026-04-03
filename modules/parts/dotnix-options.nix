@@ -33,7 +33,7 @@ let
       url = lib.mkOption { type = str; };
       projects = lib.mkOption { type = listOf str; };
       destination = lib.mkOption { type = str; default = "repositories"; };
-      branch = lib.mkOption { type = str; default = "main"; };
+      interval = lib.mkOption { type = int; default = 3600; };
     };
   };
 in
