@@ -1,21 +1,16 @@
 {
-  flake.modules.nixos.core = { lib, ... }: {
-    age.generators.ssh-rsa-4096 = { pkgs, file, ... }: ''
-      keyfile=$(mktemp)
-      trap 'rm -f "$keyfile" "$keyfile.pub"' EXIT
-      rm "$keyfile"
+  flake.modules.nixos.core = {
+    age.generators.ssh-rsa-4096 = { pkgs, ... }: ''
       ${pkgs.openssh}/bin/ssh-keygen \
         -t rsa-sha2-512 \
         -b 4096 \
         -C "agenix" \
         -N "" \
-        -f "$keyfile" 2>/dev/null
-      cp "$keyfile.pub" ${lib.escapeShellArg (lib.removeSuffix ".age" file + ".pub")}
-      cat "$keyfile"
+        -f /dev/stdout 2>/dev/null
     '';
   };
 
   flake.modules.homeManager.core = { osConfig, ... }: {
-    age.generators = osConfig.age.generators;
+    age.generators.ssh-rsa-4096 = osConfig.age.generators.ssh-rsa-4096;
   };
 }
