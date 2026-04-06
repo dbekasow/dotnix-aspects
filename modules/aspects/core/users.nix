@@ -3,15 +3,12 @@
     users.defaultUserShell = pkgs.fish;
     users.mutableUsers = false;
 
-    users.users = builtins.mapAttrs
-      (name: cfg: {
-        inherit (cfg) isNormalUser extraGroups;
-        hashedPasswordFile = config.age.secrets."hashed-password-${name}".path;
-      })
-      config.dotnix.host.members;
+    users.users = lib.genAttrs config.dotnix.host.members (name: {
+      hashedPasswordFile = config.age.secrets."hashed-password-${name}".path;
+    });
 
-    age.secrets = lib.concatMapAttrs
-      (name: _value: {
+    age.secrets = lib.mergeAttrsList (map
+      (name: {
         "password-${name}" = {
           generator.script = "alnum";
           intermediary = true;
@@ -25,8 +22,9 @@
             '';
           };
         };
+
       })
-      config.dotnix.host.members;
+      config.dotnix.host.members);
 
     programs.fish.enable = true;
     programs.fish.useBabelfish = true;

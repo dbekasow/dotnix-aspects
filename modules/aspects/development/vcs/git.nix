@@ -6,9 +6,9 @@
 
       ignores = [ ".direnv" ".devenv" ];
 
-      settings = let inherit (config.dotnix) user; in {
-        user.name = user.fullname;
-        user.email = user.email;
+      settings = {
+        user.name = config.profile.fullname;
+        user.email = config.profile.email;
 
         branch.sort = "-committerdate";
         commit.verbose = true;

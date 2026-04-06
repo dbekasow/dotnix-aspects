@@ -12,7 +12,7 @@
     environment.variables = {
       NH_FLAKE =
         let
-          primaryUser = lib.head (lib.attrNames config.dotnix.host.members);
+          primaryUser = lib.head config.dotnix.host.members;
           inherit (config.users.users.${primaryUser}) home;
         in
         lib.mkDefault "${home}/.dotnix";

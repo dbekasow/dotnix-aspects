@@ -25,10 +25,5 @@
 
     # NTP time sync
     services.timesyncd.enable = lib.mkDefault true;
-
-    # WSL timezone fix TODO
-    system.activationScripts.linkZoneInfo = ''
-      ln -sfn /etc/zoneinfo /usr/share/zoneinfo
-    '';
   };
 }

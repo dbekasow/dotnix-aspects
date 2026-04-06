@@ -6,10 +6,10 @@
     ];
 
     age.rekey = rec {
-      secretsDir = "${inputs.self}/secrets/hosts/${config.dotnix.hostname}";
+      secretsDir = "${inputs.self}/modules/hosts//${config.dotnix.hostname}/secrets";
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
-      hostPubkey = lib.readFile (secretsDir + "/host.pub");
+      hostPubkey = lib.readFile (secretsDir + "/host-key.pub");
       masterIdentities = [{
         identity = inputs.self + "/master-key.age";
         pubkey = "age1kalxvlmjjydtdps5n27qyf5cf6eqwzuaesemj4enp8ulyw3mcsls3rkpd6";
@@ -25,7 +25,7 @@
     ];
 
     age.rekey = rec {
-      secretsDir = "${inputs.self}/secrets/users/${config.dotnix.username}";
+      secretsDir = "${inputs.self}/modules/users/${config.home.username}/secrets";
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
       inherit (osConfig.age.rekey) masterIdentities storageMode hostPubkey;

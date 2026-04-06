@@ -1,23 +1,16 @@
 { inputs, config, ... }:
 let inherit (config.flake) modules; in {
-  flake.modules.nixos.core = { lib, config, ... }: {
+  flake.modules.nixos.core = {
     imports = [ inputs.home-manager.nixosModules.home-manager ];
 
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
-      users = lib.mapAttrs
-        (username: user: {
-          dotnix = { inherit username user; };
-          imports = user.modules;
-        })
-        config.dotnix.host.members;
       sharedModules = [ modules.homeManager.core ];
     };
   };
 
-  flake.modules.homeManager.core = { config, osConfig, ... }: {
-    home.username = config.dotnix.username;
+  flake.modules.homeManager.core = { osConfig, ... }: {
     home.stateVersion = osConfig.system.stateVersion;
   };
 }

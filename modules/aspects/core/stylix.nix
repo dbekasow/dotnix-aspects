@@ -20,7 +20,7 @@ in
   flake.modules.homeManager.core = { config, pkgs, ... }: {
     imports = [ inputs.stylix.homeModules.stylix ];
 
-    stylix = let inherit (config.dotnix.user) theme; in {
+    stylix = let inherit (config.profile) theme; in {
       enable = true;
       base16Scheme = schemeFor pkgs theme;
       polarity = "dark";

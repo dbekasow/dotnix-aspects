@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.core = { pkgs, ... }: {
+  flake.modules.nixos.core = { lib, pkgs, ... }: {
     nix = {
       settings = {
         accept-flake-config = true;
@@ -8,8 +8,8 @@
 
         experimental-features = [ "nix-command" "flakes" ];
 
-        keep-outputs = true;
-        keep-derivations = true;
+        keep-outputs = lib.mkDefault false;
+        keep-derivations = lib.mkDefault false;
 
         trusted-users = [ "root" "@wheel" ];
       };
