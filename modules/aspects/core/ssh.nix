@@ -1,7 +1,7 @@
 {
   flake.modules.nixos.core = { lib, pkgs, ... }: {
     services.openssh = {
-      enable = true;
+      enable = lib.mkDefault true;
 
       settings = {
         PermitRootLogin = lib.mkDefault "prohibit-password";

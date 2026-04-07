@@ -28,9 +28,10 @@ in
 
     nixosConfigurations = lib.mapAttrs
       (hostname: host:
+        let userModules = lib.attrVals host.members modules.nixos; in
         inputs.nixpkgs.lib.nixosSystem {
           inherit (host) system;
-          modules = host.modules ++ [
+          modules = host.modules ++ userModules ++ [
             { system.stateVersion = lib.mkDefault "26.05"; }
             { dotnix = { inherit hostname host; }; }
             { networking.hostName = hostname; }

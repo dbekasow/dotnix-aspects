@@ -1,9 +1,6 @@
 { inputs, ... }: {
   flake.modules.nixos.core = { config, lib, ... }: {
-    imports = [
-      inputs.agenix.nixosModules.default
-      inputs.agenix-rekey.nixosModules.default
-    ];
+    imports = [ inputs.agenix-rekey.nixosModules.default ];
 
     age.rekey = rec {
       secretsDir = "${inputs.self}/modules/hosts//${config.dotnix.hostname}/secrets";
@@ -16,19 +13,18 @@
       }];
       storageMode = "local";
     };
+
   };
 
-  flake.modules.homeManager.core = { config, osConfig, ... }: {
-    imports = [
-      inputs.agenix.homeManagerModules.default
-      inputs.agenix-rekey.homeManagerModules.default
-    ];
+  flake.modules.homeManager.core = { config, lib, osConfig, ... }: {
+    imports = [ inputs.agenix-rekey.homeManagerModules.default ];
 
     age.rekey = rec {
       secretsDir = "${inputs.self}/modules/users/${config.home.username}/secrets";
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
-      inherit (osConfig.age.rekey) masterIdentities storageMode hostPubkey;
+      hostPubkey = lib.readFile (secretsDir + "/home-key.pub");
+      inherit (osConfig.age.rekey) masterIdentities storageMode;
     };
   };
 }

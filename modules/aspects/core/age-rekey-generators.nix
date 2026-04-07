@@ -1,12 +1,15 @@
 {
   flake.modules.nixos.core = {
     age.generators.ssh-rsa-4096 = { pkgs, ... }: ''
-      ${pkgs.openssh}/bin/ssh-keygen \
+      tmp=$(mktemp -d)
+      trap "rm -rf $tmp" EXIT
+      ${pkgs.openssh}/bin/ssh-keygen -q \
         -t rsa-sha2-512 \
         -b 4096 \
         -C "agenix" \
         -N "" \
-        -f /dev/stdout 2>/dev/null
+        -f "$tmp/key"
+      cat "$tmp/key"
     '';
   };
 
