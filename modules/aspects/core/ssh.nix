@@ -13,4 +13,24 @@
 
     environment.systemPackages = [ pkgs.openssh ];
   };
+
+  flake.modules.homeManager.core = {
+    programs.ssh = {
+      enable = true;
+      enableDefaultConfig = false;
+
+      matchBlocks."*" = {
+        addKeysToAgent = "yes";
+        compression = false;
+        controlMaster = "auto";
+        controlPath = "~/.ssh/master-%r@%n:%p";
+        controlPersist = "10m";
+        forwardAgent = false;
+        hashKnownHosts = false;
+        serverAliveCountMax = 3;
+        serverAliveInterval = 60;
+        userKnownHostsFile = "~/.ssh/known_hosts";
+      };
+    };
+  };
 }
