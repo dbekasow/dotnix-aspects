@@ -8,7 +8,7 @@
         # UI Configuration        
         default_layout = "compact";
         pane_frames = false;
-        simplified_ui = true;
+        simplified_ui = false;
         ui.pane_frames.hide_session_name = true;
         ui.pane_frames.rounded_corners = true;
 
@@ -27,6 +27,9 @@
 
         # Environment setup
         env.COLORTERM = "truecolor";
+
+        # Reference the stylix theme
+        theme = "default";
       };
     };
   };

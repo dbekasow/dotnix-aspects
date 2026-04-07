@@ -1,8 +1,9 @@
 {
-  flake.modules.homeManager.development = { config, ... }: {
+  flake.modules.homeManager.development = { config, lib, ... }: {
     programs.git = {
       enable = true;
       lfs.enable = true;
+      lfs.skipSmudge = lib.mkDefault true;
 
       ignores = [ ".direnv" ".devenv" ];
 
