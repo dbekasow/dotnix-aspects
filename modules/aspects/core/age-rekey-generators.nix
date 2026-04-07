@@ -8,7 +8,7 @@
         -b 4096 \
         -C "agenix" \
         -N "" \
-        -f "$tmp/key"
+        -f "$tmp/key" 2>/dev/null
       cat "$tmp/key"
     '';
   };
