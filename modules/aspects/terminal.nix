@@ -38,6 +38,7 @@
       fastfetch
       hyperfine
       procs
+      rustscan
       tealdeer
       tokei
 
@@ -47,6 +48,5 @@
       nix-tools
       rbw
     ];
-
   };
 }

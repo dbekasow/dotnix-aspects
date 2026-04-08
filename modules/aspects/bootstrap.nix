@@ -5,6 +5,7 @@
       age-rekey
       age-rekey-generators
       certificates
+      git
       home-manager
       locale
       nh
