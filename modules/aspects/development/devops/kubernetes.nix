@@ -13,10 +13,10 @@
     home.packages = with pkgs; [
       kubectl
       kubectl-tree
+      kubectl-oidc-login
       kubectl-view-allocations
       kubectl-view-secret
       kubectx
-      kubelogin
       kubernetes-helm
     ];
   };
