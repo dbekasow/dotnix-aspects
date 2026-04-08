@@ -5,7 +5,6 @@
       defaultEditor = lib.mkDefault true;
 
       ignores = [
-        "!.direnv/"
         "!.editorconfig"
         "!.helix/"
         "!.github/"

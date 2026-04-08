@@ -10,7 +10,7 @@
         auto_sync = lib.mkDefault false;
         update_check = false;
 
-        history_filter = [ "^clear$" "^exit$" "^l[salt]" "^y" "^z" ];
+        history_filter = [ "^clear$" "^exit$" "^menu$" "^l[salt]" "^y" "^z" ];
 
         # Search 
         filter_mode = "host";

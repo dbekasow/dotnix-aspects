@@ -17,21 +17,21 @@
       # --- deploy ---
       {
         category = "deploy";
-        name = "switch";
+        name = "os-switch";
         help = "Rebuild and activate";
-        command = ''nh os switch -- "''${@}"'';
+        command = ''nh os switch -H "''${@}"'';
       }
       {
         category = "deploy";
-        name = "test";
+        name = "os-test";
         help = "Rebuild and activate without bootloader";
-        command = ''nh os test -- "''${@}"'';
+        command = ''nh os test -H "''${@}"'';
       }
       {
         category = "deploy";
-        name = "build";
+        name = "os-build";
         help = "Build system without activating";
-        command = ''nh os build -- "''${@}"'';
+        command = ''nh os build -H "''${@}"'';
       }
       # --- maintenance ---
       {
