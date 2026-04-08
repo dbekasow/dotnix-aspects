@@ -3,7 +3,7 @@ let
   repoModule = with lib.types; submodule {
     options = {
       projects = lib.mkOption { type = listOf str; };
-      path = lib.mkOption { type = str; };
+      path = lib.mkOption { type = str; default = "repositories"; };
       interval = lib.mkOption { type = int; default = 3600; };
     };
   };
