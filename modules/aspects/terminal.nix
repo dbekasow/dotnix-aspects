@@ -46,7 +46,6 @@
       nix-index-database
       nix-tools
       rbw
-      stylix
     ];
 
   };

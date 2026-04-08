@@ -27,6 +27,7 @@
       git-sync
       home-manager
       ssh
+      stylix
       users-profile
     ];
   };

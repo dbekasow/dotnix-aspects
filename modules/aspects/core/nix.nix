@@ -17,8 +17,8 @@
       package = pkgs.nixVersions.latest;
       registry.nixpkgs.flake = inputs.nixpkgs;
 
-      channel.enable = false;
       optimise.automatic = true;
+      channel.enable = false;
     };
 
     nix.settings = {
@@ -33,5 +33,11 @@
     };
 
     nixpkgs.config.allowUnfree = true;
+
+    # Remove legacy channel dirs
+    system.activationScripts.removeNixChannels.text = ''
+      rm -rf /root/.nix-defexpr/channels
+      rm -rf /nix/var/nix/profiles/per-user/root/channels
+    '';
   };
 }

@@ -33,20 +33,23 @@ in
         )
         config.dotnix.repositories;
 
-      home.activation.cloneRepositories = lib.hm.dag.entryAfter [ "agenix" ] (
-        lib.concatStrings (lib.mapAttrsToList
-          (name: repo:
-            let clone = "${lib.getExe pkgs.git} clone ${repo.uri} ${repo.path}";
-            in ''
-              if [ ! -d "${repo.path}/.git" ]; then
-                echo "Cloning ${name} into ${repo.path}..."
-                mkdir -p "$(dirname "${repo.path}")"
-                ${clone} && echo "Done." || echo "Failed to clone ${name}."
-              fi
-            ''
-          )
-          config.services.git-sync.repositories)
-      );
+      home.activation.cloneRepositories = lib.hm.dag.entryBetween
+        [ "reloadSystemd" ]
+        [ "agenix" ]
+        (
+          lib.concatStrings (lib.mapAttrsToList
+            (name: repo:
+              let clone = "${lib.getExe pkgs.git} clone ${repo.uri} ${repo.path}";
+              in ''
+                if [ ! -d "${repo.path}/.git" ]; then
+                  echo "Cloning ${name} into ${repo.path}..."
+                  mkdir -p "$(dirname "${repo.path}")"
+                  ${clone} && echo "Done." || echo "Failed to clone ${name}."
+                fi
+              ''
+            )
+            config.services.git-sync.repositories)
+        );
     };
   };
 }
