@@ -16,9 +16,14 @@
       kubectl-oidc-login
       kubectl-view-allocations
       kubectl-view-secret
-      kubectx
       kubernetes-helm
     ];
+
+    programs.fish.shellAbbrs = {
+      k = "kubectl";
+      kx = "kswitch";
+      kn = "kswitch namespace";
+    };
   };
 }
 

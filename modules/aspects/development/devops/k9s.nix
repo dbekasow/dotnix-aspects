@@ -38,9 +38,9 @@
           memory.warn = 70;
         };
       };
-
-      plugins = { };
     };
+
+    programs.fish.shellAbbrs.ks = "k9s";
   };
 }
 
