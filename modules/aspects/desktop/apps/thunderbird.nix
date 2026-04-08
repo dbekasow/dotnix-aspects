@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.desktop = {
+  flake.modules.homeManager.thunderbird = {
     programs.thunderbird = {
       enable = true;
 

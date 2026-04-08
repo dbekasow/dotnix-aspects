@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = { config, ... }: {
+  flake.modules.homeManager.zellij = { config, ... }: {
     programs.zellij = {
       enable = true;
       enableFishIntegration = true;

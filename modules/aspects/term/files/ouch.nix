@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = { pkgs, ... }: {
+  flake.modules.homeManager.ouch = { pkgs, ... }: {
     home.packages = [ pkgs.ouch ];
   };
 }

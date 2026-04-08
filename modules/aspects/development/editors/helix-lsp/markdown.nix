@@ -1,7 +1,7 @@
 { config, ... }:
 let inherit (config.flake.factory.helix) withTypos prettier; in
 {
-  flake.modules.homeManager.development = { pkgs, lib, ... }: {
+  flake.modules.homeManager.helix-lsp = { pkgs, lib, ... }: {
     programs.helix.extraPackages = with pkgs; [ marksman markdown-oxide nodePackages.prettier ];
     programs.helix.languages = {
       language-server = {

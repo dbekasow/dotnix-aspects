@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.system = { pkgs, lib, ... }: {
+  flake.modules.nixos.boot-limine = { pkgs, lib, ... }: {
     boot.loader = {
       limine = {
         efiSupport = true;

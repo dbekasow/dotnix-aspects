@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.system = { pkgs, ... }: {
+  flake.modules.nixos.pipewire = { pkgs, ... }: {
     services.pipewire = {
       enable = true;
 

@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.core = { lib, pkgs, ... }: {
+  flake.modules.nixos.ssh = { lib, pkgs, ... }: {
     services.openssh = {
       enable = lib.mkDefault true;
 
@@ -14,7 +14,7 @@
     environment.systemPackages = [ pkgs.openssh ];
   };
 
-  flake.modules.homeManager.core = {
+  flake.modules.homeManager.ssh = {
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;

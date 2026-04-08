@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.system = { lib, ... }: {
+  flake.modules.nixos.power = { lib, ... }: {
     services = {
       logind.settings.Login = {
         HandlePowerKey = "suspend";

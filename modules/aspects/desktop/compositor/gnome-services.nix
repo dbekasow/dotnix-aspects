@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.desktop = { pkgs, ... }: {
+  flake.modules.nixos.gnome-services = { pkgs, ... }: {
     services = {
       dbus = {
         implementation = "broker";

@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.core = { config, lib, ... }: {
+  flake.modules.nixos.locale = { config, lib, ... }: {
     time = {
       timeZone = "Europe/Berlin";
       hardwareClockInLocalTime = lib.mkDefault true;

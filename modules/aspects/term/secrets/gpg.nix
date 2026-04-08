@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = {
+  flake.modules.homeManager.gpg = {
     programs.gpg = {
       enable = true;
 

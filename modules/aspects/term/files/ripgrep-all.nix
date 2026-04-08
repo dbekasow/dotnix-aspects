@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = {
+  flake.modules.homeManager.ripgrep-all = {
     programs.ripgrep-all = {
       enable = true;
 

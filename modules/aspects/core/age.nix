@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.core = { config, lib, ... }: {
+  flake.modules.nixos.age = { config, lib, ... }: {
     imports = [ inputs.agenix.nixosModules.default ];
 
     age.secrets = lib.mergeAttrsList (map
@@ -13,7 +13,7 @@
       config.dotnix.host.members);
   };
 
-  flake.modules.homeManager.core = { config, osConfig, ... }: {
+  flake.modules.homeManager.age = { config, osConfig, ... }: {
     imports = [ inputs.agenix.homeManagerModules.default ];
 
     age.identityPaths = [

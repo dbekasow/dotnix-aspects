@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.desktop = { lib, config, ... }: {
+  flake.modules.nixos.dms-greeter = { lib, config, ... }: {
     imports = [ inputs.dms.nixosModules.greeter ];
 
     programs.dank-material-shell.greeter = {

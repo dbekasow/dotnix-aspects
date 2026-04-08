@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.core = { config, lib, ... }: {
+  flake.modules.nixos.age-rekey = { config, lib, ... }: {
     imports = [ inputs.agenix-rekey.nixosModules.default ];
 
     age.rekey = rec {
@@ -16,7 +16,7 @@
 
   };
 
-  flake.modules.homeManager.core = { config, lib, osConfig, ... }: {
+  flake.modules.homeManager.age-rekey = { config, lib, osConfig, ... }: {
     imports = [ inputs.agenix-rekey.homeManagerModules.default ];
 
     age.rekey = rec {

@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.homeManager.desktop = { ... }: {
+  flake.modules.homeManager.dms-plugins = { ... }: {
     imports = [ inputs.dms-plugins.modules.default ];
 
     programs.dank-material-shell.plugins = {

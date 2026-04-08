@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = { pkgs, ... }: {
+  flake.modules.homeManager.yazi = { pkgs, ... }: {
     programs.yazi = {
       enable = true;
 

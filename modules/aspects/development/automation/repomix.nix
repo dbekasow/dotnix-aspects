@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.development = { pkgs, ... }: {
+  flake.modules.homeManager.repomix = { pkgs, ... }: {
     home.packages = [ pkgs.repomix ];
   };
 }

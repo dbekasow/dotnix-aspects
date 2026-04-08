@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.development = { config, ... }: {
+  flake.modules.homeManager.gh = { config, ... }: {
     age.secrets.github-ssh-key = {
       generator.script = "ssh-ed25519";
       mode = "600";

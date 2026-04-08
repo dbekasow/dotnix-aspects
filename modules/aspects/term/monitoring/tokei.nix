@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = { pkgs, ... }: {
+  flake.modules.homeManager.tokei = { pkgs, ... }: {
     home.packages = [ pkgs.tokei ];
   };
 }

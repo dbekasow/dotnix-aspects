@@ -4,7 +4,7 @@ let
   schemeFor = pkgs: theme: "${pkgs.base16-schemes}/share/themes/${theme}.yaml";
 in
 {
-  flake.modules.nixos.core = { pkgs, ... }: {
+  flake.modules.nixos.stylix = { pkgs, ... }: {
     imports = [ inputs.stylix.nixosModules.stylix ];
 
     stylix = {
@@ -17,7 +17,7 @@ in
     };
   };
 
-  flake.modules.homeManager.core = { config, pkgs, ... }: {
+  flake.modules.homeManager.stylix = { config, pkgs, ... }: {
     imports = [ inputs.stylix.homeModules.stylix ];
 
     stylix = let inherit (config.profile) theme; in {

@@ -8,7 +8,7 @@
     };
   };
 
-  flake.modules.homeManager.development = { pkgs, ... }: {
+  flake.modules.homeManager.helix-lsp = { pkgs, ... }: {
     programs.helix.extraPackages = [ pkgs.typos-lsp ];
     programs.helix.languages.language-server = {
       typos-lsp.command = pkgs.lib.getExe pkgs.typos-lsp;

@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.devops = { pkgs, lib, ... }: {
+  flake.modules.homeManager.kubernetes = { pkgs, lib, ... }: {
     programs.kubeswitch.enable = true;
     programs.kubeswitch.settings = {
       kind = "SwitchConfig";
@@ -17,6 +17,7 @@
       kubectl-view-secret
       kubectx
       kubelogin
+      kubernetes-helm
     ];
   };
 }

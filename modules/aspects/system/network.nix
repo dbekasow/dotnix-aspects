@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.system = { pkgs, lib, ... }: {
+  flake.modules.nixos.network = { pkgs, lib, ... }: {
     networking = {
       networkmanager = {
         enable = true;

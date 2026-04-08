@@ -21,7 +21,7 @@ in
   };
 
   config.flake = {
-    modules.nixos.core.options.dotnix = {
+    modules.nixos.bootstrap.options.dotnix = {
       hostname = lib.mkOption { type = str; default = null; };
       host = lib.mkOption { type = hostSubModule; default = { }; };
     };
@@ -35,7 +35,7 @@ in
             { system.stateVersion = lib.mkDefault "26.05"; }
             { dotnix = { inherit hostname host; }; }
             { networking.hostName = hostname; }
-            modules.nixos.core
+            modules.nixos.bootstrap
           ];
         }
       )

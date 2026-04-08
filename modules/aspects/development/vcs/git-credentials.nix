@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.development = { lib, pkgs, ... }: {
+  flake.modules.homeManager.git-credentials = { lib, pkgs, ... }: {
     home.packages = [ pkgs.git-credential-manager ];
 
     programs.git.settings.credential = {

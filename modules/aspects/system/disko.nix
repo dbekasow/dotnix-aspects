@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.system = { lib, ... }: {
+  flake.modules.nixos.disko = { lib, ... }: {
     imports = [ inputs.disko.nixosModules.disko ];
 
     disko.devices.disk.main = {

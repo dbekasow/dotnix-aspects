@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.desktop = {
+  flake.modules.nixos.dms = {
     imports = [ inputs.dms.nixosModules.dank-material-shell ];
 
     programs.dank-material-shell = {
@@ -16,7 +16,7 @@
     systemd.user.services.niri-flake-polkit.enable = false;
   };
 
-  flake.modules.homeManager.desktop = {
+  flake.modules.homeManager.dms = {
     imports = [
       inputs.dms.homeModules.dank-material-shell
       inputs.dms.homeModules.niri

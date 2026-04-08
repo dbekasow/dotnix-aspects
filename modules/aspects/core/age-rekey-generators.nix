@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.core = {
+  flake.modules.nixos.age-rekey-generators = {
     age.generators.ssh-rsa-4096 = { pkgs, ... }: ''
       tmp=$(mktemp -d)
       trap "rm -rf $tmp" EXIT
@@ -13,7 +13,7 @@
     '';
   };
 
-  flake.modules.homeManager.core = { osConfig, ... }: {
+  flake.modules.homeManager.age-rekey-generators = { osConfig, ... }: {
     age.generators.ssh-rsa-4096 = osConfig.age.generators.ssh-rsa-4096;
   };
 }

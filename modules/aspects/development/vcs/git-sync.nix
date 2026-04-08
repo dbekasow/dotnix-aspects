@@ -9,7 +9,7 @@ let
   };
 in
 {
-  flake.modules.homeManager.development = { config, lib, pkgs, ... }: {
+  flake.modules.homeManager.git-sync = { config, lib, pkgs, ... }: {
     options.dotnix.repositories = lib.mkOption {
       type = lib.types.attrsOf (lib.types.attrsOf repoModule);
       default = { };

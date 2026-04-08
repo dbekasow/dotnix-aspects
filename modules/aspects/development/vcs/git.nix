@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.development = { config, lib, ... }: {
+  flake.modules.homeManager.git = { config, lib, ... }: {
     programs.git = {
       enable = true;
       lfs.enable = true;

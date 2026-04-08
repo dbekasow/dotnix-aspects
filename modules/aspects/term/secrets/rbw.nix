@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = { config, ... }: {
+  flake.modules.homeManager.rbw = { config, ... }: {
     programs.rbw = {
       enable = true;
 

@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = {
+  flake.modules.homeManager.fd = {
     programs.fd = {
       enable = true;
       hidden = true;

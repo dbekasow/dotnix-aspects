@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.core = { pkgs, ... }: {
+  flake.modules.nixos.system-packages = { pkgs, ... }: {
     environment.systemPackages = with pkgs; [
       # Essential tools
       git

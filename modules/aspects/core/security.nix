@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.core = {
+  flake.modules.nixos.security = {
     security.rtkit.enable = true;
     security.polkit.enable = true;
 

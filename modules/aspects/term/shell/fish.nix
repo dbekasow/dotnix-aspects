@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = {
+  flake.modules.homeManager.fish = {
     home.shell.enableFishIntegration = true;
 
     programs.fish = {

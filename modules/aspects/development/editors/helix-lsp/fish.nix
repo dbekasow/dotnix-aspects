@@ -1,7 +1,7 @@
 { config, ... }:
 let inherit (config.flake.factory.helix) withTypos; in
 {
-  flake.modules.homeManager.development = { pkgs, lib, ... }: {
+  flake.modules.homeManager.helix-lsp = { pkgs, lib, ... }: {
     programs.helix.extraPackages = [ pkgs.fish-lsp ];
     programs.helix.languages = {
       language-server.fish-lsp = {

@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = {
+  flake.modules.homeManager.tealdeer = {
     programs.tealdeer = {
       enable = true;
       enableAutoUpdates = false;

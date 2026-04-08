@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.development = { pkgs, lib, ... }: {
+  flake.modules.homeManager.helix-lsp = { pkgs, lib, ... }: {
     programs.helix.extraPackages = with pkgs; [ nixd nil nixpkgs-fmt statix deadnix ];
     programs.helix.languages = {
       language-server = {

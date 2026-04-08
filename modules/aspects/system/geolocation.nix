@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.system = {
+  flake.modules.nixos.geolocation = {
     location.provider = "geoclue2";
 
     services.geoclue2 = {

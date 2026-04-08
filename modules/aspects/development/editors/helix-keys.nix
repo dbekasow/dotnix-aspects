@@ -1,6 +1,6 @@
 # helix-keys.nix
 {
-  flake.modules.homeManager.development = { pkgs, lib, ... }:
+  flake.modules.homeManager.helix-keys = { pkgs, lib, ... }:
     let
       # -- Extracted shell scripts as proper derivations --
 

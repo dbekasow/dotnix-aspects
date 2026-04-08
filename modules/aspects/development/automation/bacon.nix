@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.development = {
+  flake.modules.homeManager.bacon = {
     programs.bacon = {
       enable = true;
 

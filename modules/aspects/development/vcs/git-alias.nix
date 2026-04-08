@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.development = {
+  flake.modules.homeManager.git-alias = {
     programs.git.settings.alias = {
       # Status shortcuts
       s = "status --short --branch";

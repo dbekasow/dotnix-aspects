@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.core = { config, lib, pkgs, ... }: {
+  flake.modules.nixos.users = { config, lib, pkgs, ... }: {
     users.defaultUserShell = pkgs.fish;
     users.mutableUsers = false;
 

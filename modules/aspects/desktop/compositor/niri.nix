@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.desktop = {
+  flake.modules.nixos.niri = {
     imports = [ inputs.niri.nixosModules.niri ];
 
     programs.niri.enable = true;
@@ -10,7 +10,7 @@
     };
   };
 
-  flake.modules.homeManager.desktop = {
+  flake.modules.homeManager.niri = {
     programs.niri.settings = {
       spawn-at-startup = [ ];
 

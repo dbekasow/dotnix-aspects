@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = { lib, ... }: {
+  flake.modules.homeManager.atuin = { lib, ... }: {
     programs.atuin = {
       enable = true;
 

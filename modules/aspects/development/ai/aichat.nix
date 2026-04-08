@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.development = {
+  flake.modules.homeManager.aichat = {
     programs.aichat = {
       enable = true;
 

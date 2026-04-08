@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.core = { config, lib, ... }: with lib; {
+  flake.modules.nixos.certificates = { config, lib, ... }: with lib; {
     security.pki.certificateFiles =
       let
         certDir = "${inputs.self}/modules/hosts/${config.dotnix.hostname}/certificates";

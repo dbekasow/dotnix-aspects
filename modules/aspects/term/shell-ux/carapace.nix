@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = {
+  flake.modules.homeManager.carapace = {
     programs.carapace = {
       enable = true;
     };

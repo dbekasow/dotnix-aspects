@@ -9,15 +9,15 @@ let
 in
 {
   flake.modules = {
-    generic.profile.options = { inherit profile; };
+    generic.users-profile.options = { inherit profile; };
 
-    nixos.core = { config, ... }: {
+    homeManager.users-profile.imports = [ self.modules.generic.users-profile ];
+
+    nixos.users-profile = { config, ... }: {
       home-manager.users = lib.genAttrs config.dotnix.host.members (username: {
         imports = with self.modules; [ generic."${username}" ];
         home.username = username;
       });
     };
-
-    homeManager.core.imports = [ self.modules.generic.profile ];
   };
 }

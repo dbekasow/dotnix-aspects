@@ -1,7 +1,7 @@
 {
-  flake.modules.homeManager.terminal = {
+  flake.modules.homeManager.bash = { lib, ... }: {
     programs.bash = {
-      enable = true;
+      enable = lib.mkDefault false;
     };
   };
 }

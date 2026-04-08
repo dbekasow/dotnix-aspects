@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.core = { lib, pkgs, ... }: {
+  flake.modules.nixos.nix = { lib, pkgs, ... }: {
     nix = {
       settings = {
         accept-flake-config = true;
