@@ -1,15 +1,15 @@
 {
-  flake.modules.homeManager.git-credentials = { lib, pkgs, ... }: {
-    home.packages = [ pkgs.git-credential-manager ];
-
+  flake.modules.homeManager.git-credentials = { lib, pkgs, osConfig, ... }: {
     programs.git.settings.credential = {
-      helper = "manager";
+      helper = "${lib.getExe pkgs.git-credential-manager}";
 
       credentialStore = lib.mkDefault (
-        if pkgs.stdenv.isLinux then "secretservice"
+        if osConfig ? wsl && osConfig.wsl.enable then "plaintext"
+        else if pkgs.stdenv.isLinux then "secretservice"
         else "cache"
       );
 
+      useHttpPath = true;
       azreposCredentialType = "oauth";
     };
   };

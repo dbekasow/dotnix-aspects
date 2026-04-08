@@ -4,12 +4,13 @@
       enable = true;
 
       settings = {
-        logo.type = "small";
+        logo.source = "nixos_small";
         modules = [
           "title"
           "separator"
           "os"
           "kernel"
+          "packages"
           "shell"
           "terminal"
           "cpu"
