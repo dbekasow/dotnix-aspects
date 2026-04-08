@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.terminal = {
+  flake.modules.homeManager.terminal = { config, ... }: {
     programs.zellij = {
       enable = true;
       enableFishIntegration = true;
@@ -29,6 +29,7 @@
         env.COLORTERM = "truecolor";
 
         # Reference the stylix theme
+        theme_dir = "${config.xdg.configHome}/zellij/themes";
         theme = "default";
       };
     };
