@@ -10,7 +10,6 @@
       );
 
       useHttpPath = true;
-      azreposCredentialType = "oauth";
     };
   };
 }
