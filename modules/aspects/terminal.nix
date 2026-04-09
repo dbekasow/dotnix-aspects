@@ -41,6 +41,7 @@
       procs
       rustscan
       tealdeer
+      television
       tokei
 
       # Nix & Secrets
