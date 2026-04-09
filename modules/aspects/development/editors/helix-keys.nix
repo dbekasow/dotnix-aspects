@@ -36,10 +36,8 @@
 
         # ── Leader namespace (backspace) ───────────────────────
         backspace = {
-          # Yazi file picker → selected file opens in helix buffer
-          e = popup "yazi" pkgs.yazi;
-
           # TUI popups
+          e = popup "yazi" pkgs.yazi;
           g = popup "lazygit" pkgs.lazygit;
           b = popup "bottom" pkgs.bottom;
           d = popup "lazydocker" pkgs.lazydocker;

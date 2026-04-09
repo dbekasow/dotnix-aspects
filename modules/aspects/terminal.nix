@@ -10,6 +10,7 @@
       # UX & Multiplexer
       atuin
       carapace
+      clipboard
       direnv
       fzf
       skim

@@ -7,6 +7,7 @@ in
 
     programs.fish = {
       enable = true;
+
       plugins = with pkgs.fishPlugins; mkPlugins [
         autopair
         fish-you-should-use
