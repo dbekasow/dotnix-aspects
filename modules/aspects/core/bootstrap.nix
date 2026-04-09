@@ -30,7 +30,7 @@ in
             fi
 
             echo "=> Switching to .#$HOSTNAME ..."
-            nh os switch "$DEST" -- --flake "$DEST#$HOSTNAME"
+            nh os switch "$DEST" -H "$HOSTNAME"
           '')
         ];
       };
