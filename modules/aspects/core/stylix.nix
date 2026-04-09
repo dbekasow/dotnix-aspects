@@ -23,7 +23,6 @@ in
     stylix = let inherit (config.profile) theme; in {
       enable = true;
       base16Scheme = schemeFor pkgs theme;
-      polarity = "dark";
     };
   };
 }

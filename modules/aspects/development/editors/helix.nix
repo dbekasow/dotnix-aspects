@@ -1,4 +1,12 @@
-{
+{ inputs, ... }: {
+  flake.modules.nixos.helix = {
+    nixpkgs.overlays = [ inputs.helix.overlays.default ];
+    nix.settings = {
+      substituters = [ "https://helix.cachix.org" ];
+      trusted-public-keys = [ "helix.cachix.org-1:ejp9KQpR1FBI2onstMQ34yogDm4OgU2ru6lIwPvuCVs=" ];
+    };
+  };
+
   flake.modules.homeManager.helix = { lib, ... }: {
     programs.helix = {
       enable = true;
