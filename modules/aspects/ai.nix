@@ -1,12 +1,22 @@
 { self, ... }: {
-  flake.modules = let inherit (self.modules) homeManager; in {
-    nixos.ai.imports = [
-      # Derzeit keine reinen NixOS-Module für Development
+  flake.modules = let inherit (self.modules) nixos homeManager; in {
+    nixos.ai.imports = with nixos; [
+      llm-agents
     ];
 
     homeManager.ai.imports = with homeManager; [
+      # agents
+      claudecode
+      forgecode
+      opencode
+
+      # chat
       aichat
-      claude-code
+
+      # workflow
+      management
+      review
+      utilities
     ];
   };
 }
