@@ -1,24 +1,14 @@
 {
-  flake.modules.homeManager.gh = { config, ... }: {
-    age.secrets.github-ssh-key = {
-      generator.script = "ssh-ed25519";
-      mode = "600";
-    };
-
-    programs.ssh.matchBlocks."github.com" = {
-      identityFile = config.age.secrets.github-ssh-key.path;
-      identitiesOnly = true;
-    };
-
-    programs.gh-dash.enable = true;
+  flake.modules.homeManager.gh = {
     programs.gh = {
       enable = true;
+      gitCredentialHelper.enable = false;
       settings = {
         editor = "hx";
-        git_protocol = "ssh";
         pager = "bat";
         prompt = "enabled";
       };
     };
+    programs.gh-dash.enable = true;
   };
 }

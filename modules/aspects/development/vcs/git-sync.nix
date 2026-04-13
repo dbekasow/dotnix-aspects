@@ -1,55 +1,51 @@
 { lib, ... }:
 let
-  repoModule = with lib.types; submodule {
+  repoModule = with lib.types; submodule ({ config, ... }: {
     options = {
-      projects = lib.mkOption { type = listOf str; };
-      path = lib.mkOption { type = str; default = "repositories"; };
+      url = lib.mkOption { type = str; };
       interval = lib.mkOption { type = int; default = 3600; };
+      alias = lib.mkOption { type = nullOr str; default = baseNameOf config.url; };
     };
-  };
+  });
+  encodeURI = builtins.replaceStrings [ " " ] [ "%%20" ];
+  decodeURI = builtins.replaceStrings [ "%%20" ] [ " " ];
 in
 {
   flake.modules.homeManager.git-sync = { config, lib, pkgs, ... }: {
-    options.dotnix.repositories = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.attrsOf repoModule);
+    options.dotnix.git.repositories = lib.mkOption {
+      type = with lib.types; attrsOf (listOf repoModule);
       default = { };
     };
 
-    config = lib.mkIf (config.dotnix.repositories != { }) {
+    config = lib.mkIf (config.dotnix.git.repositories != { }) {
       services.git-sync.enable = true;
       services.git-sync.repositories = lib.concatMapAttrs
-        (base: orgs:
-          lib.concatMapAttrs
-            (org: repo:
-              lib.listToAttrs (map
-                (project: lib.nameValuePair project {
-                  uri = "${base}/${org}/${project}";
-                  path = "${config.home.homeDirectory}/${repo.path}/${project}";
-                  inherit (repo) interval;
-                })
-                repo.projects)
-            )
-            orgs
+        (dir: repos:
+          lib.mergeAttrsList (map
+            (repo: {
+              ${repo.alias} = {
+                uri = encodeURI repo.url;
+                path = "${config.home.homeDirectory}${dir}/${repo.alias}";
+                inherit (repo) interval;
+              };
+            })
+            repos)
         )
-        config.dotnix.repositories;
+        config.dotnix.git.repositories;
 
-      home.activation.cloneRepositories = lib.hm.dag.entryBetween
-        [ "reloadSystemd" ]
-        [ "agenix" ]
-        (
+      home.packages = [
+        (pkgs.writeShellScriptBin "git-sync-bootstrap" (
           lib.concatStrings (lib.mapAttrsToList
-            (name: repo:
-              let clone = "${lib.getExe pkgs.git} clone ${repo.uri} ${repo.path}";
-              in ''
-                if [ ! -d "${repo.path}/.git" ]; then
-                  echo "Cloning ${name} into ${repo.path}..."
-                  mkdir -p "$(dirname "${repo.path}")"
-                  ${clone} && echo "Done." || echo "Failed to clone ${name}."
-                fi
-              ''
-            )
+            (name: repo: ''
+              if [ ! -d "${repo.path}/.git" ]; then
+                echo "Cloning ${name} into ${repo.path}..."
+                mkdir -p "$(dirname "${repo.path}")"
+                ${lib.getExe pkgs.git} clone "${decodeURI repo.uri}" "${repo.path}"
+              fi
+            '')
             config.services.git-sync.repositories)
-        );
+        ))
+      ];
     };
   };
 }

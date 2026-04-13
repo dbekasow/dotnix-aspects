@@ -1,9 +1,8 @@
 {
-  flake.modules.homeManager.git = { config, lib, ... }: {
+  flake.modules.homeManager.git = { config, ... }: {
     programs.git = {
       enable = true;
       lfs.enable = true;
-      lfs.skipSmudge = lib.mkDefault true;
 
       ignores = [ ".direnv" ".devenv" ];
 
@@ -36,10 +35,7 @@
   };
 
   flake.modules.nixos.git = {
-    programs.git = {
-      enable = true;
-      lfs.enable = true;
-      lfs.enablePureSSHTransfer = true;
-    };
+    programs.git.enable = true;
+    programs.git.lfs.enable = true;
   };
 }
