@@ -8,7 +8,7 @@
       # agents
       claudecode
       forgecode
-      opencode
+      # opencode
 
       # chat
       aichat
