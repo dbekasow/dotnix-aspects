@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.utilities = { pkgs, ... }: {
+  flake.modules.homeManager.ai-utilities = { pkgs, ... }: {
     home.packages = with pkgs.llm-agents; [
       agent-browser
       mcporter

@@ -14,9 +14,9 @@
       aichat
 
       # workflow
-      management
-      review
-      utilities
+      ai-management
+      ai-review
+      ai-utilities
     ];
   };
 }
