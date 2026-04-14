@@ -26,6 +26,7 @@ in
               ${repo.alias} = {
                 uri = encode repo.url;
                 path = "${config.home.homeDirectory}${dir}/${repo.alias}";
+                extraPackages = [ pkgs.git-lfs ];
                 inherit (repo) interval;
               };
             })
