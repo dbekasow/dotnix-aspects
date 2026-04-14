@@ -4,8 +4,17 @@
       package = pkgs.llm-agents.opencode;
       enable = lib.mkDefault true;
       enableMcpIntegration = true;
-      rules = "";
+      agents = { };
+      commands = { };
+      context = "";
       settings = { };
+      skills = { };
+      tools = { };
+      tui = { };
+    };
+
+    programs.opencode.web = {
+      inherit (config.programs.opencode) enable;
     };
 
     home.packages = lib.mkIf config.programs.opencode.enable (
