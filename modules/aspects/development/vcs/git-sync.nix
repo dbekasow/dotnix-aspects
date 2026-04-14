@@ -7,8 +7,8 @@ let
       alias = lib.mkOption { type = nullOr str; default = baseNameOf config.url; };
     };
   });
-  encodeURI = builtins.replaceStrings [ " " ] [ "%%20" ];
-  decodeURI = builtins.replaceStrings [ "%%20" ] [ " " ];
+  encode = builtins.replaceStrings [ " " ] [ "%%20" ];
+  normalize = builtins.replaceStrings [ "%%" ] [ "%" ];
 in
 {
   flake.modules.homeManager.git-sync = { config, lib, pkgs, ... }: {
@@ -24,7 +24,7 @@ in
           lib.mergeAttrsList (map
             (repo: {
               ${repo.alias} = {
-                uri = encodeURI repo.url;
+                uri = encode repo.url;
                 path = "${config.home.homeDirectory}${dir}/${repo.alias}";
                 inherit (repo) interval;
               };
@@ -40,7 +40,7 @@ in
               if [ ! -d "${repo.path}/.git" ]; then
                 echo "Cloning ${name} into ${repo.path}..."
                 mkdir -p "$(dirname "${repo.path}")"
-                ${lib.getExe pkgs.git} clone "${decodeURI repo.uri}" "${repo.path}"
+                ${lib.getExe pkgs.git} clone "${normalize repo.uri}" "${repo.path}"
               fi
             '')
             config.services.git-sync.repositories)
