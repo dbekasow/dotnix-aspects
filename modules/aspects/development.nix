@@ -13,6 +13,7 @@
 
       # VCS
       delta
+      difftastic
       gh
       lazygit
 
