@@ -3,6 +3,9 @@
     nixos.development.imports = with nixos; [
       # Editor (master)
       helix
+
+      # Dynamic binaries
+      nix-ld
     ];
 
     homeManager.development.imports = with homeManager; [
