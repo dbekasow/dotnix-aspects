@@ -2,7 +2,7 @@
 let inherit (config.flake.factory.helix) withTypos prettier; in
 {
   flake.modules.homeManager.helix-lsp = { pkgs, lib, ... }: {
-    programs.helix.extraPackages = with pkgs; [ yaml-language-server nodePackages.prettier ];
+    programs.helix.extraPackages = with pkgs; [ yaml-language-server ];
     programs.helix.languages = {
       language-server.yaml-language-server = {
         command = lib.getExe pkgs.yaml-language-server;
