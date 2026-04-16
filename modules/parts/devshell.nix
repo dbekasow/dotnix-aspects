@@ -5,6 +5,10 @@
     devshells.default = {
       name = "dotnix";
 
+      motd = ''
+        {147}dotnix{reset} - type {italic}just{reset} for commands
+      '';
+
       packages = with pkgs; [
         # Development
         nil
