@@ -19,9 +19,8 @@
 
   flake.modules.homeManager.docker = { pkgs, ... }: {
     programs.lazydocker.enable = true;
+    programs.fish.shellAbbrs.lzd = "lazydocker";
 
-    home.packages = with pkgs; [
-      dive
-    ];
+    home.packages = [ pkgs.dive ];
   };
 }
