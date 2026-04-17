@@ -4,6 +4,9 @@
       # Editor (master)
       helix
 
+      # Devops
+      docker
+
       # Dynamic binaries
       nix-ld
     ];
@@ -25,6 +28,10 @@
       just
       repomix
       watchexec
+
+      # Devops
+      docker
+      kubernetes
     ];
   };
 }

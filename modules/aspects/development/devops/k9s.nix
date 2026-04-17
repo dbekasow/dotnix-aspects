@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.k9s = {
+  flake.modules.homeManager.kubernetes = {
     programs.k9s = {
       enable = true;
 
