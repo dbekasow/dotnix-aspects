@@ -1,9 +1,5 @@
 { self, ... }: {
-  flake.modules = let inherit (self.modules) nixos homeManager; in {
-    nixos.ai.imports = with nixos; [
-      llm-agents
-    ];
-
+  flake.modules = let inherit (self.modules) homeManager; in {
     homeManager.ai.imports = with homeManager; [
       # agents
       claudecode

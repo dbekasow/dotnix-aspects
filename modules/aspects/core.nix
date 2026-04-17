@@ -7,6 +7,7 @@
       certificates
       git
       home-manager
+      llm-agents
       locale
       nh
       nix
