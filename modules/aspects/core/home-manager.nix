@@ -6,7 +6,7 @@ let inherit (config.flake) modules; in {
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
-      sharedModules = [ modules.homeManager.bootstrap ];
+      sharedModules = [ modules.homeManager.core ];
     };
   };
 

@@ -1,6 +1,6 @@
 { self, ... }: {
   flake.modules = let inherit (self.modules) nixos homeManager; in {
-    nixos.bootstrap.imports = with nixos; [
+    nixos.core.imports = with nixos; [
       age
       age-rekey
       age-rekey-generators
@@ -18,7 +18,7 @@
       users-profile
     ];
 
-    homeManager.bootstrap.imports = with homeManager; [
+    homeManager.core.imports = with homeManager; [
       age
       age-rekey
       age-rekey-generators
