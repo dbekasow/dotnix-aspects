@@ -40,6 +40,10 @@ test host:
 build host:
     nh os build -H {{ host }}
 
+[group('deploy')]
+iso host:
+    nix build .#{{ host }}-iso
+
 # ── Secrets ───────────────────────────────────────────────────────────────────
 
 # Rekey all secrets
