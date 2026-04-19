@@ -4,7 +4,7 @@
       enable = lib.mkDefault true;
 
       settings = {
-        PermitRootLogin = lib.mkDefault "prohibit-password";
+        PermitRootLogin = lib.mkForce "prohibit-password";
         PasswordAuthentication = lib.mkDefault false;
       };
     };
