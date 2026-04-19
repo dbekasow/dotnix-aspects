@@ -3,7 +3,7 @@
     imports = [ inputs.agenix-rekey.nixosModules.default ];
 
     age.rekey = rec {
-      secretsDir = "${inputs.self}/modules/hosts//${config.dotnix.hostname}/secrets";
+      secretsDir = "${inputs.self}/modules/hosts/${config.dotnix.hostname}/secrets";
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
       hostPubkey = lib.readFile (secretsDir + "/host-key.pub");
