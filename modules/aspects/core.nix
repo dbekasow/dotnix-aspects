@@ -3,7 +3,6 @@
     nixos.core.imports = with nixos; [
       age
       age-rekey
-      age-rekey-generators
       certificates
       git
       home-manager
@@ -22,7 +21,6 @@
     homeManager.core.imports = with homeManager; [
       age
       age-rekey
-      age-rekey-generators
       git
       git-alias
       git-credentials
