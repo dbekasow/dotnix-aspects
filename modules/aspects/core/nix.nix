@@ -13,6 +13,7 @@
         keep-outputs = lib.mkDefault false;
         keep-derivations = lib.mkDefault false;
 
+        allowed-users = [ "@wheel" ];
         trusted-users = [ "root" "@wheel" ];
       };
 
