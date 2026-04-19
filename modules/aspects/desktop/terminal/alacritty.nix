@@ -7,7 +7,6 @@
         window = {
           decorations = "none";
           title = "Terminal";
-          opacity = 0.95;
         };
       };
     };

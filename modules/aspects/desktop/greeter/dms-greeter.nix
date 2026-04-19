@@ -6,7 +6,12 @@
       enable = true;
       compositor.name = "niri";
 
-      configHome = lib.mkDefault config.users.users.dns.home;
+      configHome =
+        let
+          primaryUser = lib.head config.dotnix.host.members;
+          primaryHome = config.users.users."${primaryUser}".home;
+        in
+        lib.mkDefault primaryHome;
 
       logs = {
         save = true;
