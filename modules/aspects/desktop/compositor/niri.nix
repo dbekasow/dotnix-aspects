@@ -18,6 +18,10 @@
         keyboard.xkb.layout = "de";
         touchpad = {
           accel-profile = "adaptive";
+          tap = true;
+          natural-scroll = true;
+          dwt = true;
+          middle-emulation = true;
         };
       };
 

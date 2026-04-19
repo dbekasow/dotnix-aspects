@@ -18,7 +18,7 @@
         efi.canTouchEfiVariables = true;
       };
 
-      supportedFilesystems.zfs = lib.mkForce false;
+      supportedFilesystems.zfs = false;
     };
 
     environment.systemPackages = [ config.boot.kernelPackages.cpupower ];

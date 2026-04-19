@@ -11,22 +11,18 @@
 
       wireplumber = {
         enable = true;
-        configPackages = [
-          (pkgs.writeTextDir "share/wireplumber/bluetooth.lua.d/51-bluez-config.lua" ''
-            bluez_monitor.properties = {
-                ["bluez5.enable-sbc-xq"] = true,
-                ["bluez5.enable-msbc"] = true,
-                ["bluez5.enable-hw-volume"] = true,
-                ["bluez5.headset-roles"] = "[ hsp_hs hsp_ag hfp_hf hfp_ag ]",
-                ["bluez5.a2dp.ldac.quality"] = "auto",
-                ["bluez5.a2dp.aac.bitratemode"] = 0,
-                ["bluez5.default.rate"] = 48000,
-                ["bluez5.default.channels"] = 2,
-                ["bluez5.headset-profile"] = "a2dp-only"
-              }
-          '')
-        ];
+        extraConfig = {
+          "10-bluez"."monitor.bluez.properties" = {
+            "bluez5.enable-sbc-xq" = true;
+            "bluez5.enable-msbc" = true;
+            "bluez5.enable-hw-volume" = true;
+            "bluez5.codecs" = [ "sbc" "sbc_xq" "aac" "ldac" "aptx" "aptx_hd" ];
+          };
+        };
       };
     };
+
+    services.pulseaudio.support32Bit = true;
+    hardware.bluetooth.package = pkgs.bluez5-experimental;
   };
 }

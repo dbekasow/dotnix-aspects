@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.dms-greeter = { lib, config, ... }: {
+  flake.modules.nixos.dms-greeter = { lib, config, pkgs, ... }: {
     imports = [ inputs.dms.nixosModules.greeter ];
 
     programs.dank-material-shell.greeter = {
@@ -17,6 +17,8 @@
         save = true;
         path = "/tmp/dms-greeter.log";
       };
+
+      quickshell.package = pkgs.quickshell;
     };
   };
 }

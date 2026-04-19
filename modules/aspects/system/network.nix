@@ -1,20 +1,21 @@
 {
-  flake.modules.nixos.network = { pkgs, lib, ... }: {
+  flake.modules.nixos.network = { pkgs, ... }: {
     networking = {
       networkmanager = {
         enable = true;
-        dns = "none";
+        dhcp = "internal";
+        dns = "default";
         wifi.powersave = true;
-        plugins = with pkgs; [
-          networkmanager-openvpn
-        ];
+        plugins = [ pkgs.networkmanager-openvpn ];
       };
 
+      # Global fallback DNS
       nameservers = [ "1.1.1.1" "1.0.0.1" ];
       nftables.enable = true;
 
-      useDHCP = lib.mkDefault true;
-      dhcpcd.enable = true;
+      useDHCP = false;
+      dhcpcd.enable = false;
+
       firewall.enable = true;
     };
 

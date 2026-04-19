@@ -26,7 +26,7 @@
             size = lib.mkDefault "8G"; # adjust based on ram
             content = {
               type = "swap";
-              resumeDevice = true; # enable hibernation
+              resumeDevice = false;
             };
           };
           # Root filesystem
