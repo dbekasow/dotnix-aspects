@@ -17,6 +17,8 @@
         systemd-boot.enable = lib.mkDefault true;
         efi.canTouchEfiVariables = true;
       };
+
+      supportedFilesystems.zfs = lib.mkForce false;
     };
 
     environment.systemPackages = [ config.boot.kernelPackages.cpupower ];
