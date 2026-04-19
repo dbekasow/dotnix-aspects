@@ -20,11 +20,11 @@
 
     boot.kernelParams = lib.mkDefault [ "mem_sleep_default=deep" ];
 
-    systemd.sleep.extraConfig = ''
-      AllowSuspend=yes
-      AllowHibernation=no
-      AllowSuspendThenHibernate=no
-      AllowHybridSleep=no
-    '';
+    systemd.sleep.settings.Sleep = {
+      AllowSuspend = "yes";
+      AllowHibernation = "no";
+      AllowSuspendThenHibernate = "no";
+      AllowHybridSleep = "no";
+    };
   };
 }

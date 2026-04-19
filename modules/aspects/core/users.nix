@@ -3,11 +3,13 @@
     users.defaultUserShell = pkgs.fish;
     users.mutableUsers = false;
 
-    users.users = lib.genAttrs config.dotnix.host.members (name:
+    users.users = lib.genAttrs config.dotnix.host.members (name: {
+      isNormalUser = lib.mkDefault true;
+    } // (
       if config.dotnix.age
       then { hashedPasswordFile = config.age.secrets."hashed-password-${name}".path; }
       else { initialPassword = "changeme"; }
-    );
+    ));
 
     age.secrets = lib.mkIf config.dotnix.age (lib.mergeAttrsList (map
       (name: {
