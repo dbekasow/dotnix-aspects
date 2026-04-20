@@ -9,6 +9,7 @@ let
         system = lib.mkOption { type = str; default = "x86_64-linux"; };
         modules = lib.mkOption { type = listOf deferredModule; default = [ ]; };
         members = lib.mkOption { type = listOf str; default = [ ]; };
+        iso = lib.mkOption { type = bool; default = true; };
       };
     }];
   };
@@ -44,7 +45,7 @@ in
 
     perSystem = { system, ... }: {
       packages = lib.pipe config.dotnix [
-        (lib.filterAttrs (lib.const (host: host.system == system)))
+        (lib.filterAttrs (lib.const (host: host.iso && host.system == system)))
         (lib.concatMapAttrs (hostname: lib.const {
           "${hostname}-iso" = config.flake.nixosConfigurations.${hostname}.config.system.build.images.iso-installer;
         }))
