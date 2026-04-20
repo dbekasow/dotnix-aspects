@@ -8,7 +8,7 @@ let
       options = {
         system = lib.mkOption { type = str; default = "x86_64-linux"; };
         modules = lib.mkOption { type = listOf deferredModule; default = [ ]; };
-        members = lib.mkOption { type = listOf str; default = { }; };
+        members = lib.mkOption { type = listOf str; default = [ ]; };
       };
     }];
   };

@@ -4,6 +4,7 @@
       age
       age-rekey
       certificates
+      fish
       git
       home-manager
       llm-agents
