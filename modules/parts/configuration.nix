@@ -36,7 +36,6 @@ in
               { system.stateVersion = lib.mkDefault "26.05"; }
               { dotnix = { inherit hostname host; }; }
               { networking.hostName = hostname; }
-              modules.nixos.core
             ];
           }
         )
