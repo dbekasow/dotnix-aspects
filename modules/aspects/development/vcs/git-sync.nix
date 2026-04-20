@@ -5,6 +5,7 @@ let
       url = lib.mkOption { type = str; };
       interval = lib.mkOption { type = int; default = 3600; };
       alias = lib.mkOption { type = nullOr str; default = baseNameOf config.url; };
+      sync = lib.mkOption { type = bool; default = false; };
     };
   });
   encode = builtins.replaceStrings [ " " ] [ "%%20" ];
@@ -22,7 +23,7 @@ in
       services.git-sync.repositories = lib.concatMapAttrs
         (dir: repos:
           lib.mergeAttrsList (map
-            (repo: {
+            (repo: lib.optionalAttrs repo.sync {
               ${repo.alias} = {
                 uri = encode repo.url;
                 path = "${config.home.homeDirectory}${dir}/${repo.alias}";
@@ -34,19 +35,28 @@ in
         )
         config.dotnix.git.repositories;
 
-      home.packages = [
-        (pkgs.writeShellScriptBin "git-sync-bootstrap" (
-          lib.concatStrings (lib.mapAttrsToList
-            (name: repo: ''
-              if [ ! -d "${repo.path}/.git" ]; then
-                echo "Cloning ${name} into ${repo.path}..."
-                mkdir -p "$(dirname "${repo.path}")"
-                ${lib.getExe pkgs.git} clone "${normalize repo.uri}" "${repo.path}"
+      home.packages =
+
+        let
+          mkCloneSnippet = dir: repo:
+            let
+              repoPath = "${config.home.homeDirectory}${dir}/${repo.alias}";
+              repoUrl = normalize (encode repo.url);
+            in
+            ''
+              if [ ! -d "${repoPath}/.git" ]; then
+                echo "Cloning ${repo.alias} into ${repoPath}..."
+                mkdir -p "$(dirname "${repoPath}")"
+                ${lib.getExe pkgs.git} clone "${repoUrl}" "${repoPath}"
               fi
-            '')
-            config.services.git-sync.repositories)
-        ))
-      ];
+            '';
+
+          allSnippets = lib.concatStrings (lib.concatLists
+            (lib.mapAttrsToList
+              (dir: repos: map (mkCloneSnippet dir) repos)
+              config.dotnix.git.repositories));
+        in
+        [ (pkgs.writeShellScriptBin "git-sync-bootstrap" allSnippets) ];
     };
   };
 }
