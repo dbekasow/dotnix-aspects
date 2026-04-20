@@ -8,14 +8,12 @@
         dates = "weekly";
       };
     };
-
-    environment.variables = {
-      NH_FLAKE =
-        let
-          primaryUser = lib.head config.dotnix.host.members;
-          inherit (config.users.users.${primaryUser}) home;
-        in
-        lib.mkDefault "${home}/.dotnix";
-    };
+    environment.variables = lib.optionalAttrs (config.dotnix.host.members != [ ]) (
+      let
+        primary = lib.head config.dotnix.host.members;
+        inherit (config.users.users."${primary}") home;
+      in
+      { NH_FLAKE = lib.mkDefault "${home}/.dotnix"; }
+    );
   };
 }
