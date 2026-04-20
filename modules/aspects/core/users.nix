@@ -29,8 +29,5 @@
 
       })
       config.dotnix.host.members));
-
-    programs.fish.enable = true;
-    programs.fish.useBabelfish = true;
   };
 }
