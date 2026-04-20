@@ -22,7 +22,7 @@ in
   };
   config = {
     flake = {
-      modules.nixos.core.options.dotnix = {
+      modules.nixos.dotnix.options.dotnix = {
         hostname = lib.mkOption { type = str; default = null; };
         host = lib.mkOption { type = hostSubModule; default = { }; };
         age = lib.mkOption { type = bool; default = true; };
@@ -37,6 +37,7 @@ in
               { system.stateVersion = lib.mkDefault "26.05"; }
               { dotnix = { inherit hostname host; }; }
               { networking.hostName = hostname; }
+              modules.nixos.dotnix
             ];
           }
         )
