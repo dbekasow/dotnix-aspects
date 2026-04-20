@@ -8,10 +8,10 @@
 
       configHome =
         let
-          primaryUser = lib.head config.dotnix.host.members;
-          primaryHome = config.users.users."${primaryUser}".home;
+          primary = lib.head config.dotnix.host.members;
+          inherit (config.users.users."${primary}") home;
         in
-        lib.mkDefault primaryHome;
+        lib.mkDefault home;
 
       logs = {
         save = true;

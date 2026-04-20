@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.network-wifi = {
+  flake.modules.nixos.network-wifi = { pkgs, ... }: {
     networking = {
       networkmanager.wifi.backend = "iwd";
       wireless.iwd = {
@@ -10,5 +10,7 @@
         };
       };
     };
+
+    environment.systemPackages = [ pkgs.wifitui ];
   };
 }
