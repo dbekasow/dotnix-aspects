@@ -1,14 +1,13 @@
 {
-  flake.modules.nixos.boot-limine = { pkgs, lib, ... }: {
-    boot.loader = {
-      limine = {
-        efiSupport = true;
-        enable = true;
-        maxGenerations = 10;
-        secureBoot.enable = true;
-        style.wallpapers = [ pkgs.nixos-artwork.wallpapers.simple-dark-gray-bootloader.gnomeFilePath ];
-      };
-      systemd-boot.enable = lib.mkForce false;
+  flake.modules.nixos.boot-limine = { lib, pkgs, ... }: {
+    boot.loader.limine = {
+      enable = lib.mkDefault false;
+      enableEditor = false;
+      efiSupport = true;
+      maxGenerations = 10;
+      secureBoot.enable = false;
+      style.wallpapers = [ pkgs.nixos-artwork.wallpapers.binary-black.gnomeFilePath ];
+      style.wallpaperStyle = lib.mkForce "centered";
     };
   };
 }

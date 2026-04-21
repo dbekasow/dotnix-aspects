@@ -3,13 +3,14 @@
     nixos.system.imports = with nixos; [
       bluetooth
       boot
-      boot-limine
+      boot-systemd
       disko
       geolocation
       network
       network-wifi
       pipewire
       power
+      tui-greeter
     ];
   };
 }

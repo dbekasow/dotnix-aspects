@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.power = {
+  flake.modules.nixos.power = { config, ... }: {
     services = {
       logind.settings.Login = {
         HandlePowerKey = "suspend";
@@ -18,13 +18,14 @@
       };
     };
 
-    boot.kernelParams = [ "mem_sleep_default=deep" ];
-
     systemd.sleep.settings.Sleep = {
       AllowSuspend = "yes";
       AllowHibernation = "no";
       AllowSuspendThenHibernate = "no";
       AllowHybridSleep = "no";
     };
+
+    boot.kernelParams = [ "mem_sleep_default=deep" ];
+    environment.systemPackages = [ config.boot.kernelPackages.cpupower ];
   };
 }
