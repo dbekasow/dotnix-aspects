@@ -4,17 +4,11 @@
       enableDefaultPackages = false;
 
       packages = with pkgs; [
-        # icon fonts
         material-symbols
-
-        # normal fonts
         noto-fonts
         noto-fonts-cjk-sans
         noto-fonts-color-emoji
-
-        # nerdfonts
-        nerd-fonts.symbols-only
-        cozette
+        nerd-fonts.jetbrains-mono
       ];
 
       fontconfig = {
@@ -25,16 +19,12 @@
           autohint = false;
           style = "full";
         };
-        subpixel = {
-          lcdfilter = "default";
-          rgba = "rgb";
-        };
+        subpixel.lcdfilter = "default";
+        subpixel.rgba = "rgb";
       };
 
-      fontDir = {
-        enable = true;
-        decompressFonts = true;
-      };
+      fontDir.enable = true;
+      fontDir.decompressFonts = true;
     };
   };
 }
