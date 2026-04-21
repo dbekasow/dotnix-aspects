@@ -17,6 +17,7 @@
       system-packages
       users
       users-profile
+      yubikey
     ];
 
     homeManager.core.imports = with homeManager; [
@@ -30,6 +31,7 @@
       ssh
       stylix
       users-profile
+      yubikey
     ];
   };
 }

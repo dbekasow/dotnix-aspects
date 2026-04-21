@@ -31,6 +31,7 @@
 
         # Agenix
         rage
+        age-plugin-yubikey
         config.agenix-rekey.package
       ];
     };
