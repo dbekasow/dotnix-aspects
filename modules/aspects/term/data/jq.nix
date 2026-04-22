@@ -3,7 +3,8 @@
     programs.jq.enable = true;
     programs.jq.package = pkgs.gojq;
 
-    programs.jqp.enable = true;
+    home.packages = [ pkgs.yq-go ];
+    home.shellAliases.jq = "gojq";
   };
 }
 
