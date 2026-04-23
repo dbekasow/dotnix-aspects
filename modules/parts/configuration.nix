@@ -32,7 +32,6 @@ in
       modules.nixos.dotnix.options.dotnix = {
         hostname = lib.mkOption { type = str; default = null; };
         host = lib.mkOption { type = hostSubModule; default = { }; };
-        age = lib.mkOption { type = bool; default = true; };
       };
 
       nixosConfigurations = lib.mapAttrs

@@ -4,30 +4,27 @@
     users.mutableUsers = false;
 
     users.users = lib.genAttrs config.dotnix.host.members (name: {
+      hashedPasswordFile = config.age.secrets."password-${name}-hashed".path;
       isNormalUser = lib.mkDefault true;
-    } // (
-      if config.dotnix.age
-      then { hashedPasswordFile = config.age.secrets."hashed-password-${name}".path; }
-      else { initialPassword = "changeme"; }
-    ));
+    });
 
-    age.secrets = lib.mkIf config.dotnix.age (lib.mergeAttrsList (map
+    age.secrets = lib.mergeAttrsList (map
       (name: {
         "password-${name}" = {
           generator.script = "alnum";
           intermediary = true;
         };
-        "hashed-password-${name}" = {
+        "password-${name}-hashed" = {
           generator = {
             dependencies = [ config.age.secrets."password-${name}" ];
             script = { pkgs, decrypt, deps, ... }: ''
               ${decrypt} ${lib.escapeShellArg (lib.head deps).file} | \
-              ${pkgs.openssl}/bin/openssl passwd -6 stdin
+              ${pkgs.openssl}/bin/openssl passwd -6 -stdin
             '';
           };
         };
 
       })
-      config.dotnix.host.members));
+      config.dotnix.host.members);
   };
 }
