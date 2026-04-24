@@ -11,9 +11,9 @@
     ];
 
     homeManager.desktop.imports = with homeManager; [
-      alacritty
       dms
       dms-plugins
+      alacritty
       firefox
       ghostty
       niri

@@ -3,7 +3,7 @@
     boot.loader.systemd-boot = {
       enable = lib.mkDefault true;
       editor = false;
-      configurationLimit = 10;
+      configurationLimit = lib.mkDefault 3;
       consoleMode = "auto";
     };
   };
