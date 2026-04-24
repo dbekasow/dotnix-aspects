@@ -5,43 +5,31 @@
     programs.dank-material-shell = {
       enable = true;
 
-      enableAudioWavelength = true;
-      enableCalendarEvents = true;
-      enableClipboardPaste = true;
-      enableDynamicTheming = true;
-      enableSystemMonitoring = true;
-      enableVPN = true;
+      systemd.enable = true;
+      systemd.restartIfChanged = true;
     };
-
-    systemd.user.services.niri-flake-polkit.enable = false;
   };
 
   flake.modules.homeManager.dms = {
-    imports = [
-      inputs.dms.homeModules.dank-material-shell
-      inputs.dms.homeModules.niri
+    imports = with inputs; [
+      dms.homeModules.dank-material-shell
+      dms.homeModules.niri
     ];
 
     programs.dank-material-shell = {
       enable = true;
 
-      niri = {
-        enableSpawn = true;
-      };
+      enableCalendarEvents = true;
+      enableClipboardPaste = true;
+      enableSystemMonitoring = true;
 
-      settings = {
-        theme = "dark";
-        dynamicTheming = true;
-      };
+      clipboardSettings.clearAtStartup = true;
+      clipboardSettings.maxHistory = 25;
 
-      session = {
-        isLightMode = false;
-      };
+      settings.theme = "dark";
+      settings.dynamicTheming = true;
 
-      clipboardSettings = {
-        clearAtStartup = true;
-        maxHistory = 25;
-      };
+      session.isLightMode = false;
     };
   };
 }
