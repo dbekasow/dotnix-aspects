@@ -11,6 +11,7 @@
       locale
       nh
       nix
+      nur
       security
       ssh
       stylix

@@ -16,11 +16,20 @@
     systemd.user.services.niri-flake-polkit.enable = false;
   };
 
-  flake.modules.homeManager.niri = {
+  flake.modules.homeManager.niri = { lib, ... }: {
     programs.niri.settings = {
+      hotkey-overlay.skip-at-startup = true;
+
       input = {
         keyboard.xkb.options = "caps:escape";
         keyboard.xkb.layout = "de";
+
+        mouse = {
+          accel-profile = "adaptive";
+          accel-speed = 0.1;
+          scroll-factor = 2;
+        };
+
         touchpad = {
           accel-profile = "adaptive";
           dwt = true;
@@ -32,6 +41,29 @@
         focus-follows-mouse.enable = true;
         focus-follows-mouse.max-scroll-amount = "0%";
       };
+
+      window-rules = [
+        {
+          geometry-corner-radius = lib.genAttrs
+            [ "top-left" "top-right" "bottom-left" "bottom-right" ]
+            (lib.const 10.0);
+          clip-to-geometry = true;
+          draw-border-with-background = false;
+        }
+        {
+          matches = [{ app-id = "firefox$"; }];
+          clip-to-geometry = false;
+        }
+        {
+          matches = [{ app-id = "firefox$"; title = "^Picture-in-Picture$"; }];
+          open-floating = true;
+          default-floating-position = {
+            x = 32;
+            y = 32;
+            relative-to = "top-right";
+          };
+        }
+      ];
     };
   };
 }

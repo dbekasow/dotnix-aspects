@@ -22,7 +22,7 @@ let
 
         sizes = {
           terminal = 11;
-          applications = 12;
+          applications = 11;
           desktop = 10;
         };
       };
