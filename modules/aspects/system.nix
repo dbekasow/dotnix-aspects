@@ -10,7 +10,6 @@
       network-wifi
       pipewire
       power
-      tui-greeter
     ];
   };
 }
