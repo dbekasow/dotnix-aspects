@@ -7,13 +7,18 @@
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
       hostPubkey = lib.readFile (secretsDir + "/host-key.pub");
-      masterIdentities = [{
-        identity = inputs.self + "/master-key.age";
-        pubkey = "age1kalxvlmjjydtdps5n27qyf5cf6eqwzuaesemj4enp8ulyw3mcsls3rkpd6";
-      }];
+      masterIdentities = [
+        {
+          identity = inputs.self + "/yubikey.pub";
+          pubkey = "age1yubikey1qwj6qjwhqe8zpnnh7799ntnuah7npttr55gzqer3r3ex5hjq4gnmyh2k6tk";
+        }
+        {
+          identity = inputs.self + "/masterkey.age";
+          pubkey = "age1kalxvlmjjydtdps5n27qyf5cf6eqwzuaesemj4enp8ulyw3mcsls3rkpd6";
+        }
+      ];
       storageMode = "local";
     };
-
   };
 
   flake.modules.homeManager.age-rekey = { config, lib, osConfig, ... }: {
