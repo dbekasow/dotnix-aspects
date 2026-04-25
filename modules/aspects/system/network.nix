@@ -5,7 +5,6 @@
         enable = true;
         dhcp = "internal";
         dns = "default";
-        wifi.powersave = true;
         plugins = [ pkgs.networkmanager-openvpn ];
       };
 

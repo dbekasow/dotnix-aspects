@@ -5,6 +5,8 @@
       wireless.iwd = {
         enable = true;
         settings = {
+          General.AddressRandomization = "network";
+          General.AddressRandomizationRange = "full";
           IPv6.Enabled = true;
           Settings.AutoConnect = true;
         };
