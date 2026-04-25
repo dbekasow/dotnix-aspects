@@ -13,5 +13,7 @@
       gnome.gnome-keyring.enable = true;
       gvfs.enable = true;
     };
+
+    security.pam.services.greetd.enableGnomeKeyring = true;
   };
 }
