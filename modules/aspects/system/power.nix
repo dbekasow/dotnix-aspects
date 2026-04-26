@@ -7,8 +7,6 @@
         HandleLidSwitchExternalPower = "lock";
       };
 
-      power-profiles-daemon.enable = true;
-
       upower = {
         enable = true;
         percentageLow = 30;
