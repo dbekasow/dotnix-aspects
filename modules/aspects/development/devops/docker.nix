@@ -7,8 +7,6 @@
       rootless.enable = true;
       rootless.setSocketVariable = true;
 
-      storageDriver = "overlay2";
-
       autoPrune = {
         enable = true;
         dates = "weekly";
