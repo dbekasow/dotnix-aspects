@@ -1,17 +1,11 @@
 {
-  flake.modules.homeManager.kubernetes = { pkgs, lib, ... }: {
-    programs.kubeswitch.enable = true;
-    programs.kubeswitch.settings = {
-      kind = "SwitchConfig";
-      showPrefix = lib.mkDefault false;
-      kubeconfigStores = lib.mkDefault [ ];
-    };
-
+  flake.modules.homeManager.kubernetes = { pkgs, ... }: {
     programs.kubecolor.enable = true;
     programs.kubecolor.enableAlias = true;
 
     home.packages = with pkgs; [
       kubectl
+      kubectx
       kubectl-tree
       kubectl-oidc-login
       kubectl-view-allocations
@@ -19,11 +13,12 @@
       kubernetes-helm
     ];
 
-    programs.fish.shellAbbrs = {
-      k = "kubectl";
-      kx = "kswitch";
-      kn = "kswitch namespace";
-    };
+    programs.fish.functions =
+      let wrap = cmd: { body = "${cmd} $argv"; wraps = cmd; }; in {
+        k = wrap "kubecolor";
+        kx = wrap "kubectx";
+        kns = wrap "kubens";
+      };
   };
 }
 
