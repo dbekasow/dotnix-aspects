@@ -51,6 +51,7 @@
         # Cursor Shapes
         cursor-shape = {
           insert = "bar";
+          normal = "underline";
           select = "underline";
         };
 
