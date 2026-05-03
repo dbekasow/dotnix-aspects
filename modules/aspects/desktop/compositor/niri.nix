@@ -16,9 +16,12 @@
     systemd.user.services.niri-flake-polkit.enable = false;
   };
 
-  flake.modules.homeManager.niri = { lib, ... }: {
+  flake.modules.homeManager.niri = { lib, pkgs, ... }: {
     programs.niri.settings = {
       hotkey-overlay.skip-at-startup = true;
+
+      xwayland-satellite.enable = true;
+      xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite-unstable;
 
       input = {
         keyboard.xkb.options = "caps:escape";
