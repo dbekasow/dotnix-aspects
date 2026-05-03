@@ -8,7 +8,9 @@
         # ── Spawn ──────────────────────────────────────────────────
         "Mod+T".action = spawn "ghostty";
         "Mod+B".action = spawn "firefox";
-        "Mod+E".action = spawn "thunderbird";
+        "Mod+E".action = spawn "thunar";
+        "Mod+O".action = spawn "thunderbird";
+
         "Mod+Space".action = dms-ipc "call" "spotlight" "toggle";
         "Super+Alt+L".action = dms-ipc "call" "lock" "lock";
 
