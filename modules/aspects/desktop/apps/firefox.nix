@@ -132,14 +132,10 @@
       languagePacks = [ "en-US" "de" ];
     };
 
-    home =
-      let
-        dicts = with pkgs.hunspellDicts; [ de_DE en_US ru_RU ];
-      in
-      {
-        packages = [ pkgs.hunspell ] ++ dicts;
-        sessionVariables.DICPATH = lib.concatMapStringsSep ":" (d: "${d}/share/hunspell") dicts;
-      };
+    home = let dicts = with pkgs.hunspellDicts; [ de_DE en_US ru_RU ]; in {
+      packages = [ pkgs.hunspell ] ++ dicts;
+      sessionVariables.DICPATH = lib.concatMapStringsSep ":" (d: "${d}/share/hunspell") dicts;
+    };
 
     stylix.targets.firefox.profileNames = [ "default" ];
     stylix.targets.firefox.colorTheme.enable = true;
