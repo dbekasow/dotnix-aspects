@@ -4,13 +4,13 @@
     programs.kubecolor.enableAlias = true;
 
     home.packages = with pkgs; [
-      kubectl
+      kubernetes-helm
       kubectx
+      kubectl
       kubectl-tree
-      kubectl-oidc-login
       kubectl-view-allocations
       kubectl-view-secret
-      kubernetes-helm
+      kubelogin-oidc
     ];
 
     programs.fish.functions =
