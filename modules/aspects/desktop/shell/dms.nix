@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.dms = {
+  flake.modules.nixos.dms = { pkgs, ... }: {
     imports = [ inputs.dms.nixosModules.dank-material-shell ];
 
     programs.dank-material-shell = {
@@ -8,6 +8,13 @@
       systemd.enable = true;
       systemd.restartIfChanged = true;
     };
+
+    programs.dsearch.enable = true;
+
+    environment.systemPackages = with pkgs; [
+      cups-pk-helper # printer management
+      fprintd # fingerprint authentication
+    ];
   };
 
   flake.modules.homeManager.dms = {
@@ -19,8 +26,10 @@
     programs.dank-material-shell = {
       enable = true;
 
+      enableAudioWavelength = true;
       enableCalendarEvents = true;
       enableClipboardPaste = true;
+      enableDynamicTheming = true;
       enableSystemMonitoring = true;
 
       clipboardSettings.clearAtStartup = true;
