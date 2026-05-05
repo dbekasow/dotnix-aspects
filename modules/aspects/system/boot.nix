@@ -18,7 +18,9 @@
       ];
 
       consoleLogLevel = 3;
+
       supportedFilesystems.zfs = false;
+      zfs.forceImportRoot = false;
     };
   };
 }
