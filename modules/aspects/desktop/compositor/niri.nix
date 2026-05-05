@@ -16,8 +16,9 @@
     systemd.user.services.niri-flake-polkit.enable = false;
   };
 
-  flake.modules.homeManager.niri = { lib, ... }: {
+  flake.modules.homeManager.niri = { lib, pkgs, ... }: {
     programs.niri.settings = {
+      xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite-unstable;
       hotkey-overlay.skip-at-startup = true;
 
       input = {
