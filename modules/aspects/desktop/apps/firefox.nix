@@ -140,5 +140,19 @@
     stylix.targets.firefox.profileNames = [ "default" ];
     stylix.targets.firefox.colorTheme.enable = true;
   };
+
+  flake.modules.homeManager.niri.programs.niri.settings.window-rules = [
+    {
+      # Firefox uses CSDs that break clip-to-geometry — disable the global rule
+      matches = [{ app-id = "firefox$"; }];
+      clip-to-geometry = false;
+    }
+    {
+      # PiP window: floating, pinned to top-right corner
+      matches = [{ app-id = "firefox$"; title = "^Picture-in-Picture$"; }];
+      open-floating = true;
+      default-floating-position = { x = 32; y = 32; relative-to = "top-right"; };
+    }
+  ];
 }
 

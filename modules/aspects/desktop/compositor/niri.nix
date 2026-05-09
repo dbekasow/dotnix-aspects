@@ -43,28 +43,13 @@
         focus-follows-mouse.max-scroll-amount = "0%";
       };
 
-      window-rules = [
-        {
-          geometry-corner-radius = lib.genAttrs
-            [ "top-left" "top-right" "bottom-left" "bottom-right" ]
-            (lib.const 10.0);
-          clip-to-geometry = true;
-          draw-border-with-background = false;
-        }
-        {
-          matches = [{ app-id = "firefox$"; }];
-          clip-to-geometry = false;
-        }
-        {
-          matches = [{ app-id = "firefox$"; title = "^Picture-in-Picture$"; }];
-          open-floating = true;
-          default-floating-position = {
-            x = 32;
-            y = 32;
-            relative-to = "top-right";
-          };
-        }
-      ];
+      window-rules = [{
+        geometry-corner-radius = lib.genAttrs
+          [ "top-left" "top-right" "bottom-left" "bottom-right" ]
+          (lib.const 10.0);
+        clip-to-geometry = true;
+        draw-border-with-background = false;
+      }];
     };
   };
 }

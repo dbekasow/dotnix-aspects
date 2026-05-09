@@ -12,7 +12,7 @@ in
       enable = true;
 
       settings = {
-        background-opacity = 0.9;
+        background-opacity = 0.95;
         background-opacity-cells = true;
         background-blur = 20;
         custom-shader = "${cursorShaders pkgs}/cursor_warp.glsl";
