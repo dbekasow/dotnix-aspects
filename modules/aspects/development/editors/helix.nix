@@ -37,7 +37,7 @@
         trim-trailing-whitespace = true;
 
         # Visual Elements
-        popup-border = "all";
+        popup-border = "popup";
         true-color = true;
 
         # Gutters - Git first
@@ -61,7 +61,7 @@
         # Diagnostics - new feature
         inline-diagnostics = {
           cursor-line = "warning";
-          other-lines = "error";
+          other-lines = "disable";
         };
         end-of-line-diagnostics = "hint";
 
@@ -87,9 +87,10 @@
 
         # Indent Guides
         indent-guides.render = true;
+        indent-guides.character = "⸽";
 
         # Soft Wrap
-        soft-wrap.enable = true;
+        soft-wrap.enable = false;
 
         # Auto-Save
         auto-save = {
