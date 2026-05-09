@@ -42,7 +42,12 @@ in
     stylix.homeManagerIntegration.autoImport = false;
   };
 
-  flake.modules.homeManager.stylix = {
+  flake.modules.homeManager.stylix = { config, lib, ... }: {
     imports = [ inputs.stylix.homeModules.stylix sharedConfig ];
+    stylix.image =
+      let
+        path = "${inputs.self}/modules/users/${config.home.username}/assets/wallpaper.png";
+      in
+      lib.mkIf (lib.pathExists path) path;
   };
 }
