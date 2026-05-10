@@ -21,6 +21,7 @@
       niri
       onlyoffice
       thunderbird
+      xdg
     ];
   };
 }
