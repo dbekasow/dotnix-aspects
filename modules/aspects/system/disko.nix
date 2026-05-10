@@ -39,11 +39,19 @@ in
               type = "btrfs";
               extraArgs = [ "-L" "nixos" "-f" ];
               subvolumes = {
+                "@root-blank" = { };
                 "@root" = mkSubvol "/";
                 "@persist" = mkSubvol "/persist";
                 "@nix" = mkSubvol "/nix";
-                "@log" = mkSubvol "/log";
+                "@log" = mkSubvol "/var/log";
               };
+              postCreateHook = ''
+                MNTPOINT=$(mktemp -d)
+                mount -t btrfs -o subvol=/ /dev/disk/by-label/nixos "$MNTPOINT"
+                trap 'umount "$MNTPOINT"; rm -rf "$MNTPOINT"' EXIT
+                btrfs subvolume delete "$MNTPOINT/@root-blank" 2>/dev/null || true
+                btrfs subvolume snapshot -r "$MNTPOINT/@root" "$MNTPOINT/@root-blank"
+              '';
             };
           };
         };
