@@ -1,4 +1,9 @@
-{ inputs, ... }: {
+{ inputs, ... }:
+let
+  btrfsOpts = [ "compress=zstd" "noatime" ];
+  mkSubvol = mountpoint: { inherit mountpoint; mountOptions = btrfsOpts; };
+in
+{
   flake.modules.nixos.disko = { lib, ... }: {
     imports = [ inputs.disko.nixosModules.disko ];
 
@@ -8,7 +13,6 @@
       content = {
         type = "gpt";
         partitions = {
-          # EFI boot partition
           ESP = {
             priority = 1;
             size = "512M";
@@ -20,23 +24,26 @@
               mountOptions = [ "umask=0077" ];
             };
           };
-          # Swap for hibernation support
           swap = {
             priority = 2;
-            size = lib.mkDefault "8G"; # adjust based on ram
+            size = lib.mkDefault "8G";
             content = {
               type = "swap";
               resumeDevice = false;
             };
           };
-          # Root filesystem
           root = {
             priority = 3;
-            size = "100%"; # use remaining space
+            size = "100%";
             content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/";
+              type = "btrfs";
+              extraArgs = [ "-L" "nixos" "-f" ];
+              subvolumes = {
+                "@root" = mkSubvol "/";
+                "@persist" = mkSubvol "/persist";
+                "@nix" = mkSubvol "/nix";
+                "@log" = mkSubvol "/log";
+              };
             };
           };
         };
