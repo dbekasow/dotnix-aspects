@@ -1,4 +1,3 @@
-{ lib, ... }:
 let
   persistedDirs = {
     download = "downloads";
@@ -12,18 +11,16 @@ let
   };
 in
 {
-  flake.modules.homeManager = {
-    xdg = { config, lib, ... }: {
-      xdg.userDirs =
-        let toAbsolute = dir: "${config.home.homeDirectory}/${dir}";
-        in {
-          enable = true;
-          createDirectories = true;
-        } // lib.mapAttrs (lib.const toAbsolute) persistedDirs;
-    };
+  flake.modules.homeManager.xdg = { config, lib, ... }: {
+    xdg.userDirs =
+      let toAbsolute = dir: "${config.home.homeDirectory}/${dir}";
+      in {
+        enable = true;
+        createDirectories = true;
+      } // lib.mapAttrs (lib.const toAbsolute) persistedDirs;
+  };
 
-    impermanence = {
-      home.persistence."/persist".directories = lib.attrValues persistedDirs;
-    };
+  flake.modules.homeManager.impermanence = { lib, ... }: {
+    home.persistence."/persist".directories = lib.attrValues persistedDirs;
   };
 }

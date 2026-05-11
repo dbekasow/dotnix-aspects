@@ -16,4 +16,11 @@
 
     security.pam.services.greetd.enableGnomeKeyring = true;
   };
+
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [
+      ".config/dconf"
+      ".local/share/keyrings"
+    ];
+  };
 }

@@ -24,19 +24,27 @@
       '';
     };
 
-    fileSystems."/persist".neededForBoot = true;
-
     environment.persistence."/persist" = {
       hideMounts = true;
 
       directories = [
+        # Core system state
         "/var/log"
         "/var/lib/nixos"
         "/var/lib/systemd"
+
+        # Network
         "/var/lib/bluetooth"
+        "/var/lib/NetworkManager"
         "/etc/NetworkManager/system-connections"
-        "/etc/nixos"
+
+        # Virtualisation
+        "/var/lib/docker"
+
+        # SSH host keys
         "/etc/ssh"
+
+        "/etc/nixos"
       ];
 
       files = [
@@ -46,7 +54,7 @@
     };
 
     home-manager.sharedModules = [{
-      home.persistence."/persist" = { };
+      home.persistence."/persist".hideMounts = true;
     }];
   };
 }
