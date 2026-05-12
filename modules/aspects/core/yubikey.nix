@@ -1,6 +1,6 @@
 {
   flake.modules.nixos.yubikey = { config, pkgs, ... }: {
-    age.secrets.u2f.generator.script = { ... }: ''
+    age.secrets.u2f.generator.script = _: ''
       printf '# nix shell nixpkgs#pam_u2f -c pamu2fcfg -u $(whoami) -o pam://$(hostname) -i pam://$(hostname)'
     '';
 

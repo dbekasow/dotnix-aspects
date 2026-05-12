@@ -82,46 +82,14 @@
       privacyShowCameraIcon = false;
       privacyShowScreenShareIcon = false;
       controlCenterWidgets = [
-        {
-          id = "volumeSlider";
-          enabled = true;
-          width = 50;
-        }
-        {
-          id = "brightnessSlider";
-          enabled = true;
-          width = 50;
-        }
-        {
-          id = "wifi";
-          enabled = true;
-          width = 50;
-        }
-        {
-          id = "bluetooth";
-          enabled = true;
-          width = 50;
-        }
-        {
-          id = "audioOutput";
-          enabled = true;
-          width = 50;
-        }
-        {
-          id = "audioInput";
-          enabled = true;
-          width = 50;
-        }
-        {
-          id = "nightMode";
-          enabled = true;
-          width = 50;
-        }
-        {
-          id = "darkMode";
-          enabled = true;
-          width = 50;
-        }
+        { id = "volumeSlider"; enabled = true; width = 50; }
+        { id = "brightnessSlider"; enabled = true; width = 50; }
+        { id = "wifi"; enabled = true; width = 50; }
+        { id = "bluetooth"; enabled = true; width = 50; }
+        { id = "audioOutput"; enabled = true; width = 50; }
+        { id = "audioInput"; enabled = true; width = 50; }
+        { id = "nightMode"; enabled = true; width = 50; }
+        { id = "darkMode"; enabled = true; width = 50; }
       ];
       showWorkspaceIndex = false;
       showWorkspaceName = false;
@@ -166,31 +134,11 @@
       runningAppsGroupByApp = false;
       runningAppsCurrentMonitor = false;
       appIdSubstitutions = [
-        {
-          pattern = "Spotify";
-          replacement = "spotify";
-          type = "exact";
-        }
-        {
-          pattern = "beepertexts";
-          replacement = "beeper";
-          type = "exact";
-        }
-        {
-          pattern = "home assistant desktop";
-          replacement = "homeassistant-desktop";
-          type = "exact";
-        }
-        {
-          pattern = "com.transmissionbt.transmission";
-          replacement = "transmission-gtk";
-          type = "contains";
-        }
-        {
-          pattern = "^steam_app_(\\d+)$";
-          replacement = "steam_icon_$1";
-          type = "regex";
-        }
+        { pattern = "Spotify"; replacement = "spotify"; type = "exact"; }
+        { pattern = "beepertexts"; replacement = "beeper"; type = "exact"; }
+        { pattern = "home assistant desktop"; replacement = "homeassistant-desktop"; type = "exact"; }
+        { pattern = "com.transmissionbt.transmission"; replacement = "transmission-gtk"; type = "contains"; }
+        { pattern = "^steam_app_(\\d+)$"; replacement = "steam_icon_$1"; type = "regex"; }
       ];
       centeringMode = "index";
       clockDateFormat = "";
@@ -198,7 +146,7 @@
       greeterRememberLastSession = true;
       greeterRememberLastUser = true;
       greeterEnableFprint = false;
-      greeterEnableU2f = false;
+      greeterEnableU2f = true; # yubikey auth in greeter
       greeterWallpaperPath = "";
       mediaSize = 1;
       appLauncherViewMode = "list";
@@ -249,18 +197,18 @@
       soundNewNotification = true;
       soundVolumeChanged = true;
       soundPluggedIn = true;
-      acMonitorTimeout = 0;
-      acLockTimeout = 0;
-      acSuspendTimeout = 0;
+      acMonitorTimeout = 300; # 5 min → monitor off
+      acLockTimeout = 300; # 5 min → lock (simultaneous with monitor)
+      acSuspendTimeout = 1800; # 30 min → suspend
       acSuspendBehavior = 0;
       acProfileName = "";
-      batteryMonitorTimeout = 0;
-      batteryLockTimeout = 0;
-      batterySuspendTimeout = 0;
+      batteryMonitorTimeout = 120; # 2 min → monitor off
+      batteryLockTimeout = 120; # 2 min → lock (simultaneous with monitor)
+      batterySuspendTimeout = 600; # 10 min → suspend
       batterySuspendBehavior = 0;
       batteryProfileName = "";
       batteryChargeLimit = 100;
-      lockBeforeSuspend = false;
+      lockBeforeSuspend = true; # always lock before suspend
       loginctlLockIntegration = true;
       fadeToLockEnabled = true;
       fadeToLockGracePeriod = 5;
@@ -340,11 +288,11 @@
       lockScreenShowProfileImage = true;
       lockScreenShowPasswordField = true;
       lockScreenShowMediaPlayer = true;
-      lockScreenPowerOffMonitorsOnLock = false;
+      lockScreenPowerOffMonitorsOnLock = true; # monitor off when manually locked
       lockAtStartup = false;
       enableFprint = false;
       maxFprintTries = 15;
-      enableU2f = false;
+      enableU2f = true; # yubikey auth on lockscreen
       u2fMode = "or";
       lockScreenActiveMonitor = "all";
       lockScreenInactiveColor = "#000000";
@@ -377,14 +325,7 @@
       osdAudioOutputEnabled = true;
       powerActionConfirm = true;
       powerActionHoldDuration = 0.5;
-      powerMenuActions = [
-        "reboot"
-        "logout"
-        "poweroff"
-        "lock"
-        "suspend"
-        "restart"
-      ];
+      powerMenuActions = [ "reboot" "logout" "poweroff" "lock" "suspend" "restart" ];
       powerMenuDefaultAction = "logout";
       powerMenuGridLayout = false;
       customPowerActionLock = "";
@@ -412,29 +353,11 @@
         name = "Main Bar";
         enabled = true;
         position = 0;
-        screenPreferences = [
-          "all"
-        ];
+        screenPreferences = [ "all" ];
         showOnLastDisplay = true;
-        leftWidgets = [
-          "launcherButton"
-          "workspaceSwitcher"
-          "focusedWindow"
-        ];
-        centerWidgets = [
-          "music"
-          "clock"
-          "weather"
-        ];
-        rightWidgets = [
-          "systemTray"
-          "clipboard"
-          "cpuUsage"
-          "memUsage"
-          "notificationButton"
-          "battery"
-          "controlCenterButton"
-        ];
+        leftWidgets = [ "launcherButton" "workspaceSwitcher" "focusedWindow" ];
+        centerWidgets = [ "music" "clock" "weather" ];
+        rightWidgets = [ "systemTray" "clipboard" "cpuUsage" "memUsage" "notificationButton" "battery" "controlCenterButton" ];
         spacing = 4;
         innerPadding = 4;
         bottomGap = 0;
@@ -481,9 +404,7 @@
       desktopClockY = -1;
       desktopClockWidth = 280;
       desktopClockHeight = 180;
-      desktopClockDisplayPreferences = [
-        "all"
-      ];
+      desktopClockDisplayPreferences = [ "all" ];
       systemMonitorEnabled = false;
       systemMonitorShowHeader = true;
       systemMonitorTransparency = 0.8;
