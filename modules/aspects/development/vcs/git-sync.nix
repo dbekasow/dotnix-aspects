@@ -19,6 +19,7 @@ in
     };
 
     config = lib.mkIf (config.dotnix.git.repositories != { }) {
+      programs.gh.gitCredentialHelper.enable = false;
       services.git-sync.enable = true;
       services.git-sync.repositories = lib.concatMapAttrs
         (dir: repos:
@@ -36,7 +37,6 @@ in
         config.dotnix.git.repositories;
 
       home.packages =
-
         let
           mkCloneSnippet = dir: repo:
             let

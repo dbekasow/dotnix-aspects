@@ -1,8 +1,8 @@
 {
-  flake.modules.homeManager.gh = {
+  flake.modules.homeManager.gh = { lib, ... }: {
     programs.gh = {
       enable = true;
-      gitCredentialHelper.enable = true;
+      gitCredentialHelper.enable = lib.mkDefault true;
       settings = {
         editor = "hx";
         pager = "bat";
