@@ -200,7 +200,7 @@
       acMonitorTimeout = 300; # 5 min → monitor off
       acLockTimeout = 300; # 5 min → lock (simultaneous with monitor)
       acSuspendTimeout = 1800; # 30 min → suspend
-      acSuspendBehavior = 0;
+      acSuspendBehavior = 2; # suspend then hibernate
       acProfileName = "";
       batteryMonitorTimeout = 120; # 2 min → monitor off
       batteryLockTimeout = 120; # 2 min → lock (simultaneous with monitor)

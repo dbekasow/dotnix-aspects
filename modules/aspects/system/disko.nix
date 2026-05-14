@@ -2,20 +2,30 @@
 let
   btrfsOpts = [ "compress=zstd" "noatime" ];
   mkSubvol = mountpoint: { inherit mountpoint; mountOptions = btrfsOpts; };
+
+  mkLuksFido2 = name: content: {
+    type = "luks";
+    extraFormatArgs = [ "--type" "luks2" "--pbkdf" "argon2id" ];
+    extraOpenArgs = [ "--perf-no_read_workqueue" "--perf-no_write_workqueue" ];
+    enrollFido2 = true;
+    enrollRecovery = true;
+    settings.allowDiscards = true;
+    inherit name content;
+  };
 in
 {
   flake.modules.nixos.disko = { lib, ... }: {
     imports = [ inputs.disko.nixosModules.disko ];
 
     disko.devices.disk.main = {
-      device = lib.mkDefault "/dev/sda";
+      device = lib.mkDefault "/dev/nvme0n1";
       type = "disk";
       content = {
         type = "gpt";
         partitions = {
           ESP = {
             priority = 1;
-            size = "512M";
+            size = "1G";
             type = "EF00";
             content = {
               type = "filesystem";
@@ -24,32 +34,28 @@ in
               mountOptions = [ "umask=0077" ];
             };
           };
-          swap = {
-            priority = 2;
-            size = lib.mkDefault "8G";
-            content = {
-              type = "swap";
-              resumeDevice = false;
-            };
-          };
+
           root = {
-            priority = 3;
+            priority = 2;
             size = "100%";
-            content = {
+            content = mkLuksFido2 "cryptroot" {
               type = "btrfs";
               extraArgs = [ "-L" "nixos" "-f" ];
               subvolumes = {
-                "@root-blank" = { };
                 "@root" = mkSubvol "/";
                 "@persist" = mkSubvol "/persist";
                 "@nix" = mkSubvol "/nix";
                 "@log" = mkSubvol "/var/log";
+                "@swap" = {
+                  mountpoint = "/swap";
+                  mountOptions = [ "noatime" ];
+                  swap.swapfile.size = lib.mkDefault "64G";
+                };
               };
               postCreateHook = ''
                 MNTPOINT=$(mktemp -d)
                 mount -t btrfs -o subvol=/ /dev/disk/by-label/nixos "$MNTPOINT"
                 trap 'umount "$MNTPOINT"; rm -rf "$MNTPOINT"' EXIT
-                btrfs subvolume delete "$MNTPOINT/@root-blank" 2>/dev/null || true
                 btrfs subvolume snapshot -r "$MNTPOINT/@root" "$MNTPOINT/@root-blank"
               '';
             };
