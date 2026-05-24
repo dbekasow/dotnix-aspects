@@ -33,6 +33,10 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
 
+    impermanence.inputs.home-manager.follows = "home-manager";
+    impermanence.inputs.nixpkgs.follows = "nixpkgs";
+    impermanence.url = "github:nix-community/impermanence";
+
     import-tree.url = "github:vic/import-tree";
 
     llm-agents.inputs.nixpkgs.follows = "nixpkgs";

@@ -2,6 +2,12 @@ let
   mkPlugins = map (it: { inherit (it) src; name = it.pname; });
 in
 {
+
+  flake.modules.nixos.fish = {
+    programs.fish.enable = true;
+    programs.fish.useBabelfish = true;
+  };
+
   flake.modules.homeManager.fish = { pkgs, ... }: {
     home.shell.enableFishIntegration = true;
 
@@ -16,9 +22,8 @@ in
     };
   };
 
-  flake.modules.nixos.fish = {
-    programs.fish.enable = true;
-    programs.fish.useBabelfish = true;
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".local/share/fish" ];
   };
 }
 

@@ -6,7 +6,7 @@
       secretsDir = "${inputs.self}/modules/hosts/${config.dotnix.hostname}/secrets";
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
-      hostPubkey = lib.readFile (secretsDir + "/host-key.pub");
+      hostPubkey = lib.readFile (secretsDir + "/ssh_host_ed25519_key");
       masterIdentities = [
         {
           identity = inputs.self + "/yubikey.pub";

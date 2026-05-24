@@ -154,5 +154,9 @@
       default-floating-position = { x = 32; y = 32; relative-to = "top-right"; };
     }
   ];
+
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".config/mozilla/firefox" ];
+  };
 }
 

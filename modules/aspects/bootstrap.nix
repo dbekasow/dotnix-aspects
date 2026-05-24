@@ -8,6 +8,7 @@
       network-wifi
       nh
       nix
+      yubikey
     ];
   };
 }

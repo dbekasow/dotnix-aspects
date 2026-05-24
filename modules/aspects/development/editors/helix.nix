@@ -19,6 +19,7 @@
         "!.gitattributes"
         "!.gitignore"
         "!.gitmodules"
+        "!.justfile"
       ];
 
       settings.editor = {
