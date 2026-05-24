@@ -29,7 +29,6 @@
 
       directories = [
         # Core system state
-        "/var/log"
         "/var/lib/nixos"
         "/var/lib/systemd"
 

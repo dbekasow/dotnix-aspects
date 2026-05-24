@@ -43,6 +43,7 @@ in
               { system.stateVersion = lib.mkDefault "26.05"; }
               { dotnix = { inherit hostname host; }; }
               { networking.hostName = hostname; }
+              { boot.zfs.forceImportRoot = lib.mkDefault false; }
               modules.nixos.dotnix
             ];
           }
