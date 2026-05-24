@@ -6,10 +6,10 @@ let
   mkLuksFido2 = name: content: {
     type = "luks";
     extraFormatArgs = [ "--type" "luks2" "--pbkdf" "argon2id" ];
-    extraOpenArgs = [ "--perf-no_read_workqueue" "--perf-no_write_workqueue" ];
     enrollFido2 = true;
     enrollRecovery = true;
     settings.allowDiscards = true;
+    settings.bypassWorkqueues = true;
     inherit name content;
   };
 in

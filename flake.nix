@@ -12,7 +12,7 @@
     devshell.inputs.nixpkgs.follows = "nixpkgs";
     devshell.url = "github:numtide/devshell";
 
-    disko.url = "github:nix-community/disko/latest";
+    disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
 
     dms.inputs.nixpkgs.follows = "nixpkgs";
