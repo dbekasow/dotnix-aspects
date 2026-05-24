@@ -19,6 +19,7 @@
       users
       users-profile
       yubikey
+      yubikey-pam
     ];
 
     homeManager.core.imports = with homeManager; [
@@ -28,11 +29,11 @@
       git-alias
       git-credentials
       git-sync
+      gpg-agent
       home-manager
       ssh
       stylix
       users-profile
-      yubikey
     ];
   };
 }

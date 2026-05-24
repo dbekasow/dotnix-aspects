@@ -3,6 +3,7 @@
     nixos.bootstrap.imports = with nixos; [
       fish
       git
+      gnupg
       locale
       network
       network-wifi

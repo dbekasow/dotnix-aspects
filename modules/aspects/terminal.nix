@@ -45,7 +45,6 @@
       tokei
 
       # Nix & Secrets
-      gpg
       nix-index-database
       nix-tools
       rbw

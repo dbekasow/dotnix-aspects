@@ -1,5 +1,11 @@
 {
-  flake.modules.nixos.yubikey = { config, pkgs, ... }: {
+
+  flake.modules.nixos.yubikey = { pkgs, ... }: {
+    services.pcscd.enable = true;
+    services.udev.packages = [ pkgs.yubikey-personalization ];
+  };
+
+  flake.modules.nixos.yubikey-pam = { config, pkgs, ... }: {
     age.secrets.u2f.generator.script = _: ''
       printf '# nix shell nixpkgs#pam_u2f -c pamu2fcfg -u $(whoami) -o pam://$(hostname) -i pam://$(hostname)'
     '';
@@ -20,15 +26,7 @@
       services.sudo.u2fAuth = true;
     };
 
-    services.pcscd.enable = true;
-    services.udev.packages = [ pkgs.yubikey-personalization ];
-
     programs.yubikey-manager.enable = true;
     environment.systemPackages = with pkgs; [ yubioath-flutter yubikey-manager ];
-  };
-
-  flake.modules.homeManager.yubikey = { pkgs, ... }: {
-    programs.gpg.scdaemonSettings.disable-ccid = true;
-    services.gpg-agent.pinentry.package = pkgs.pinentry-gnome3;
   };
 }
