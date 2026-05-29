@@ -12,17 +12,19 @@ in
       enable = true;
 
       settings = {
-        background-opacity = 0.95;
-        background-opacity-cells = true;
+        app-notifications = "no-clipboard-copy";
         background-blur = 20;
+        background-opacity = 0.98;
+        background-opacity-cells = true;
+        confirm-close-surface = false;
+        cursor-opacity = 0.75;
         custom-shader = "${cursorShaders pkgs}/cursor_warp.glsl";
         custom-shader-animation = true;
-        cursor-opacity = 0.75;
         shell-integration = "detect";
         shell-integration-features = "cursor,title,sudo";
         window-decoration = false;
-        window-inherit-working-directory = true;
         window-inherit-font-size = true;
+        window-inherit-working-directory = true;
       };
     };
   };
