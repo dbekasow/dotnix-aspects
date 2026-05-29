@@ -27,7 +27,7 @@
 
         # Misc
         git
-        direnv
+        just
 
         # Agenix
         rage
