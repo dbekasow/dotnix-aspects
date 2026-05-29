@@ -48,6 +48,10 @@
       nix-index-database
       nix-tools
       rbw
+
+      # Mail
+      aerc
+      maildir
     ];
   };
 }
