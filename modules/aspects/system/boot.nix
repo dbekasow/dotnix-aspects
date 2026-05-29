@@ -18,9 +18,13 @@
       ];
 
       consoleLogLevel = 3;
+      tmp.cleanOnBoot = true;
 
       supportedFilesystems.zfs = false;
       zfs.forceImportRoot = false;
     };
+
+    systemd.settings.Manager.DefaultTimeoutStartSec = "20s";
+    systemd.settings.Manager.DefaultTimeoutStopSec = "20s";
   };
 }
