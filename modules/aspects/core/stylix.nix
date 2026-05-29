@@ -39,6 +39,7 @@ in
 {
   flake.modules.nixos.stylix = {
     imports = [ inputs.stylix.nixosModules.stylix sharedConfig ];
+    stylix.enableReleaseChecks = false;
     stylix.homeManagerIntegration.autoImport = false;
   };
 

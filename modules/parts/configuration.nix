@@ -40,7 +40,7 @@ in
           inputs.nixpkgs.lib.nixosSystem {
             inherit (host) system;
             modules = host.modules ++ userModules ++ [
-              { system.stateVersion = lib.mkDefault "26.05"; }
+              { system.stateVersion = lib.mkDefault "26.11"; }
               { dotnix = { inherit hostname host; }; }
               { networking.hostName = hostname; }
               { boot.zfs.forceImportRoot = lib.mkDefault false; }

@@ -10,7 +10,12 @@ let inherit (config.flake) modules; in {
     };
   };
 
-  flake.modules.homeManager.home-manager = { osConfig, ... }: {
-    home.stateVersion = osConfig.system.stateVersion;
+  flake.modules.homeManager.home-manager = { lib, osConfig, ... }: {
+    home.stateVersion =
+      let
+        hmVersions = [ "26.05" ];
+        sys = osConfig.system.stateVersion;
+      in
+      if lib.elem sys hmVersions then sys else lib.last hmVersions;
   };
 }
