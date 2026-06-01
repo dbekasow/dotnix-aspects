@@ -16,7 +16,7 @@
     disko.inputs.nixpkgs.follows = "nixpkgs";
 
     dms.inputs.nixpkgs.follows = "nixpkgs";
-    dms.url = "github:AvengeMedia/DankMaterialShell/stable";
+    dms.url = "github:AvengeMedia/DankMaterialShell";
 
     dms-plugins.inputs.nixpkgs.follows = "nixpkgs";
     dms-plugins.url = "github:AvengeMedia/dms-plugin-registry";
@@ -52,6 +52,7 @@
     nur.inputs.nixpkgs.follows = "nixpkgs";
 
     stylix.inputs.nixpkgs.follows = "nixpkgs";
+    stylix.inputs.nur.follows = "nur";
     stylix.url = "github:nix-community/stylix";
 
     treefmt.inputs.nixpkgs.follows = "nixpkgs";
