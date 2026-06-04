@@ -7,7 +7,8 @@
       description = "Roll @root back to @root-blank";
       wantedBy = [ "initrd.target" ];
       before = [ "sysroot.mount" ];
-      after = [ "dev-disk-by\\x2dlabel-nixos.device" ];
+      requires = [ "systemd-cryptsetup@cryptroot.service" ];
+      after = [ "systemd-cryptsetup@cryptroot.service" ];
       unitConfig.DefaultDependencies = "no";
       serviceConfig.Type = "oneshot";
       script = ''
@@ -40,15 +41,14 @@
         # Virtualisation
         "/var/lib/docker"
 
-        # SSH host keys
-        "/etc/ssh"
-
+        # Nix
         "/etc/nixos"
       ];
 
       files = [
         "/etc/machine-id"
-        "/etc/adjtime"
+        "/etc/ssh/ssh_host_ed25519_key"
+        "/etc/ssh/ssh_host_ed25519_key.pub"
       ];
     };
 

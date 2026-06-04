@@ -20,4 +20,8 @@
       osConfig.age.secrets."home-identity-${config.home.username}".path
     ];
   };
+
+  flake.modules.nixos.impermanence = {
+    age.identityPaths = [ "/persist/etc/ssh/ssh_host_ed25519_key" ];
+  };
 }
