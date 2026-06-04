@@ -6,6 +6,7 @@ let
   mkLuksFido2 = name: content: {
     type = "luks";
     extraFormatArgs = [ "--type" "luks2" "--pbkdf" "argon2id" ];
+    extraFido2EnrollArgs = [ "--fido2-with-client-pin=no" ];
     enrollFido2 = true;
     enrollRecovery = true;
     settings.allowDiscards = true;
