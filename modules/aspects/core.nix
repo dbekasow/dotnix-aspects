@@ -28,7 +28,7 @@
       git
       git-alias
       git-credentials
-      git-sync
+      git-repos
       gpg-agent
       home-manager
       ssh
