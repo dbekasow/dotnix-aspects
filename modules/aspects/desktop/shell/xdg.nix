@@ -8,6 +8,7 @@ let
     desktop = "desktop";
     publicShare = "shares";
     templates = "templates";
+    projects = "projects";
   };
 in
 {
@@ -17,7 +18,8 @@ in
       in {
         enable = true;
         createDirectories = true;
-      } // lib.mapAttrs (lib.const toAbsolute) persistedDirs;
+        extraConfig = { XDG_PROJECTS_DIR = toAbsolute "projects"; };
+      } // lib.mapAttrs (lib.const toAbsolute) (removeAttrs persistedDirs [ "projects" ]);
   };
 
   flake.modules.homeManager.impermanence = { lib, ... }: {
