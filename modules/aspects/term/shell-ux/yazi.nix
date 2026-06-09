@@ -21,8 +21,8 @@
         plugin = {
           # git: show status badge on files
           prepend_fetchers = [
-            { id = "git"; name = "*"; run = "git"; }
-            { id = "git"; name = "/"; run = "git"; }
+            { url = "*"; run = "git"; group = "git"; }
+            { url = "/"; run = "git"; group = "git"; }
           ];
 
           prepend_previewers = [
