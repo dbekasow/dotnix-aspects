@@ -1,9 +1,6 @@
 {
   flake.modules.nixos.locale = { config, lib, ... }: {
-    time = {
-      timeZone = "Europe/Berlin";
-      hardwareClockInLocalTime = lib.mkDefault true;
-    };
+    time.timeZone = "Europe/Berlin";
 
     i18n = {
       defaultLocale = lib.mkDefault "en_US.UTF-8";

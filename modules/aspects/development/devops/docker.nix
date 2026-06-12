@@ -23,4 +23,8 @@
 
     home.packages = [ pkgs.dive ];
   };
+
+  flake.modules.nixos.impermanence = {
+    environment.persistence."/persist".directories = [ "/var/lib/docker" ];
+  };
 }

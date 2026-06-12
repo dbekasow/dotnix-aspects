@@ -12,4 +12,8 @@
 
     environment.systemPackages = [ pkgs.bluetui ];
   };
+
+  flake.modules.nixos.impermanence = {
+    environment.persistence."/persist".directories = [ "/var/lib/bluetooth" ];
+  };
 }

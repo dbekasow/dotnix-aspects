@@ -30,4 +30,11 @@
 
     environment.systemPackages = with pkgs; [ curl dig ];
   };
+
+  flake.modules.nixos.impermanence = {
+    environment.persistence."/persist".directories = [
+      "/var/lib/NetworkManager"
+      "/etc/NetworkManager/system-connections"
+    ];
+  };
 }

@@ -15,4 +15,8 @@
 
     environment.systemPackages = [ pkgs.wifitui ];
   };
+
+  flake.modules.nixos.impermanence = {
+    environment.persistence."/persist".directories = [ "/var/lib/iwd" ];
+  };
 }

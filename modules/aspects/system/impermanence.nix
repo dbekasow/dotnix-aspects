@@ -29,24 +29,15 @@
       hideMounts = true;
 
       directories = [
-        # Core system state
+        "/etc/nixos"
         "/var/lib/nixos"
         "/var/lib/systemd"
-
-        # Network
-        "/var/lib/bluetooth"
-        "/var/lib/NetworkManager"
-        "/etc/NetworkManager/system-connections"
-
-        # Virtualisation
-        "/var/lib/docker"
-
-        # Nix
-        "/etc/nixos"
       ];
 
       files = [
         "/etc/machine-id"
+        "/etc/ssh/ssh_host_rsa_key"
+        "/etc/ssh/ssh_host_rsa_key.pub"
         "/etc/ssh/ssh_host_ed25519_key"
         "/etc/ssh/ssh_host_ed25519_key.pub"
       ];
