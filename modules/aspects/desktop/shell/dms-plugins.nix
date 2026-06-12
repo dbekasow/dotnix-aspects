@@ -1,6 +1,6 @@
 { inputs, ... }: {
   flake.modules.homeManager.dms-plugins = {
-    imports = [ inputs.dms-plugins.modules.default ];
+    imports = [ inputs.dms-plugins.homeModules.default ];
 
     programs.dank-material-shell.plugins = {
       dankBatteryAlerts.enable = true;

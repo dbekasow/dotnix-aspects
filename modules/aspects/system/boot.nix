@@ -1,8 +1,6 @@
 {
   flake.modules.nixos.boot = { lib, pkgs, ... }: {
     boot = {
-      bootspec.enable = true;
-
       initrd.systemd.enable = true;
       initrd.verbose = false;
 
