@@ -7,7 +7,8 @@
       '';
 
       # Helix :sh shorthand for a named floating TUI
-      popup = name: pkg: ":sh hx-float ${name} ${lib.getExe pkg}";
+      popup' = name: pkg: arg: ":sh hx-float ${name} ${lib.getExe pkg} ${arg}";
+      popup = name: pkg: popup' name pkg "";
       git = cmd: ":sh git ${cmd}";
 
     in
@@ -37,7 +38,7 @@
         # ── Leader namespace (backspace) ───────────────────────
         backspace = {
           # TUI popups
-          e = popup "yazi" pkgs.yazi;
+          e = popup' "yazi" pkgs.yazi "%{buffer_name}";
           g = popup "lazygit" pkgs.lazygit;
           b = popup "bottom" pkgs.bottom;
           d = popup "lazydocker" pkgs.lazydocker;
