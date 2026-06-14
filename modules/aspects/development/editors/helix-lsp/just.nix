@@ -10,7 +10,7 @@ let inherit (config.flake.factory.helix) withTypos; in
         language-servers = withTypos [ "just-lsp" ];
         formatter = {
           command = lib.getExe pkgs.just;
-          args = [ "--fmt" "--unstable" "-f" "-" ];
+          args = [ "--dump" ];
         };
         auto-format = true;
       }];
