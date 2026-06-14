@@ -4,9 +4,11 @@
       enable = true;
       powerOnBoot = true;
 
-      settings = {
-        General.Experimental = true;
-        General.FastConnectable = true;
+      package = pkgs.bluez5-experimental;
+
+      settings.General = {
+        Experimental = true;
+        FastConnectable = true;
       };
     };
 

@@ -1,5 +1,6 @@
 {
   flake.modules.nixos.pipewire = { pkgs, ... }: {
+    environment.systemPackages = [ pkgs.pavucontrol ];
     services.pipewire = {
       enable = true;
 
@@ -21,8 +22,6 @@
         };
       };
     };
-
     services.pulseaudio.support32Bit = true;
-    hardware.bluetooth.package = pkgs.bluez5-experimental;
   };
 }
