@@ -3,7 +3,11 @@
     programs.onlyoffice = {
       enable = true;
 
-      settings = { };
+      settings = {
+        UITheme = "theme-night";
+        editorWindowMode = false;
+        titlebar = "custom";
+      };
     };
   };
 }
