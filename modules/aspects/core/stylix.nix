@@ -15,8 +15,8 @@ let
       };
 
       fonts = with pkgs; {
-        serif = { package = noto-fonts; name = "Noto Serif"; };
-        sansSerif = { package = noto-fonts; name = "Noto Sans"; };
+        serif = { package = lora; name = "Lora"; };
+        sansSerif = { package = inter; name = "Inter"; };
         emoji = { package = noto-fonts-color-emoji; name = "Noto Color Emoji"; };
         monospace = { package = nerd-fonts.jetbrains-mono; name = "JetBrainsMono Nerd Font Mono"; };
 
