@@ -18,8 +18,7 @@ in
       in {
         enable = true;
         createDirectories = true;
-        extraConfig = { XDG_PROJECTS_DIR = toAbsolute "projects"; };
-      } // lib.mapAttrs (lib.const toAbsolute) (removeAttrs persistedDirs [ "projects" ]);
+      } // lib.mapAttrs (lib.const toAbsolute) persistedDirs;
   };
 
   flake.modules.homeManager.impermanence = { lib, ... }: {
