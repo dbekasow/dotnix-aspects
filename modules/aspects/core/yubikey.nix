@@ -21,9 +21,8 @@
           nouserok = true;
         };
       };
-      services.greetd.u2fAuth = true;
-      services.login.u2fAuth = true;
-      services.sudo.u2fAuth = true;
+
+      services.sudo.u2f.enable = true;
     };
 
     programs.yubikey-manager.enable = true;

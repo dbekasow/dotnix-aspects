@@ -146,7 +146,7 @@
       greeterRememberLastSession = true;
       greeterRememberLastUser = true;
       greeterEnableFprint = false;
-      greeterEnableU2f = true; # yubikey auth in greeter
+      greeterEnableU2f = false; # yubikey auth in greeter
       greeterWallpaperPath = "";
       mediaSize = 1;
       appLauncherViewMode = "list";
@@ -293,7 +293,7 @@
       enableFprint = false;
       maxFprintTries = 15;
       enableU2f = true; # yubikey auth on lockscreen
-      u2fMode = "or";
+      u2fMode = "and";
       lockScreenActiveMonitor = "all";
       lockScreenInactiveColor = "#000000";
       lockScreenNotificationMode = 0;
