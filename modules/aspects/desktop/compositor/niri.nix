@@ -24,6 +24,7 @@
       input = {
         keyboard.xkb.options = "caps:escape";
         keyboard.xkb.layout = "de";
+        keyboard.numlock = true;
 
         mouse = {
           accel-profile = "adaptive";
