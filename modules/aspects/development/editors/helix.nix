@@ -98,6 +98,12 @@
           focus-lost = true;
           after-delay.enable = true;
         };
+
+        # Workspace trust
+        workspace-trust.trusted = [
+          "~/.dotnix/*"
+          "~/.dotnix-aspects/*"
+        ];
       };
     };
   };
