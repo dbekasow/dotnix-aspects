@@ -22,7 +22,10 @@
       zfs.forceImportRoot = false;
     };
 
-    systemd.settings.Manager.DefaultTimeoutStartSec = "20s";
-    systemd.settings.Manager.DefaultTimeoutStopSec = "20s";
+    systemd = let sec = "20s"; in {
+      settings.Manager.DefaultTimeoutStartSec = sec;
+      settings.Manager.DefaultTimeoutStopSec = sec;
+      user.settings.Manager.DefaultTimeoutStopSec = sec;
+    };
   };
 }
