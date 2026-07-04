@@ -12,4 +12,9 @@
       nix-output-monitor
     ];
   };
+
+  # Persist the per-user Nix cache
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".cache/nix" ];
+  };
 }
