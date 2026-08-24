@@ -12,9 +12,9 @@
       };
     };
 
-    programs.lazygit.settings.git.pagers = [{
+    programs.lazygit.settings.git.diffRenderers = [{
       colorArg = "always";
-      pager = "${lib.getExe pkgs.delta} --color-only --paging=never";
+      command = "${lib.getExe pkgs.delta} --color-only --paging=never";
     }];
   };
 }

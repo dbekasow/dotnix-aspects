@@ -1,8 +1,8 @@
 { inputs, ... }: {
   flake.modules.nixos.dms-greeter = { lib, config, pkgs, ... }: {
-    imports = [ inputs.dms.nixosModules.greeter ];
+    imports = [ inputs.dank-greeter.nixosModules.default ];
 
-    programs.dank-material-shell.greeter = {
+    programs.dms-greeter = {
       enable = true;
       compositor.name = "niri";
 

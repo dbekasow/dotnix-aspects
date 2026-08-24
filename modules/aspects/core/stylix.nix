@@ -45,6 +45,7 @@ in
 
   flake.modules.homeManager.stylix = { config, lib, ... }: {
     imports = [ inputs.stylix.homeModules.stylix sharedConfig ];
+    stylix.overlays.enable = false;
     stylix.image =
       let
         path = "${inputs.self}/modules/users/${config.home.username}/assets/wallpaper.png";

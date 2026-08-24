@@ -6,19 +6,19 @@
       defaultCommand = "fd --type f";
       defaultOptions = [ "--height 50%" "--layout reverse" ];
 
-      changeDirWidgetCommand = "fd --type d";
-      changeDirWidgetOptions = [
+      changeDirWidget.command = "fd --type d";
+      changeDirWidget.options = [
         "--preview 'eza --tree --icons --color=always --level 3 --git-ignore {}'"
         "--pointer ' '"
       ];
 
-      fileWidgetCommand = "fd --type f";
-      fileWidgetOptions = [
+      fileWidget.command = "fd --type f";
+      fileWidget.options = [
         "--preview 'bat --color=always {}'"
         "--pointer ' '"
       ];
 
-      historyWidgetOptions = [ "--pointer ' '" ];
+      historyWidget.command = ""; # Ctrl-R for Atuin
     };
   };
 }

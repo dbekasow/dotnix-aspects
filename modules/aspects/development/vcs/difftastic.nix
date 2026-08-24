@@ -10,8 +10,9 @@
       };
     };
 
-    programs.lazygit.settings.git.pagers = [{
-      externalDiffCommand = "${lib.getExe pkgs.difftastic} --color=always";
+    programs.lazygit.settings.git.diffRenderers = [{
+      type = "extDiff";
+      command = "${lib.getExe pkgs.difftastic} --color=always";
     }];
   };
 }
