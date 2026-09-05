@@ -16,6 +16,7 @@
       anki
       dms
       dms-plugins
+      handy
       firefox
       ghostty
       niri
