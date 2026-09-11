@@ -5,7 +5,7 @@
       enableFishIntegration = true;
 
       settings = {
-        # UI Configuration        
+        # UI Configuration
         default_layout = "compact";
         pane_frames = false;
         simplified_ui = false;
@@ -33,5 +33,12 @@
         theme = "default";
       };
     };
+  };
+
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [
+      # session_serialization = true is a no-op without this.
+      ".cache/zellij"
+    ];
   };
 }

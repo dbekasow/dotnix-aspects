@@ -53,7 +53,7 @@
       showCpuUsage = true;
       showMemUsage = true;
       showCpuTemp = true;
-      showGpuTemp = true;
+      showGpuTemp = false;
       selectedGpuIndex = 0;
       enabledGpuPciIds = [ ];
       showSystemTray = true;

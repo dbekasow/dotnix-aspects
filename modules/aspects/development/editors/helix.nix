@@ -107,4 +107,10 @@
       };
     };
   };
+
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [
+      ".cache/helix"
+    ];
+  };
 }

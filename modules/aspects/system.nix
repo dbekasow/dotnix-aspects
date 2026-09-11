@@ -9,6 +9,7 @@
       geolocation
       network
       network-wifi
+      performance
       pipewire
       power
     ];

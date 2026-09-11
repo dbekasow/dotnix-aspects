@@ -156,7 +156,7 @@
   ];
 
   flake.modules.homeManager.impermanence = {
-    home.persistence."/persist".directories = [ ".config/mozilla/firefox" ];
+    home.persistence."/persist".directories = [ ".config/mozilla" ];
   };
 }
 
