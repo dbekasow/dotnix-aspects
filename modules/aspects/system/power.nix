@@ -14,6 +14,8 @@
         percentageAction = 10;
         criticalPowerAction = "Hibernate";
       };
+
+      power-profiles-daemon.enable = true;
     };
 
     systemd.sleep.settings.Sleep = {

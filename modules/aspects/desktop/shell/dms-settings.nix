@@ -201,12 +201,12 @@
       acLockTimeout = 300; # 5 min → lock (simultaneous with monitor)
       acSuspendTimeout = 1800; # 30 min → suspend
       acSuspendBehavior = 2; # suspend then hibernate
-      acProfileName = "";
+      acProfileName = "performance";
       batteryMonitorTimeout = 120; # 2 min → monitor off
       batteryLockTimeout = 120; # 2 min → lock (simultaneous with monitor)
       batterySuspendTimeout = 600; # 10 min → suspend
       batterySuspendBehavior = 0;
-      batteryProfileName = "";
+      batteryProfileName = "power-saver";
       batteryChargeLimit = 100;
       lockBeforeSuspend = true; # always lock before suspend
       loginctlLockIntegration = true;
