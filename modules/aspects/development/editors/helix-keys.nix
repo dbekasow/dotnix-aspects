@@ -1,14 +1,22 @@
 {
   flake.modules.homeManager.helix-keys = { pkgs, lib, ... }:
     let
-      # ── hx-float: shared floating-pane launcher ─────────────
+      # ── hx-float: floating pane for tools that need buffer context ──
+      # Only yazi and lazygit live here now; everything context-free moved to
+      # the tmux popup table (prefix o). Outside tmux there is nothing to pop
+      # up over, so fall back to running inline.
       hx-float = pkgs.writeShellScriptBin "hx-float" ''
-        zellij run -fc -x 10% -y 10% --width=80% --height=80% --name "$1" -- "''${@:2}" >/dev/null 2>&1
+        title="$1"
+        shift
+        if [ -n "''${TMUX:-}" ]; then
+          tmux display-popup -E -w 80% -h 80% -T " $title " "$(printf '%q ' "$@")"
+        else
+          exec "$@"
+        fi
       '';
 
       # Helix :sh shorthand for a named floating TUI
       popup' = name: pkg: arg: ":sh hx-float ${name} ${lib.getExe pkg} ${arg}";
-      popup = name: pkg: popup' name pkg "";
       git = cmd: ":sh git ${cmd}";
 
     in
@@ -37,12 +45,10 @@
 
         # ── Leader namespace (backspace) ───────────────────────
         backspace = {
-          # TUI popups
+          # Needs the open buffer's path — tmux only knows pane_current_path.
           e = popup' "yazi" pkgs.yazi "%{buffer_name}";
-          g = popup "lazygit" pkgs.lazygit;
-          b = popup "bottom" pkgs.bottom;
-          d = popup "lazydocker" pkgs.lazydocker;
-          k = popup "k9s" pkgs.k9s;
+          # Chained :reload picks up commits made in the popup.
+          g = [ (popup' "lazygit" pkgs.lazygit "") ":reload-all" ];
 
           # Helix config access
           l = ":o ~/.config/helix/languages.toml";

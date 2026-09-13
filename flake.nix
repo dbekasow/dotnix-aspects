@@ -15,6 +15,9 @@
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
 
+    direnv-instant.url = "github:Mic92/direnv-instant";
+    direnv-instant.inputs.nixpkgs.follows = "nixpkgs";
+
     dms.inputs.nixpkgs.follows = "nixpkgs";
     dms.url = "github:AvengeMedia/DankMaterialShell";
 

@@ -1,7 +1,7 @@
 {
-  flake.modules.homeManager.zellij = { config, ... }: {
+  flake.modules.homeManager.zellij = { config, lib, ... }: {
     programs.zellij = {
-      enable = true;
+      enable = lib.mkDefault false;
       enableFishIntegration = true;
 
       settings = {

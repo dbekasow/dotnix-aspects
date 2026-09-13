@@ -13,7 +13,9 @@
       clipboard
       direnv
       fzf
+      sesh
       skim
+      tmux
       yazi
       zellij
       zoxide
