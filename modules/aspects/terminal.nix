@@ -15,7 +15,9 @@
       fzf
       sesh
       skim
+      tuicr
       tmux
+      workmux
       yazi
       zellij
       zoxide
