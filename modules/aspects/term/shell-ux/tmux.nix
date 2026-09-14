@@ -81,7 +81,7 @@
 
       extraConfig = ''
         # Truecolor + undercurl; ghostty and alacritty both advertise RGB.
-        set -as terminal-features ',*:RGB,*:usstyle'
+        set -as terminal-features ',*:RGB,*:usstyle,*:clipboard'
 
         # Inherit the current pane's directory on split/new-window.
         bind c new-window -c "#{pane_current_path}"

@@ -17,7 +17,7 @@
         ExecStart = "${lib.getExe pkgs.handy} --start-hidden";
         # Handy shells out to wtype/wl-copy for pasting — pin the path here
         # instead of relying on the imported session PATH.
-        Environment = [ "PATH=${lib.makeBinPath (with pkgs; [ wtype wl-clipboard-rs ])}" ];
+        Environment = [ "PATH=${lib.makeBinPath (with pkgs; [ wtype wl-clipboard ])}" ];
         Restart = "on-failure";
         RestartSec = 5;
       };
