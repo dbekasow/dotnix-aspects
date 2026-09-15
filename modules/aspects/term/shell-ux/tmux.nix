@@ -47,6 +47,11 @@
             set -g @thumbs-upcase-command 'printf %s {} | wl-copy && tmux paste-buffer'
             set -g @thumbs-unique enabled
             set -g @thumbs-reverse enabled
+
+            set -g @thumbs-regexp-1 '[~.]?/[\w.\-/]+'  # paths
+            set -g @thumbs-regexp-2 '[\w.\-]+\.\w+'    # filenames with an extension
+            set -g @thumbs-regexp-3 '\w+(?:\.\w+){2,}' # nix attribute paths
+            set -g @thumbs-regexp-4 '\S{12,}'          # anything long without spaces
           '';
         }
         {
@@ -72,65 +77,64 @@
         }
         {
           plugin = continuum;
-          extraConfig = ''
-            set -g @continuum-restore 'on'
-            set -g @continuum-save-interval '15'
-          '';
+          extraConfig =
+            let
+              modes = [
+                { flag = "client_prefix"; color = "red"; }
+                { flag = "pane_in_mode"; color = "yellow"; }
+                { flag = "window_zoomed_flag"; color = "blue"; }
+              ];
+              modeIndicator = lib.foldr
+                (m: fallback: "#{?${m.flag},#[fg=#{@thm_${m.color}}]●,${fallback}}")
+                "#[fg=#{@thm_surface_1}]●"
+                modes;
+            in
+            ''
+              set -g @continuum-restore 'on'
+              set -g @continuum-save-interval '15'
+
+              # ── Status line (catppuccin v2 modules) ───────────────────
+              set -g status-position bottom
+              set -g status-left-length 100
+              set -g status-right-length 100
+              set -g status-left ""
+
+              # Plain -g here: -F would expand client_prefix once at load time and
+              # freeze the dot. The modules below need -F for the palette.
+              set -g status-right "${modeIndicator}#[default] "
+              set -agF status-right "#{E:@catppuccin_status_application}"
+              set -agF status-right "#{E:@catppuccin_status_session}"
+              set -agF status-right "#{E:@catppuccin_status_date_time}"
+            '';
         }
       ];
 
       extraConfig = ''
+        # ── Terminal ──────────────────────────────────────────────
         # Truecolor + undercurl; ghostty and alacritty both advertise RGB.
         set -as terminal-features ',*:RGB,*:usstyle,*:clipboard'
 
-        # Inherit the current pane's directory on split/new-window.
-        bind c new-window -c "#{pane_current_path}"
-        bind '"' split-window -v -c "#{pane_current_path}"
-        bind % split-window -h -c "#{pane_current_path}"
-
-        # Memorable aliases for the same splits.
-        bind | split-window -h -c "#{pane_current_path}"
-        bind - split-window -v -c "#{pane_current_path}"
-
-        # Ctrl+Alt, not plain Alt: A-j/A-k belong to Helix, A-h/A-l to fish.
-        bind -n C-M-h select-pane -L
-        bind -n C-M-j select-pane -D
-        bind -n C-M-k select-pane -U
-        bind -n C-M-l select-pane -R
-        bind -n C-M-Left select-pane -L
-        bind -n C-M-Down select-pane -D
-        bind -n C-M-Up select-pane -U
-        bind -n C-M-Right select-pane -R
-
-        # Double-tap prefix jumps to the last-used window.
-        bind C-Space last-window
-
-        # -r: prefix stays active for repeat-time, so n-n-n instead of
-        bind -r n next-window
-        bind -r p previous-window
-        bind -r '<' swap-pane -U
-        bind -r '>' swap-pane -D
-
-        # Don't fall back to the shell when a session is killed — switch to
-        # the last one instead. Makes `bind L` (sesh last) actually useful.
-        set -g detach-on-destroy off
-
-        # vi-style selection in copy-mode
-        bind -T copy-mode-vi v send -X begin-selection
-        bind -T copy-mode-vi C-v send -X rectangle-toggle
-
-        bind R source-file ${config.xdg.configHome}/tmux/tmux.conf \; display "tmux.conf reloaded"
+        # Let the Kitty graphics protocol through, otherwise yazi's image
+        # previews stay blank inside a pane or popup.
+        set -g allow-passthrough on
+        set -ga update-environment TERM
+        set -ga update-environment TERM_PROGRAM
 
         set -g renumber-windows on
         set -g set-clipboard on
 
-        # ── Status line (catppuccin v2 modules) ───────────────────
-        set -g status-position bottom
-        set -g status-left-length 100
-        set -g status-right-length 100
-        set -g status-left ""
-        set -g status-right "#{E:@catppuccin_status_session}"
-        set -agF status-right "#{E:@catppuccin_status_date_time}"
+        # Repeatable bindings chain within this window; 500ms is too tight.
+        set -g repeat-time 1000
+
+        # Don't fall back to the shell when a session is killed — switch to
+        # the last one instead. Makes `bind S` (sesh last) actually useful.
+        set -g detach-on-destroy off
+
+        # ── Prompts and messages ──────────────────────────────────
+        # tmux draws these from column 0 over the status modules without
+        # clearing first, so give them a background that stays readable.
+        set -gF message-style "fg=#{@thm_crust},bg=#{@thm_yellow}"
+        set -gF message-command-style "fg=#{@thm_crust},bg=#{@thm_peach}"
       '';
     };
 

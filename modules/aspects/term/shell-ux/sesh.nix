@@ -9,10 +9,7 @@
       icons = true;
 
       settings = {
-        default_session = {
-          startup_command = "eza --tree --icons --level 2";
-          preview_command = "eza --tree --icons --color=always --level 2 {}";
-        };
+        default_session.preview_command = "eza --tree --icons --color=always --level 2 {}";
 
         # Every repo declared via dotnix.git.repositories becomes a named
         # session, so sesh lists them before they have ever been opened.

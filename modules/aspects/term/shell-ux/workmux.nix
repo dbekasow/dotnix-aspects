@@ -25,11 +25,19 @@
       programs.fish.shellAbbrs.wx = "workmux";
     };
 
-  flake.modules.homeManager.tmux = { pkgs, ... }: {
-    dotnix.tmux.popups = [{
-      key = "a";
-      name = "agents";
-      command = "${pkgs.llm-agents.workmux}/bin/workmux dashboard";
-    }];
-  };
+  flake.modules.homeManager.tmux = { pkgs, ... }:
+    let wm = "${pkgs.llm-agents.workmux}/bin/workmux"; in
+    {
+      dotnix.tmux.popups = [
+        { key = "a"; name = "agents"; command = "${wm} dashboard"; }
+      ];
+
+      # Not a popup: the sidebar adds a real pane to every window, so it has
+      # to run against the server rather than inside an overlay. The command
+      # toggles on its own, one key covers both directions.
+      dotnix.tmux.bindings = [
+        { key = "a"; name = "Agent sidebar"; command = ''run-shell "${wm} sidebar"''; }
+        { key = "A"; name = "Agent sidebar (session)"; command = ''run-shell "${wm} sidebar --session"''; }
+      ];
+    };
 }
