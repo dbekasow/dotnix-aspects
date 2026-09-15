@@ -15,9 +15,7 @@
       fzf
       sesh
       skim
-      tuicr
       tmux
-      workmux
       yazi
       zellij
       zoxide
@@ -56,6 +54,11 @@
       # Mail
       aerc
       maildir
+
+      # ai workflow
+      ai-tools
+      workmux
+      tuicr
     ];
   };
 }
