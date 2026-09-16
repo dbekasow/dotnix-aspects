@@ -93,7 +93,7 @@
           # Match the rounded window tabs; no popup-style, the TUIs paint
           # their own background and a second one shows through unevenly.
           set -g popup-border-lines rounded
-          set -gF popup-border-style "fg=#{@them_surface_2}"
+          set -gF popup-border-style "fg=#{@thm_surface_2}"
 
           # ── TUI popups: prefix o, then a letter ───────────────────
           # display-menu is tmux's built-in which-key: the item key stays
