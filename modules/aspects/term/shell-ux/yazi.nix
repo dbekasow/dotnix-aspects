@@ -36,10 +36,10 @@
 
       keymap.mgr.prepend_keymap = [
         # bookmarks: save / jump / delete
-        { on = "m"; run = "plugin bookmarks save"; desc = "Bookmark save"; }
-        { on = "'"; run = "plugin bookmarks jump"; desc = "Bookmark jump"; }
+        { on = [ "b" "m" ]; run = "plugin bookmarks save"; desc = "Bookmark save"; }
         { on = [ "b" "d" ]; run = "plugin bookmarks delete"; desc = "Bookmark delete"; }
         { on = [ "b" "D" ]; run = "plugin bookmarks delete_all"; desc = "Bookmark delete all"; }
+        { on = "'"; run = "plugin bookmarks jump"; desc = "Bookmark jump"; }
         # smart-enter: open file or enter directory with one key
         { on = "l"; run = "plugin smart-enter"; desc = "Enter or open"; }
         # smart-filter: live filter, cursor follows match
@@ -60,8 +60,15 @@
 
         -- no-status: remove the bottom status bar for a cleaner UI
         require("no-status"):setup()
+
+        -- bookmarks: keep bookmarks across restarts
+        require("bookmarks"):setup({ persist = "all" })
       '';
     };
+  };
+
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".local/state/yazi" ];
   };
 }
 

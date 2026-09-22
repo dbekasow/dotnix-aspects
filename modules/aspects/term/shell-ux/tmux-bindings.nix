@@ -97,6 +97,7 @@
             # replaces home-manager's `bind C-Space send-prefix`, so the
             # pass-through moves to the freed-up former prefix key.
             { key = "C-Space"; name = "Last window"; command = "last-window"; }
+            { key = "C-b"; name = "Send prefix"; command = "send-prefix"; }
 
             # repeat: the prefix stays active, so n-n-n instead of prefix-n-prefix-n.
             { key = "n"; name = "Next window"; command = "next-window"; repeat = true; }
