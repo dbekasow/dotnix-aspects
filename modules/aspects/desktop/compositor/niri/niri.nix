@@ -54,7 +54,16 @@
           (lib.const 10.0);
         clip-to-geometry = true;
         draw-border-with-background = false;
-      }];
+      }
+        # Background blur behind the semitransparent terminals — niri's
+        # window-effects (since 26.04) instead of per-app client requests.
+        # xray stays on (default with any effect): the blurred wallpaper is
+        # computed once instead of per window. GPU cost is real, so only the
+        # transparent apps in this stack get the rule.
+        {
+          matches = [{ app-id = "^(ghostty|Alacritty)$"; }];
+          background-effect.blur = true;
+        }];
     };
   };
 }
