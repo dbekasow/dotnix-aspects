@@ -18,10 +18,32 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/determinate-nix-action@v3
-      - uses: DeterminateSystems/flake-checker-action@main
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: DeterminateSystems/determinate-nix-action@8d87e8d5e5b8a8309d4281094560f127d9a265f1 # v3
+      - uses: DeterminateSystems/flake-checker-action@786422608c7bded2bbc9741ad9f91356842bf520 # main
         with:
           fail-mode: true
       - run: nix flake check --accept-flake-config
-        # covers: treefmt, deadnix, statix, typos, commitizen, detect-private-keys
+        # covers: treefmt checks (nixpkgs-fmt, deadnix, statix, typos, prettier …).
+        # commitizen + detect-private-keys run locally via prek, not in CI.
+
+  # The product of this repo is its flakeModule export. Instantiate a fresh
+  # consumer template against this checkout and build its toplevel closure —
+  # the contract that `nix flake check` on the library alone cannot see.
+  consumer-fixture:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: DeterminateSystems/determinate-nix-action@8d87e8d5e5b8a8309d4281094560f127d9a265f1 # v3
+      - run: nix flake new /tmp/fixture -t .#default --accept-flake-config
+      # Build instead of eval: eval only proves the derivation constructs.
+      # Without this gate, build breaks surface at the desktop switch, not
+      # in CI — the DMS family (dms, dank-greeter, dms-plugins) has no binary
+      # cache and compiles from source, so this is what catches them pre-merge.
+      - run: >
+          nix build
+          /tmp/fixture#nixosConfigurations.myHost.config.system.build.toplevel
+          --override-input dotnix "$GITHUB_WORKSPACE" --accept-flake-config

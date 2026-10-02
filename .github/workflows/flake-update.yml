@@ -2,8 +2,12 @@
 name: flake-update
 
 on:
+  # Semi-monthly (1st and 15th, 04:00 UTC): the consumer-fixture job in
+  # flake-check.yml now builds the full toplevel closure before auto-merge.
+  # Every wave pays that build — the DMS family compiles from source with no
+  # upstream binary cache — so update twice a month instead of weekly.
   schedule:
-    - cron: "0 4 * * 1" # weekly, Monday 04:00 UTC
+    - cron: "0 4 1,15 * *"
   workflow_dispatch: # allow manual trigger
 
 concurrency:
@@ -18,9 +22,9 @@ jobs:
       id-token: write # required for FlakeHub / OIDC
       pull-requests: write # open PRs & enable auto-merge
     steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/determinate-nix-action@v3
-      - uses: DeterminateSystems/update-flake-lock@main
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: DeterminateSystems/determinate-nix-action@8d87e8d5e5b8a8309d4281094560f127d9a265f1 # v3
+      - uses: DeterminateSystems/update-flake-lock@da03c0f078bc4b2c37ee4f7e072d34bf8f188bb3 # main
         id: update
         with:
           commit-msg: "chore: update flake inputs"
