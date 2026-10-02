@@ -1,0 +1,11 @@
+# Impermanence contribution for nix — collector pattern: the entry
+# lives with the contributing feature, not in the impermanence collector.
+{
+  flake.modules.nixos.impermanence = {
+    environment.persistence."/persist".directories = [
+      "/etc/nixos"
+      "/var/lib/nixos"
+      "/var/lib/systemd"
+    ];
+  };
+}
