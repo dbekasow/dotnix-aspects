@@ -7,7 +7,6 @@
       gnome-services
       niri
       thunar
-      qt-theme
       xdg-portals
     ];
 
