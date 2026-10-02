@@ -4,12 +4,13 @@
       enable = lib.mkDefault true;
 
       settings = {
-        PermitRootLogin = lib.mkForce "prohibit-password";
+        # "prohibit-password" is the upstream default, so no explicit
+        # PermitRootLogin — hosts stay free to tighten it to "no".
         PasswordAuthentication = lib.mkDefault false;
       };
     };
 
-    networking.firewall.allowedTCPPorts = [ 22 ];
+    # Port 22 is opened by services.openssh.openFirewall (default true).
 
     environment.systemPackages = [ pkgs.openssh ];
   };
@@ -21,15 +22,10 @@
 
       settings."*" = {
         AddKeysToAgent = "yes";
-        Compression = "no";
         ControlMaster = "auto";
         ControlPath = "~/.ssh/master-%r@%n:%p";
         ControlPersist = "10m";
-        ForwardAgent = "no";
-        HashKnownHosts = "no";
-        ServerAliveCountMax = 3;
         ServerAliveInterval = 60;
-        UserKnownHostsFile = "~/.ssh/known_hosts";
       };
     };
   };

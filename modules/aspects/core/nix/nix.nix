@@ -15,10 +15,9 @@
 
         experimental-features = [ "nix-command" "flakes" ];
 
-        keep-outputs = lib.mkDefault false;
         keep-derivations = lib.mkDefault false;
 
-        allowed-users = [ "@wheel" ];
+        allowed-users = lib.mkDefault [ "@wheel" ];
         trusted-users = [ "root" "@wheel" ];
 
         # Five substituters over a flaky WLAN: without timeouts Nix can hang

@@ -1,3 +1,6 @@
+# The `generator` option is the agenix-rekey extension — age.nix must be
+# imported alongside age-rekey (users.nix and yubikey-pam.nix depend on
+# the same extension).
 { inputs, ... }: {
   flake.modules.nixos.age = { config, lib, ... }: {
     imports = [ inputs.agenix.nixosModules.default ];

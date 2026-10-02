@@ -1,6 +1,8 @@
 {
   flake.modules.nixos.security = { lib, ... }: {
-    security.sudo.enable = lib.mkForce false;
+    # No `security.sudo.enable = false` here: the sudo-rs module already
+    # disables legacy sudo by default, and forcing it would break hosts
+    # that deliberately keep legacy sudo.
     security.sudo-rs = {
       enable = true;
       execWheelOnly = true;
