@@ -4,6 +4,9 @@
     modules = with nixos; [
       dell-precision-5570 # from ./hardware.nix
       core # home-manager wiring (nixos.home-manager) — the factory does NOT inject it
+      desktop-shell # graphical socket; shell and greeter are per-host choices
+      dms # shell — swap for `noctalia` to run the alternative
+      dms-greeter # greeter — swap for `noctalia-greeter`
       system # boot, disko, network, etc.
       development
       {
