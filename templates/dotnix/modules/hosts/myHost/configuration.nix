@@ -1,6 +1,6 @@
 {
-  # Register host under the dotnix namespace.
-  dotnix.myHost = { nixos, ... }: {
+  # Register the host under the dotnix.hosts registry.
+  dotnix.hosts.myHost = { nixos, ... }: {
     modules = with nixos; [
       dell-precision-5570 # from ./hardware.nix
       core # home-manager wiring (nixos.home-manager) — the factory does NOT inject it

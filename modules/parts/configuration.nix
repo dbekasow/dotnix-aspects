@@ -14,33 +14,51 @@ let
         modules = lib.mkOption {
           type = listOf deferredModule;
           default = [ ];
-          description = "NixOS modules merged into the host's configuration.";
+          description = ''
+            NixOS modules merged into the host's configuration; pull library
+            tiers and aspects through the `nixos` argument, host-local modules
+            go into the same list.
+          '';
         };
         members = lib.mkOption {
           type = listOf str;
           default = [ ];
-          description = "Usernames whose generic profile modules the host imports.";
+          description = "Usernames the host imports; each must match a `flake.modules.nixos.<name>` registration (modules/users/<name>/default.nix).";
         };
       };
     }];
   };
 in
 {
-  options.dotnix = lib.mkOption {
+  options.dotnix.hosts = lib.mkOption {
     type = attrsOf hostSubModule;
-    description = "Dotnix configuration namespace";
     default = { };
+    description = "Host registry; every key becomes a nixosConfigurations.<key> entry.";
   };
   config = {
     flake = {
       modules.nixos.dotnix = { config, ... }: {
         options.dotnix = {
-          hostname = lib.mkOption { type = nullOr str; default = null; };
-          host = lib.mkOption { type = hostSubModule; default = { }; };
-          # True once the host's ssh identity exists. Vault-backed aspects
-          # (age, users, yubikey-pam, git-credentials) follow this gate so
-          # fresh consumers without key material evaluate green.
-          vaultReady = lib.mkOption { type = bool; readOnly = true; };
+          hostname = lib.mkOption {
+            type = nullOr str;
+            default = null;
+            description = "Registry key of this host, used for host-scoped path lookups (secrets, certificates).";
+          };
+          host = lib.mkOption {
+            type = hostSubModule;
+            default = { };
+            description = "This host's registry entry (system, modules, members), injected by the factory.";
+          };
+          vaultReady = lib.mkOption {
+            type = bool;
+            readOnly = true;
+            description = ''
+              True once modules/hosts/<name>/secrets/ssh_host_ed25519_key.pub
+              exists; vault-backed aspects (age, users, yubikey-pam,
+              git-credentials) gate on this so fresh consumers without key
+              material evaluate green.
+            '';
+          };
         };
 
         config.dotnix.vaultReady = lib.pathExists
@@ -49,19 +67,29 @@ in
 
       nixosConfigurations = lib.mapAttrs
         (hostname: host:
-          let userModules = lib.attrVals host.members modules.nixos; in
+          let
+            # Fail at the option naming the member, not deep inside attrVals.
+            unknown = lib.filter (m: !(modules.nixos ? "${m}")) host.members;
+            userModules = lib.attrVals host.members modules.nixos;
+          in
+          assert unknown == [ ] || throw (
+            "dotnix.hosts.${hostname}.members: unknown member(s) "
+              + "'${lib.concatStringsSep "', '" unknown}' -- each member needs a "
+              + "user module at modules/users/<name>/default.nix "
+              + "(registered: ${lib.concatStringsSep " " (lib.attrNames modules.nixos)})"
+          );
           inputs.nixpkgs.lib.nixosSystem {
             inherit (host) system;
             modules = host.modules ++ userModules ++ [
               { system.stateVersion = lib.mkDefault "26.11"; }
               { dotnix = { inherit hostname host; }; }
-              { networking.hostName = hostname; }
+              { networking.hostName = lib.mkDefault hostname; }
               { boot.zfs.forceImportRoot = lib.mkDefault false; }
               modules.nixos.dotnix
             ];
           }
         )
-        config.dotnix;
+        config.dotnix.hosts;
     };
   };
 }

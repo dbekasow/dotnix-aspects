@@ -55,7 +55,7 @@ once the host key exists. To bootstrap the real secrets workflow:
 ## Adding a host
 
 1. Copy `modules/hosts/myHost/` and rename it
-2. Adjust modules and members in `configuration.nix`
+2. Adjust the `dotnix.hosts.<name>` key, modules and members in `configuration.nix`
 3. Replace `hardware.nix` with the actual hardware config
 
 ## Adding a user
