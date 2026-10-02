@@ -8,7 +8,10 @@
 
       configHome =
         let
-          primary = lib.head config.dotnix.host.members;
+          members = config.dotnix.host.members;
+          primary = lib.throwIf (members == [ ])
+            "dms-greeter needs at least one dotnix.hosts.<name>.members entry to borrow a home directory for greeter theming"
+            (lib.head members);
           inherit (config.users.users."${primary}") home;
         in
         lib.mkDefault home;

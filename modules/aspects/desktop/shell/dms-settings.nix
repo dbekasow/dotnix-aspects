@@ -3,8 +3,9 @@
 # made DMS re-migrate settings.json (v5 → v33) on every start and home-manager
 # roll the file back on every switch.
 {
-  flake.modules.homeManager.dms = _: {
-    programs.dank-material-shell.settings = {
+  flake.modules.homeManager.dms = { lib, ... }: {
+    # mkDefault so hosts can override individual leaves without mkForce.
+    programs.dank-material-shell.settings = lib.mkDefault {
       widgetBackgroundColor = "sch";
       blurLayerOutlineOpacity = 0.12;
 

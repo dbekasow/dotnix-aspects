@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.dms = { pkgs, ... }: {
+  flake.modules.nixos.dms = { config, lib, pkgs, ... }: {
     imports = [ inputs.dms.nixosModules.dank-material-shell ];
 
     programs.dank-material-shell = {
@@ -7,13 +7,23 @@
 
       systemd.enable = true;
       systemd.restartIfChanged = true;
+
+      # U2F needs vault material like yubikey-pam: the u2f authfile secret
+      # only exists once the vault is ready.
+      lockscreen.securityKey = lib.mkIf config.dotnix.vaultReady {
+        enable = true;
+        moduleArgs = [ "cue" "authfile=${config.age.secrets.u2f.path}" ];
+      };
     };
 
     programs.dsearch.enable = true;
 
+    # The fprintd package alone starts nothing — the service wires PAM
+    # auth. mkDefault so hosts without a reader can set it to false.
+    services.fprintd.enable = lib.mkDefault true;
+
     environment.systemPackages = with pkgs; [
       cups-pk-helper # printer management
-      fprintd # fingerprint authentication
     ];
   };
 

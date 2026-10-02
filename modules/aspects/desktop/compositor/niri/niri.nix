@@ -21,6 +21,10 @@
       xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite-unstable;
       hotkey-overlay.skip-at-startup = true;
 
+      # niri's default ~/Pictures (capital P) collides with the persisted
+      # xdg spelling — see shell/xdg.
+      screenshot-path = "~/pictures/screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
+
       input = {
         keyboard.xkb.options = "caps:escape";
         keyboard.xkb.layout = "de";

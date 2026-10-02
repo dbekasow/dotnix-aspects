@@ -17,7 +17,9 @@
         StartLimitBurst = 5;
       };
       Service = {
-        ExecStart = "${lib.getExe pkgs.handy} --start-hidden";
+        # nixpkgs' handy drifts against llm-agents; the single-instance
+        # socket requires one binary.
+        ExecStart = "${lib.getExe pkgs.llm-agents.handy} --start-hidden";
         # Handy shells out to wtype/wl-copy for pasting — pin the path here
         # instead of relying on the imported session PATH.
         Environment = [ "PATH=${lib.makeBinPath (with pkgs; [ wtype wl-clipboard ])}" ];

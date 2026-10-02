@@ -44,7 +44,10 @@
           # off, geolocation and beacons on).
           "browser.contentblocking.category" = "strict";
           "dom.security.https_only_mode" = true;
-          "network.trr.mode" = 2; # DoH preferred, system DNS as fallback
+          # DoH off: the browser resolves through systemd-resolved so the
+          # system cache and its DNS policy stay the single path — a trr.mode
+          # of 2 made every domain pay its own DoH round trip outside the cache.
+          "network.trr.mode" = 5;
           "network.http.referer.XOriginPolicy" = 2;
           "network.http.referer.XOriginTrimmingPolicy" = 2;
           # default_address_only is sufficient; no_host breaks LAN WebRTC (Jellyfin etc.)
@@ -130,7 +133,9 @@
   ];
 
   flake.modules.homeManager.impermanence = {
-    home.persistence."/persist".directories = [ ".config/mozilla" ];
+    # HM's firefox keeps profiles in ~/.mozilla/firefox — .config/mozilla
+    # persists nothing.
+    home.persistence."/persist".directories = [ ".mozilla" ".cache/mozilla" ];
   };
 }
 

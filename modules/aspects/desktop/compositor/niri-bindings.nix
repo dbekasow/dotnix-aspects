@@ -21,17 +21,19 @@
         "Mod+P".action = dms-ipc "call" "notepad" "toggle";
         "Mod+V".action = dms-ipc "call" "clipboard" "toggle";
         "Mod+M".action = dms-ipc "call" "processlist" "toggle";
-        "Mod+Alt+N".action = dms-ipc "call" "night" "toggle";
+        "Mod+Alt+N" = { allow-when-locked = true; action = dms-ipc "call" "night" "toggle"; };
 
         # ── Audio (DMS — replaces wpctl) ───────────────────────────
-        "XF86AudioRaiseVolume".action = dms-ipc "call" "audio" "increment" "3";
-        "XF86AudioLowerVolume".action = dms-ipc "call" "audio" "decrement" "3";
-        "XF86AudioMute".action = dms-ipc "call" "audio" "mute";
-        "XF86AudioMicMute".action = dms-ipc "call" "audio" "micmute";
+        # DMS's upstream binds allowed these while locked; the lockscreen
+        # needs media and brightness control.
+        "XF86AudioRaiseVolume" = { allow-when-locked = true; action = dms-ipc "call" "audio" "increment" "3"; };
+        "XF86AudioLowerVolume" = { allow-when-locked = true; action = dms-ipc "call" "audio" "decrement" "3"; };
+        "XF86AudioMute" = { allow-when-locked = true; action = dms-ipc "call" "audio" "mute"; };
+        "XF86AudioMicMute" = { allow-when-locked = true; action = dms-ipc "call" "audio" "micmute"; };
 
         # ── Brightness (DMS — replaces brightnessctl) ──────────────
-        "XF86MonBrightnessUp".action = dms-ipc "call" "brightness" "increment" "5" "";
-        "XF86MonBrightnessDown".action = dms-ipc "call" "brightness" "decrement" "5" "";
+        "XF86MonBrightnessUp" = { allow-when-locked = true; action = dms-ipc "call" "brightness" "increment" "5" ""; };
+        "XF86MonBrightnessDown" = { allow-when-locked = true; action = dms-ipc "call" "brightness" "decrement" "5" ""; };
 
         # ── Window management ──────────────────────────────────────
         "Mod+Q".action = close-window;
