@@ -10,7 +10,6 @@ let
       modes = [
         { key = "a"; icon = "⚡"; label = "all"; cmd = list; }
         { key = "t"; icon = "🪟"; label = "tmux"; cmd = "${list} -t"; }
-        { key = "g"; icon = "⚙️"; label = "configs"; cmd = "${list} -c"; }
         { key = "x"; icon = "📁"; label = "zoxide"; cmd = "${list} -z"; }
         { key = "f"; icon = "🔎"; label = "find"; cmd = "fd -H -d 2 -t d -E .Trash . ~"; }
       ];
@@ -43,12 +42,6 @@ in
 
       settings = {
         default_session.preview_command = "eza --tree --icons --color=always --level 2 {}";
-
-        # Every repo declared via dotnix.git.repositories becomes a named
-        # session, so sesh lists them before they have ever been opened.
-        session = lib.mapAttrsToList
-          (dest: _: { name = baseNameOf dest; path = "${config.home.homeDirectory}/${dest}"; })
-          config.dotnix.git.repositories;
       };
     };
 
