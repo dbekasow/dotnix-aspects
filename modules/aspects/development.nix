@@ -1,9 +1,6 @@
 { self, ... }: {
   flake.modules = let inherit (self.modules) nixos homeManager; in {
     nixos.development.imports = with nixos; [
-      # Editor (master)
-      helix
-
       # Devops
       docker
 
