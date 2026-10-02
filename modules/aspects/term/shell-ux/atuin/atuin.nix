@@ -16,7 +16,6 @@
         filter_mode = "host";
         filter_mode_shell_up_key_binding = "session";
         store_failed = false;
-        workspaces = true;
 
         # UI
         style = "compact";

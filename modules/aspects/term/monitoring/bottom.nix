@@ -6,14 +6,12 @@
       settings = {
         flags = {
           temperature_type = "celsius";
-          rate_ms = 1000;
-          mem_as_value = false;
-          group_processes = true;
-          tree = false;
+          rate = 1000;
         };
 
-        layout = {
-          default_layout = "default";
+        processes = {
+          default_grouped = true;
+          default_tree = false;
         };
       };
     };

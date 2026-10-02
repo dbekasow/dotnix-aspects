@@ -7,7 +7,8 @@
         "--smart-case"
         "--follow"
         "--hidden"
-        "--glob=!.git/*"
+        # --hidden would otherwise descend into .git
+        "--glob=!.git/"
       ];
     };
   };

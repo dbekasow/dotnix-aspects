@@ -4,9 +4,9 @@
 
     programs.msmtp.enable = true;
 
+    # Sync is notmuch-driven: the preNew hook below runs mbsync before every
+    # `notmuch new`, so an extra systemd timer would only duplicate the work.
     programs.mbsync.enable = true;
-    services.mbsync.enable = true;
-    services.mbsync.frequency = "*:0/15";
 
     programs.notmuch = {
       enable = true;

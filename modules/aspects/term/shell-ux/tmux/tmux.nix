@@ -85,8 +85,8 @@
                 { flag = "window_zoomed_flag"; color = "blue"; }
               ];
               modeIndicator = lib.foldr
-                (m: fallback: "#{?${m.flag},#[fg=#{@them_${m.color}}]●,${fallback}}")
-                "#[fg=#{@them_surface_1}]●"
+                (m: fallback: "#{?${m.flag},#[fg=#{@thm_${m.color}}]●,${fallback}}")
+                "#[fg=#{@thm_surface_1}]●"
                 modes;
             in
             ''
@@ -99,12 +99,15 @@
               set -g status-right-length 100
               set -g status-left ""
 
-              # Plain -g here: -F would expand client_prefix once at load time and
-              # freeze the dot. The modules below need -F for the palette.
+              # Plain -g/-ag everywhere: -F would expand client_prefix once at
+              # load time and freeze the dot. The plugin already resolves the
+              # palette when it loads the module options (status_module.conf),
+              # so the module lines need no -F either — upstream only uses
+              # -agF for #() modules like cpu/ram/battery.
               set -g status-right "${modeIndicator}#[default] "
-              set -agF status-right "#{E:@catppuccin_status_application}"
-              set -agF status-right "#{E:@catppuccin_status_session}"
-              set -agF status-right "#{E:@catppuccin_status_date_time}"
+              set -ag status-right "#{E:@catppuccin_status_application}"
+              set -ag status-right "#{E:@catppuccin_status_session}"
+              set -ag status-right "#{E:@catppuccin_status_date_time}"
             '';
         }
       ];
@@ -133,8 +136,8 @@
         # ── Prompts and messages ──────────────────────────────────
         # tmux draws these from column 0 over the status modules without
         # clearing first, so give them a background that stays readable.
-        set -gF message-style "fg=#{@them_crust},bg=#{@them_yellow}"
-        set -gF message-command-style "fg=#{@them_crust},bg=#{@them_peach}"
+        set -gF message-style "fg=#{@thm_crust},bg=#{@thm_yellow}"
+        set -gF message-command-style "fg=#{@thm_crust},bg=#{@thm_peach}"
       '';
     };
 

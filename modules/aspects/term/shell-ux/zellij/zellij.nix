@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.zellij = { config, lib, ... }: {
+  flake.modules.homeManager.zellij = { lib, ... }: {
     programs.zellij = {
       enable = lib.mkDefault false;
       enableFishIntegration = true;
@@ -28,9 +28,8 @@
         # Environment setup
         env.COLORTERM = "truecolor";
 
-        # Reference the stylix theme
-        theme_dir = "${config.xdg.configHome}/zellij/themes";
-        theme = "default";
+        # stylix writes its theme into the default theme_dir as "stylix".
+        theme = "stylix";
       };
     };
   };

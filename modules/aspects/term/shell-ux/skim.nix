@@ -3,26 +3,10 @@
     programs.skim = {
       enable = true;
 
-      # fzf owns the widget bindings; sk stays as the sesh picker backend.
+      # fzf owns the widget bindings; sk stays as the sesh picker backend,
+      # which invokes it with explicit flags. With fish integration off,
+      # none of the SKIM_* settings would reach it anyway.
       enableFishIntegration = false;
-
-      defaultCommand = "fd --type f";
-      defaultOptions = [ "--height 50%" "--layout reverse" ];
-
-      changeDirWidgetCommand = "fd --type d";
-      changeDirWidgetOptions = [
-        "--preview 'eza --tree --icons --color=always --level 3 --git-ignore {}'"
-        "--pointer ' '"
-      ];
-
-      fileWidgetCommand = "fd --type f";
-      fileWidgetOptions = [
-        "--preview 'bat --color=always {}'"
-        "--pointer ' '"
-      ];
-
-      historyWidgetOptions = [ "--pointer ' '" ];
     };
   };
 }
-

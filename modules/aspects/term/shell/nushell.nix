@@ -1,11 +1,6 @@
 {
   flake.modules.homeManager.nushell = {
-    programs.nushell = {
-      enable = true;
-
-      plugins = [ ];
-      settings = { };
-    };
+    programs.nushell.enable = true;
   };
 }
 

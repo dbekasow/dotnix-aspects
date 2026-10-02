@@ -13,8 +13,6 @@
           error_symbol = "[›](bold red)";
         };
 
-        directory.truncation_length = 3;
-
         nix_shell = {
           # detect nix shells without --pure flag
           heuristic = true;

@@ -1,5 +1,9 @@
 {
   flake.modules.homeManager.yazi = { pkgs, ... }: {
+    # The glow previewer shells out to the glow binary; nixpkgs'
+    # yaziPlugins.glow ships only the Lua half.
+    home.packages = [ pkgs.glow ];
+
     programs.yazi = {
       enable = true;
 
