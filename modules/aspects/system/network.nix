@@ -26,8 +26,6 @@
 
       useDHCP = false;
       dhcpcd.enable = false;
-
-      firewall.enable = true;
     };
 
     # Local DNS cache. Over WLAN with ~30 ms RTT, this saves roughly as many
@@ -51,10 +49,15 @@
         MulticastDNS = "no";
         LLMNR = "no";
 
-        # "opportunistic"/"allow-downgrade" rather than strict: a laptop hits
-        # captive portals, and strict DNSSEC/DoT makes those unusable.
+        # "allow-downgrade" rather than strict DNSSEC: a laptop hits captive
+        # portals, and strict DNSSEC makes those unusable.
         DNSSEC = "allow-downgrade";
-        DNSOverTLS = "opportunistic";
+
+        # "no": home routers and ISP resolvers offer no DoT and silently DROP
+        # the :853 TLS attempt instead of rejecting it, so "opportunistic"
+        # burns multi-second timeouts on the first lookup of every domain
+        # before resolved falls back to plain UDP.
+        DNSOverTLS = "no";
 
         # Only used when the network provides no DNS of its own. Deliberately
         # not Domains = [ "~." ], so the DHCP resolver stays in charge for

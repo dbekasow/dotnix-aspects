@@ -10,8 +10,9 @@
       jack.enable = true;
       pulse.enable = true;
 
+      # wireplumber ships with pipewire.enable; only the codec tuning is
+      # aspect-specific.
       wireplumber = {
-        enable = true;
         extraConfig = {
           "10-bluez"."monitor.bluez.properties" = {
             "bluez5.enable-sbc-xq" = true;
@@ -22,6 +23,5 @@
         };
       };
     };
-    services.pulseaudio.support32Bit = true;
   };
 }

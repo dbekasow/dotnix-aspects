@@ -18,12 +18,12 @@
       "iwlmvm.power_scheme=1"
     ];
 
-    # Without these two, iwlwifi falls back to world roaming: reduced TX
-    # power and some 5 GHz channels (especially the wide 80/160 MHz ones)
-    # become unavailable. Verify with `iw reg get` — should show DE, not
-    # "country 00".
+    # The firmware set also carries the wireless regulatory database
+    # (wirelessRegulatoryDatabase defaults to enableRedistributableFirmware),
+    # so Country=DE unlocks full TX power and the wide 5 GHz channels.
+    # Without it, iwlwifi falls back to world roaming. Verify with
+    # `iw reg get` — should show DE, not "country 00".
     hardware.enableRedistributableFirmware = true;
-    hardware.wirelessRegulatoryDatabase = true;
 
     environment.systemPackages = with pkgs; [ wifitui iw ];
   };

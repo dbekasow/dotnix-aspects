@@ -1,4 +1,7 @@
 {
+  # Weather/gammastep auto-location drives geoclue, and geoclue triggers
+  # NetworkManager scan cycles — the off-channel ping spikes seen on WLAN.
+  # Pin the weather location instead, or leave this aspect unimported.
   flake.modules.nixos.geolocation = {
     location.provider = "geoclue2";
 

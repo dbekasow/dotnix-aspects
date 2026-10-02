@@ -5,19 +5,18 @@
       printf '# nix shell nixpkgs#pam_u2f -c pamu2fcfg -u $(whoami) -o pam://$(hostname) -i pam://$(hostname)'
     '';
 
-    security.pam = {
-      u2f = {
-        enable = true;
+    # pam.u2f.enable is the global switch: it installs pam_u2f into every
+    # PAM service that doesn't opt out (login, sudo, sshd, polkit) — that
+    # fleet-wide security floor is intended, so no per-service enables.
+    security.pam.u2f = {
+      enable = true;
 
-        settings = {
-          authfile = config.age.secrets.u2f.path;
-          interactive = true;
-          cue = true;
-          nouserok = true;
-        };
+      settings = {
+        authfile = config.age.secrets.u2f.path;
+        interactive = true;
+        cue = true;
+        nouserok = true;
       };
-
-      services.sudo.u2f.enable = true;
     };
 
     programs.yubikey-manager.enable = true;

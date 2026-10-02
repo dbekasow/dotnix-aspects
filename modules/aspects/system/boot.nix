@@ -4,25 +4,29 @@
       initrd.systemd.enable = true;
       initrd.verbose = false;
 
-      loader.efi.canTouchEfiVariables = true;
+      # VMs and nixos-anywhere dry-runs need this off.
+      loader.efi.canTouchEfiVariables = lib.mkDefault true;
       loader.timeout = lib.mkDefault 3;
 
+      # iwlwifi firmware regressions on linuxPackages_latest are a real
+      # WLAN-drop cause on this fleet; pkgs.linuxPackages (LTS) is the first
+      # A/B lever whenever WLAN misbehaves.
       kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
       kernelParams = [
-        "rd.systemd.show_status=auto"
         "rd.udev.log_level=3"
         "udev.log_priority=3"
         "quiet"
       ];
 
       consoleLogLevel = 3;
-      tmp.cleanOnBoot = true;
 
-      supportedFilesystems.zfs = false;
-      zfs.forceImportRoot = false;
+      # Only hosts without an impermanence-style rollback gain anything
+      # from a wiped /tmp; kept as the fleet default.
+      tmp.cleanOnBoot = true;
     };
 
-    systemd = let sec = "20s"; in {
+    # Fleet timeout policy; hosts stay free to tighten or loosen.
+    systemd = let sec = lib.mkDefault "20s"; in {
       settings.Manager.DefaultTimeoutStartSec = sec;
       settings.Manager.DefaultTimeoutStopSec = sec;
       user.settings.Manager.DefaultTimeoutStopSec = sec;
