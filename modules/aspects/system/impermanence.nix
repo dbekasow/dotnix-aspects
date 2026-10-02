@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.impermanence = {
+  flake.modules.nixos.impermanence = { lib, config, ... }: {
     imports = [ inputs.impermanence.nixosModules.impermanence ];
 
     boot.initrd.supportedFilesystems.btrfs = true;
@@ -7,8 +7,12 @@
       description = "Roll @root back to @root-blank";
       wantedBy = [ "initrd.target" ];
       before = [ "sysroot.mount" ];
-      requires = [ "systemd-cryptsetup@cryptroot.service" ];
-      after = [ "systemd-cryptsetup@cryptroot.service" ];
+      # Wait for LUKS only when the host actually uses the library's
+      # cryptroot container; plain layouts (dotnix.disk.encrypt = false)
+      # bind straight to the labelled btrfs. Hosts with their own
+      # differently-named LUKS must override this unit's ordering.
+      requires = lib.mkIf (config.boot.initrd.luks.devices ? cryptroot) [ "systemd-cryptsetup@cryptroot.service" ];
+      after = lib.mkIf (config.boot.initrd.luks.devices ? cryptroot) [ "systemd-cryptsetup@cryptroot.service" ];
       unitConfig.DefaultDependencies = "no";
       serviceConfig.Type = "oneshot";
       script = ''
@@ -28,6 +32,10 @@
     environment.persistence."/persist" = {
       hideMounts = true;
       files = [ "/etc/machine-id" ];
+      directories = [
+        # Post-mortem debugging across reboots; upstream example path.
+        "/var/lib/systemd/coredump"
+      ];
     };
 
     home-manager.sharedModules = [{
