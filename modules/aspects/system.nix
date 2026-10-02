@@ -7,6 +7,7 @@
       disko
       impermanence
       geolocation
+      journald
       network
       network-wifi
       performance

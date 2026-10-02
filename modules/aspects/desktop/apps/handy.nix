@@ -12,6 +12,9 @@
         Description = "Handy speech-to-text";
         PartOf = [ "graphical-session.target" ];
         After = [ "graphical-session.target" ];
+        # Without a start limit, a crash loop restarts every RestartSec forever.
+        StartLimitIntervalSec = 60;
+        StartLimitBurst = 5;
       };
       Service = {
         ExecStart = "${lib.getExe pkgs.handy} --start-hidden";

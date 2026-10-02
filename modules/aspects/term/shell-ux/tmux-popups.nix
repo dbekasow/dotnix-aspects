@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.tmux = { config, lib, pkgs, ... }:
+  flake.modules.homeManager.tmux = { config, lib, osConfig, pkgs, ... }:
     let
       inherit (lib) getExe mkEnableOption mkOption types;
 
@@ -71,7 +71,8 @@
         dotnix.tmux.popups = with config.programs; [
           # Sizes follow the shape of the UI: dashboards and anything with a
           # diff or a preview pane need width, plain lists don't.
-          { key = "B"; name = "bluetui"; command = getExe pkgs.bluetui; width = "60%"; height = "55%"; }
+          # bluetui/wifitui ship with NixOS system aspects, so gate on their service.
+          { key = "B"; name = "bluetui"; command = getExe pkgs.bluetui; width = "60%"; height = "55%"; inherit (osConfig.hardware.bluetooth) enable; }
           { key = "b"; name = "bottom"; command = getExe pkgs.bottom; width = "95%"; height = "90%"; inherit (bottom) enable; }
           { key = "d"; name = "lazydocker"; command = getExe pkgs.lazydocker; width = "90%"; height = "85%"; inherit (lazydocker) enable; }
           { key = "f"; name = "shell"; command = getExe pkgs.fish; width = "80%"; height = "70%"; }
@@ -81,7 +82,7 @@
           { key = "n"; name = "nix-tree"; command = getExe pkgs.nix-tree; width = "90%"; height = "80%"; }
           { key = "p"; name = "gh-dash"; command = getExe pkgs.gh-dash; width = "90%"; height = "80%"; inherit (gh-dash) enable; }
           { key = "u"; name = "dua"; command = "${getExe pkgs.dua} i"; width = "75%"; height = "75%"; }
-          { key = "w"; name = "wifitui"; command = getExe pkgs.wifitui; width = "60%"; height = "55%"; }
+          { key = "w"; name = "wifitui"; command = getExe pkgs.wifitui; width = "60%"; height = "55%"; inherit (osConfig.networking.wireless.iwd) enable; }
           { key = "y"; name = "yazi"; command = getExe pkgs.yazi; width = "95%"; height = "90%"; inherit (yazi) enable; }
           { key = "t"; name = "tv"; command = getExe pkgs.television; width = "70%"; height = "60%"; inherit (television) enable; }
           # Scratch session outlives the popup, so no start directory. TMUX is cleared because tmux refuses to nest a session otherwise.
@@ -93,7 +94,7 @@
           # Match the rounded window tabs; no popup-style, the TUIs paint
           # their own background and a second one shows through unevenly.
           set -g popup-border-lines rounded
-          set -gF popup-border-style "fg=#{@thm_surface_2}"
+          set -gF popup-border-style "fg=#{@them_surface_2}"
 
           # ── TUI popups: prefix o, then a letter ───────────────────
           # display-menu is tmux's built-in which-key: the item key stays

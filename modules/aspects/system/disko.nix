@@ -18,8 +18,9 @@ in
   flake.modules.nixos.disko = { lib, ... }: {
     imports = [ inputs.disko.nixosModules.disko ];
 
-    disko.devices.disk.main = {
-      device = lib.mkDefault "/dev/nvme0n1";
+    # Library default layout; hosts override it with their own disko config.
+    disko.devices.disk.main = lib.mkDefault {
+      device = "/dev/nvme0n1";
       type = "disk";
       content = {
         type = "gpt";
@@ -50,7 +51,7 @@ in
                 "@swap" = {
                   mountpoint = "/swap";
                   mountOptions = [ "noatime" ];
-                  swap.swapfile.size = lib.mkDefault "64G";
+                  swap.swapfile.size = "64G";
                 };
               };
               postCreateHook = ''

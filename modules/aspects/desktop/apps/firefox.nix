@@ -66,9 +66,6 @@
           # ─── Disable JS execution inside PDFs ────────────────────────────────
           "pdfjs.enableScripting" = false;
 
-          # ─── Disable autoplay ─────────────────────────────────────────────────
-          "media.autoplay.enabled" = false;
-
           # ─── Mozilla ads / sponsored content / Pocket ─────────────────────────
           "browser.newtabpage.activity-stream.showSponsored" = false;
           "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;

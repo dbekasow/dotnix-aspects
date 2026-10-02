@@ -12,7 +12,7 @@
     programs.niri.enable = true;
     programs.niri.package = pkgs.niri-unstable;
 
-    # Disable broken polkit-kde-agent, use polkit-gnome instead
+    # DMS ships its own polkit agent, so the flake's agent stays off.
     systemd.user.services.niri-flake-polkit.enable = false;
   };
 

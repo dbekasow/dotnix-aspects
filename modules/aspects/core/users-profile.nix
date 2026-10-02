@@ -1,10 +1,25 @@
 { lib, self, ... }:
 let
   profile = with lib.types; {
-    username = lib.mkOption { type = str; };
-    fullname = lib.mkOption { type = nullOr str; default = null; };
-    email = lib.mkOption { type = nullOr str; default = null; };
-    theme = lib.mkOption { type = str; default = "catppuccin-mocha"; };
+    username = lib.mkOption {
+      type = str;
+      description = "Login name of the user this profile describes.";
+    };
+    fullname = lib.mkOption {
+      type = nullOr str;
+      default = null;
+      description = "Display name for identities like git and mail.";
+    };
+    email = lib.mkOption {
+      type = nullOr str;
+      default = null;
+      description = "Address for identities like git and mail.";
+    };
+    theme = lib.mkOption {
+      type = str;
+      default = "catppuccin-mocha";
+      description = "Palette name; the default matches the stylix scheme.";
+    };
   };
 in
 {

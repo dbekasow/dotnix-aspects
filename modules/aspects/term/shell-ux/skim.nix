@@ -3,6 +3,9 @@
     programs.skim = {
       enable = true;
 
+      # fzf owns the widget bindings; sk stays as the sesh picker backend.
+      enableFishIntegration = false;
+
       defaultCommand = "fd --type f";
       defaultOptions = [ "--height 50%" "--layout reverse" ];
 

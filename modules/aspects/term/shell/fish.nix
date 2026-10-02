@@ -17,7 +17,6 @@ in
       plugins = with pkgs.fishPlugins; mkPlugins [
         autopair
         fish-you-should-use
-        fzf
       ];
     };
   };
