@@ -32,6 +32,26 @@ flake.nix
 nh os switch -H myHost
 ```
 
+## Secrets (first boot)
+
+A fresh clone evaluates without key material — the vault only gets declared
+once the host key exists. To bootstrap the real secrets workflow:
+
+1. Set your master identities in the host module
+   (`modules/hosts/myHost/configuration.nix`):
+
+   ```nix
+   age.rekey.masterIdentities = [
+     { identity = ./yubikey.pub; pubkey = "age1yubikey1…"; }
+     { identity = ./masterkey.age; pubkey = "age1…"; }
+   ];
+   ```
+
+2. Put the host key at `modules/hosts/myHost/secrets/ssh_host_ed25519_key.pub`
+   and the user key at `modules/users/myUser/secrets/home-key.pub`.
+3. Run `just rekey` — it generates and rekeys the vault into
+   `secrets/{generated,local}/`.
+
 ## Adding a host
 
 1. Copy `modules/hosts/myHost/` and rename it

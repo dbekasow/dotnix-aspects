@@ -6,17 +6,11 @@
       secretsDir = "${inputs.self}/modules/hosts/${config.dotnix.hostname}/secrets";
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
-      hostPubkey = lib.readFile (secretsDir + "/ssh_host_ed25519_key.pub");
-      masterIdentities = [
-        {
-          identity = inputs.self + "/yubikey.pub";
-          pubkey = "age1yubikey1qwj6qjwhqe8zpnnh7799ntnuah7npttr55gzqer3r3ex5hjq4gnmyh2k6tk";
-        }
-        {
-          identity = inputs.self + "/masterkey.age";
-          pubkey = "age1kalxvlmjjydtdps5n27qyf5cf6eqwzuaesemj4enp8ulyw3mcsls3rkpd6";
-        }
-      ];
+      # optionalString lets template/CI consumers evaluate before host keys exist
+      hostPubkey = let pub = secretsDir + "/ssh_host_ed25519_key.pub"; in
+        lib.optionalString (lib.pathExists pub) (lib.readFile pub);
+      # masterIdentities are consumer-owned: set age.rekey.masterIdentities in
+      # your host module (see templates/dotnix README for the layout).
       storageMode = "local";
     };
   };
@@ -28,7 +22,8 @@
       secretsDir = "${inputs.self}/modules/users/${config.home.username}/secrets";
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
-      hostPubkey = lib.readFile (secretsDir + "/home-key.pub");
+      hostPubkey = let pub = secretsDir + "/home-key.pub"; in
+        lib.optionalString (lib.pathExists pub) (lib.readFile pub);
       inherit (osConfig.age.rekey) masterIdentities storageMode;
     };
   };

@@ -2,21 +2,25 @@
 let
   inherit (config.flake) modules;
 
-  isoSubModule = submodule {
-    options = {
-      enable = lib.mkOption { type = bool; default = false; };
-      buildOutput = lib.mkOption { type = str; default = "images.iso-installer"; };
-    };
-  };
-
   hostSubModule = submoduleWith {
     specialArgs = { inherit (modules) nixos; };
     modules = [{
       options = {
-        system = lib.mkOption { type = str; default = "x86_64-linux"; };
-        modules = lib.mkOption { type = listOf deferredModule; default = [ ]; };
-        members = lib.mkOption { type = listOf str; default = [ ]; };
-        iso = lib.mkOption { type = isoSubModule; default = { }; };
+        system = lib.mkOption {
+          type = str;
+          default = "x86_64-linux";
+          description = "Nixpkgs system tuple the host evaluates for.";
+        };
+        modules = lib.mkOption {
+          type = listOf deferredModule;
+          default = [ ];
+          description = "NixOS modules merged into the host's configuration.";
+        };
+        members = lib.mkOption {
+          type = listOf str;
+          default = [ ];
+          description = "Usernames whose generic profile modules the host imports.";
+        };
       };
     }];
   };
@@ -29,9 +33,18 @@ in
   };
   config = {
     flake = {
-      modules.nixos.dotnix.options.dotnix = {
-        hostname = lib.mkOption { type = str; default = null; };
-        host = lib.mkOption { type = hostSubModule; default = { }; };
+      modules.nixos.dotnix = { config, ... }: {
+        options.dotnix = {
+          hostname = lib.mkOption { type = nullOr str; default = null; };
+          host = lib.mkOption { type = hostSubModule; default = { }; };
+          # True once the host's ssh identity exists. Vault-backed aspects
+          # (age, users, yubikey-pam, git-credentials) follow this gate so
+          # fresh consumers without key material evaluate green.
+          vaultReady = lib.mkOption { type = bool; readOnly = true; };
+        };
+
+        config.dotnix.vaultReady = lib.pathExists
+          "${inputs.self}/modules/hosts/${config.dotnix.hostname}/secrets/ssh_host_ed25519_key.pub";
       };
 
       nixosConfigurations = lib.mapAttrs
@@ -49,17 +62,6 @@ in
           }
         )
         config.dotnix;
-    };
-
-    perSystem = { system, ... }: {
-      packages = lib.pipe config.dotnix [
-        (lib.filterAttrs (lib.const (host: host.iso.enable && host.system == system)))
-        (lib.concatMapAttrs (hostname: host: {
-          "${hostname}-iso" = lib.getAttrFromPath
-            (lib.splitString "." host.iso.buildOutput)
-            config.flake.nixosConfigurations.${hostname}.config.system.build;
-        }))
-      ];
     };
   };
 }

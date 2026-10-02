@@ -8,7 +8,7 @@ let
   };
 in
 {
-  flake.modules.homeManager.git-credentials = { pkgs, config, lib, ... }:
+  flake.modules.homeManager.git-credentials = { pkgs, config, lib, osConfig, ... }:
     let
       mkScriptSecret = name: "git-credential-pat-${name}";
       mkScript = name: user: pkgs.writeShellScriptBin "git-credential-${name}" ''
@@ -24,7 +24,8 @@ in
         default = { };
       };
 
-      config = lib.mkIf (cfg != { }) {
+      # Credential secrets need vault material (see dotnix.vaultReady).
+      config = lib.mkIf (cfg != { } && osConfig.dotnix.vaultReady) {
         programs.git.settings.credential = { useHttpPath = true; } // lib.mapAttrs'
           (name: cred: lib.nameValuePair "https://${cred.host}" {
             helper = lib.getExe (mkScript name cred.user);
