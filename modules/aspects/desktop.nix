@@ -1,27 +1,12 @@
+# Composition: graphical socket plus applications — consumers pick
+# granularity by importing desktop-shell alone.
 { self, ... }: {
   flake.modules = let inherit (self.modules) nixos homeManager; in {
-    nixos.desktop.imports = with nixos; [
-      dms
-      dms-greeter
-      fonts
-      gnome-services
-      niri
-      thunar
-      xdg-portals
-    ];
+    nixos.desktop.imports = with nixos; [ desktop-shell ];
 
     homeManager.desktop.imports = with homeManager; [
-      alacritty
-      anki
-      dms
-      dms-plugins
-      handy
-      firefox
-      ghostty
-      niri
-      onlyoffice
-      thunderbird
-      xdg
+      desktop-shell
+      desktop-apps
     ];
   };
 }

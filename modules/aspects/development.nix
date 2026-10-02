@@ -6,6 +6,9 @@
 
       # Dynamic binaries
       nix-ld
+
+      # AI workflow
+      llm-agents
     ];
 
     homeManager.development.imports = with homeManager; [
@@ -20,7 +23,12 @@
       gh
       lazygit
 
-      # Automation & AI
+      # AI workflow
+      ai-tools
+      workmux
+      tuicr
+
+      # Automation
       bacon
       just
       repomix

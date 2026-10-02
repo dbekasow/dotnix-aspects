@@ -1,16 +1,15 @@
 { self, ... }: {
   flake.modules = let inherit (self.modules) nixos homeManager; in {
+    # base carries the shared boot socket — boot, journald and performance
+    # need no individual lines here anymore.
     nixos.system.imports = with nixos; [
+      base
       bluetooth
-      boot
-      boot-systemd
       disko
       impermanence
       geolocation
-      journald
       network
       network-wifi
-      performance
       pipewire
       power
       # Workstation hardware pulled from the core tier: pcscd and

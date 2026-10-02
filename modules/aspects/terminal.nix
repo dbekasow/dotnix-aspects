@@ -1,64 +1,15 @@
+# Composition of the term-* sub-bundles (one per term/ directory). AI
+# workflow moved to the development tier; mail lives in its own tier
+# (mail.nix) so hosts that do not mail do not pull it.
 { self, ... }: {
   flake.modules = let inherit (self.modules) homeManager; in {
     homeManager.terminal.imports = with homeManager; [
-      # Shells & Prompts
-      fish
-      nushell
-      starship
-
-      # UX & Multiplexer
-      atuin
-      carapace
-      clipboard
-      direnv
-      fzf
-      sesh
-      skim
-      tmux
-      yazi
-      zellij
-      zoxide
-
-      # Modern Coreutils (Files/Data)
-      bat
-      dua
-      dust
-      eza
-      fd
-      fx
-      jq
-      mdcat
-      ouch
-      ripgrep
-      ripgrep-all
-      sd
-      xh
-
-      # Monitoring
-      bandwhich
-      bottom
-      fastfetch
-      hyperfine
-      procs
-      rustscan
-      tealdeer
-      television
-      nix-search-tv
-      tokei
-
-      # Nix & Secrets
-      nix-index-database
-      nix-tools
-      rbw
-
-      # Mail
-      aerc
-      maildir
-
-      # ai workflow
-      ai-tools
-      workmux
-      tuicr
+      term-shell
+      term-ux
+      term-cli
+      term-monitoring
+      term-nix
+      term-secrets
     ];
   };
 }
