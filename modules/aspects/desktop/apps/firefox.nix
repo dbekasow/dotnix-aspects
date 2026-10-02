@@ -12,8 +12,13 @@
           force = true;
         };
 
+        # Delta-audited against Firefox release defaults: every entry is a
+        # real delta or a deliberate personal preference. Upstream defaults
+        # stay unwritten so pref drift against Mozilla stays visible here.
         settings = {
-          # ─── Telemetry ────────────────────────────────────────────────────────
+          # Telemetry: Mozilla ships this active. A few entries sit at their
+          # release default, but Normandy/rollout experiments can flip prefs
+          # remotely, so the whole floor stays explicit.
           "toolkit.telemetry.enabled" = false;
           "toolkit.telemetry.unified" = false;
           "toolkit.telemetry.archive.enabled" = false;
@@ -34,83 +39,55 @@
           "browser.ping-centre.telemetry" = false;
           "devtools.onboarding.telemetry.logged" = false;
 
-          # ─── Tracking protection (covers trackers/fingerprinters/cookies) ─────
+          # Tracking/network hardening — upstream defaults are weaker in
+          # every case (standard blocking, plain HTTP, referer 0/0, TRR
+          # off, geolocation and beacons on).
           "browser.contentblocking.category" = "strict";
-
-          # ─── HTTPS-Only ───────────────────────────────────────────────────────
           "dom.security.https_only_mode" = true;
-
-          # ─── DoH (preferred, falls back to system DNS) ────────────────────────
-          "network.trr.mode" = 2;
-
-          # ─── Referer: only send on same base domain, strip to origin ──────────
+          "network.trr.mode" = 2; # DoH preferred, system DNS as fallback
           "network.http.referer.XOriginPolicy" = 2;
           "network.http.referer.XOriginTrimmingPolicy" = 2;
-
-          # ─── WebRTC IP-leak protection ────────────────────────────────────────
           # default_address_only is sufficient; no_host breaks LAN WebRTC (Jellyfin etc.)
           "media.peerconnection.ice.default_address_only" = true;
-
-          # ─── Beacon API (used by analytics to fire-and-forget on page unload) ─
           "beacon.enabled" = false;
-
-          # ─── Hyperlink ping tracking (<a ping>) ───────────────────────────────
-          "browser.send_pings" = false;
-
-          # ─── Geolocation ──────────────────────────────────────────────────────
           "geo.enabled" = false;
-
-          # ─── Speculative pre-connect for URL bar autocomplete ─────────────────
           "browser.urlbar.speculativeConnect.enabled" = false;
+          "network.IDN_show_punycode" = true;
 
-          # ─── Disable JS execution inside PDFs ────────────────────────────────
-          "pdfjs.enableScripting" = false;
-
-          # ─── Mozilla ads / sponsored content / Pocket ─────────────────────────
+          # Mozilla ads / sponsored content / Pocket: shipped on upstream.
           "browser.newtabpage.activity-stream.showSponsored" = false;
           "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
           "browser.newtabpage.activity-stream.feeds.discoverystreamfeed" = false;
           "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
           "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
           "browser.urlbar.suggest.quicksuggest.sponsored" = false;
+          # Release default is already off, but quicksuggest rollout
+          # experiments have flipped it before — keep the floor explicit.
           "browser.urlbar.suggest.quicksuggest.nonsponsored" = false;
           "browser.urlbar.trending.featureGate" = false;
           "extensions.pocket.enabled" = false;
 
-          # ─── Disable DNT header (is itself a fingerprinting vector) ──────────
-          "privacy.donottrackheader.enabled" = false;
-
-          # ─── UI cruft ─────────────────────────────────────────────────────────
-          "browser.uitour.enabled" = false;
-
-          # ─── Container tabs ───────────────────────────────────────────────────
+          # Container tabs: functionality ships enabled, only the UI entries
+          # are hidden upstream — surfacing them is deliberate.
           "privacy.userContext.enabled" = true;
           "privacy.userContext.ui.enabled" = true;
 
-          # ─── Passwörter / Autofill (Bitwarden übernimmt das) ─────────────────────
+          # Passwords/form autofill: Bitwarden owns credentials, so Firefox's
+          # own store stays off (all of these ship on by default).
           "signon.rememberSignons" = false;
           "signon.autofillForms" = false;
           "signon.generation.enabled" = false;
           "signon.management.page.breach-alerts.enabled" = false;
-
           "extensions.formautofill.creditCards.enabled" = false;
           "extensions.formautofill.addresses.enabled" = false;
-
           "browser.formfill.enable" = false;
 
-          # ─── Punycode spoofing protection ─────────────────────────────────────
-          "network.IDN_show_punycode" = true;
-
-          # ─── Vertical tab strip ─────────
-          "sidebar.revamp" = true;
+          # Personal preferences, not privacy deltas.
+          "sidebar.revamp" = true; # new sidebar with the vertical tab strip
           "sidebar.verticalTabs" = true;
           "sidebar.visibility" = "expand-on-hover";
-
-          # ─── Homepage ─────────────────────────────────────────────────────────
-          "browser.startup.page" = 1;
+          "browser.startup.page" = 1; # open the homepage below on startup
           "browser.startup.homepage" = "https://claude.ai|https://github.com";
-
-          # ─── Spellcheck: German dictionary ────────────────────────────────────
           "spellchecker.dictionary" = "de_DE";
           "intl.accept_languages" = "de-DE, de, en-US, en";
         };

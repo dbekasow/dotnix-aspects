@@ -2,7 +2,11 @@
   flake.modules.homeManager.tuicr = { config, pkgs, ... }:
     let
       toml = pkgs.formats.toml { };
-      inherit (config.profile) fullname;
+      # profile.fullname is data held by the users-profile aspect; the
+      # existence check keeps standalone imports (flat
+      # homeManagerModules.tuicr output) evaluating when that aspect is
+      # absent.
+      fullname = if config ? profile && config.profile ? fullname then config.profile.fullname else null;
     in
     {
       home.packages = [ pkgs.llm-agents.tuicr ];

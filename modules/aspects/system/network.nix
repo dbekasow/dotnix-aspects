@@ -15,10 +15,12 @@
         plugins = [ pkgs.networkmanager-openvpn ];
       };
 
-      # mkForce, otherwise the global-dns override from before still applies.
-      # With resolved, networking.nameservers would also become DNS= in
-      # resolved.conf and outrank whatever DHCP hands us.
-      nameservers = lib.mkForce [ ];
+      # Empty so the DHCP-provided resolvers stay in charge and resolved
+      # keeps owning caching/DoT/DNSSEC policy — a fixed provider list here
+      # would silently override consumer DNS. mkDefault, not mkForce: with
+      # resolved, a consumer-provided nameservers lands in DNS= and
+      # legitimately outranks whatever DHCP hands us.
+      nameservers = lib.mkDefault [ ];
 
       nftables.enable = true;
 
