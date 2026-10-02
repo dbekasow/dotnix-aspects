@@ -13,6 +13,10 @@
       performance
       pipewire
       power
+      # Workstation hardware pulled from the core tier: pcscd and
+      # pam_u2f need physical presence; headless hosts skip this tier.
+      yubikey
+      yubikey-pam
     ];
 
     homeManager.system.imports = with homeManager; [

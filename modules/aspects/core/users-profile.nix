@@ -15,6 +15,11 @@ let
       default = null;
       description = "Address for identities like git and mail.";
     };
+    sshAuthorizedKeys = lib.mkOption {
+      type = listOf str;
+      default = [ ];
+      description = "Public SSH keys authorized for this user's login; the profile is the data holder.";
+    };
     theme = lib.mkOption {
       type = str;
       default = "catppuccin-mocha";

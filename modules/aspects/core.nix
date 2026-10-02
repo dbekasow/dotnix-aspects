@@ -20,8 +20,8 @@
       system-packages
       users
       users-profile
-      yubikey
-      yubikey-pam
+      # yubikey and yubikey-pam moved to the system tier: pcscd and
+      # pam_u2f are workstation hardware, dead weight on headless hosts.
     ];
 
     homeManager.core.imports = with homeManager; [
