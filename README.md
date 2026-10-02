@@ -2,7 +2,7 @@
 
 A reusable library of [dendritic](https://github.com/mightyiam/dendritic) NixOS and Home Manager aspects, built on [flake-parts](https://flake.parts/).
 
-Every `.nix` file is a flake-parts module. Aspects register themselves in module classes (`flake.modules.nixos.*`, `flake.modules.homeManager.*`, `flake.modules.generic.*`). Tiers (`modules/aspects/<tier>.nix`: core, system, desktop, development, term) compose aspects into importable bundles, and the host/user factory in `modules/parts/configuration.nix` maps the `dotnix` namespace to `nixosConfigurations`.
+Every `.nix` file is a flake-parts module. Aspects register themselves in module classes (`flake.modules.nixos.*`, `flake.modules.homeManager.*`, `flake.modules.generic.*`). Tiers (`modules/aspects/<tier>.nix`: core, system, server, desktop, development, terminal, bootstrap) compose aspects into importable bundles, and the host/user factory in `modules/parts/configuration.nix` maps the `dotnix` namespace to `nixosConfigurations`.
 
 ## Aspects
 
@@ -18,7 +18,16 @@ All aspects live under `modules/aspects/`. Each file is a flake-parts module con
 
 ## Usage
 
-Add this flake as an input and import its `flakeModule`. See `modules/expose.nix` for what the import pulls in: the aspects, the tiers and the product parts (flake-parts option, factory, age-rekey, home-manager wiring, template registration). Dev tooling (devshell, pre-commit, treefmt) is opt-in via `flakeModules.devTools`. The host/user schema (`dotnix` namespace) and how `nixosConfigurations` are assembled live in `modules/parts/configuration.nix`.
+Add this flake as an input and pick an entry point — one per consumer type, all defined in `modules/expose.nix`. Every entry is a flake-parts module: enabling is importing.
+
+| Consumer                   | Import                                                      | You get                                                                                                                                    | Boundary                                                                                                                  |
+| -------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| flake-parts + factory      | `inputs.dotnix.flakeModule`                                 | Full product: aspects + tiers, `dotnix.<host>` factory → `nixosConfigurations`, age-rekey apps, home-manager wiring, template registration | None — the template path                                                                                                  |
+| flake-parts, own assembly  | `inputs.dotnix.flakeModules.aspects`                        | Aspect registry (`flake.modules.nixos/homeManager.*`) + tiers, without the `dotnix` options namespace or `nixosConfigurations` writer      | Assemble hosts yourself (own `nixosSystem`, nix-darwin); factory-bound aspects below need the wrapper module              |
+| Plain NixOS / Home Manager | `inputs.dotnix.nixosModules.fish` or `homeManagerModules.*` | Every aspect as a standard flake output — no flake-parts on your side                                                                      | `dotnix`-bound aspects below need `nixosModules.dotnix` + `dotnix.host` entries; vault branches stay inactive (see below) |
+| Dev tooling                | `inputs.dotnix.flakeModules.devTools`                       | devshell, pre-commit, treefmt — the library's dev stack                                                                                    | Import together with `flakeModule`: pre-commit hooks treefmt, devshell reads the agenix-rekey package from the age part   |
+
+The factory entry in full:
 
 ```nix
 # flake.nix
@@ -42,6 +51,16 @@ Or start from the consumer template:
 ```console
 nix flake new my-config -t github:dbekasow/dotnix-aspects
 ```
+
+### dotnix-bound aspects
+
+16 of the 130 aspect files reference the `dotnix` options namespace; the rest are plain drop-in modules.
+
+- **Factory-bound** — read `dotnix.host`/`dotnix.hostname`/`dotnix.vaultReady`, options the factory injects via the wrapper module (exposed as `nixosModules.dotnix`). Plain consumers import that wrapper and fill `dotnix.host`/`dotnix.hostname` themselves: `users`, `users-profile`, `age`, `age-rekey`, `certificates`, `nh`, `yubikey-pam`, `docker`, `git-credentials`, `dms-greeter`.
+- **Collector-bound** — write into the `dotnix.tmux` options that the `tmux-bindings` aspect declares; import it alongside: `tmux-popups`, `sesh`, `workmux`, `tuicr`.
+- **Self-contained group** — declares its own `dotnix.git` options: `git-repos`.
+
+Vault-gated branches additionally require the host identity layout from [Secrets & paths](#secrets--paths-consumer-contract) to live under the flake that runs the factory. Via a plain module import that path resolves inside this library, so the vault stays off and evaluation stays green.
 
 ## Composition rules
 
