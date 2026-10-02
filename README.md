@@ -88,6 +88,24 @@ Proven composition lines (host `modules` + user-profile HM imports):
 
 `base` is an inherited boot socket — `system` and `server` pull it, nobody imports it directly. `mail` is an exclusion bundle: pull it only for users who read mail, so non-mailers don't inherit the mail timers. Swap `dms`/`dms-greeter` for `noctalia`/`noctalia-greeter` on hosts that prefer the alternative shell. New tiers appear with their first real consumer, not from theory.
 
+## Channel choice
+
+The fleet-wide pin follows the consumer: `dotnix.inputs.nixpkgs.follows = "nixpkgs"` in the consumer's flake redirects the library's nixpkgs — and every tool input following it — to the consumer's channel. Point your `nixpkgs` input at a stable branch and every host builds on it.
+
+Mixed fleets pick a channel per host:
+
+```nix
+# consumer flake.nix
+inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+inputs.nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
+
+# host module
+
+dotnix.hosts.vps.nixpkgs = inputs.nixpkgs-stable.lib;
+```
+
+Caveat: the library's option surfaces are verified against unstable — a stable host may hit upstream option renames on its first pin.
+
 ## Secrets & paths (consumer contract)
 
 agenix-rekey expects this layout in the **consumer** repo:
