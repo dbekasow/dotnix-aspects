@@ -2,7 +2,6 @@
   flake.modules = let inherit (self.modules) homeManager; in {
     homeManager.terminal.imports = with homeManager; [
       # Shells & Prompts
-      bash
       fish
       nushell
       starship
@@ -44,6 +43,7 @@
       rustscan
       tealdeer
       television
+      nix-search-tv
       tokei
 
       # Nix & Secrets

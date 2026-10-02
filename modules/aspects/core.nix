@@ -4,6 +4,8 @@
       age
       age-rekey
       certificates
+      # Deliberate work-base from other groups: shell + git + llm-agents —
+      # every work profile needs them (tiers are composition layers).
       fish
       git
       home-manager

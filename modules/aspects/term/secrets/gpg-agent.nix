@@ -1,10 +1,4 @@
 {
-  flake.modules.nixos.gnupg = { pkgs, ... }: {
-    programs.gnupg.agent.enable = true;
-    programs.gnupg.agent.enableSSHSupport = true;
-    programs.gnupg.agent.pinentryPackage = pkgs.pinentry-curses;
-  };
-
   flake.modules.homeManager.gpg-agent = { pkgs, ... }: {
     programs.gpg.enable = true;
     programs.gpg.scdaemonSettings.disable-ccid = true;
@@ -25,4 +19,3 @@
     home.persistence."/persist".directories = [ ".gnupg" ];
   };
 }
-
