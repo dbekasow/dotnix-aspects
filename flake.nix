@@ -37,6 +37,14 @@
     dank-greeter.inputs.nixpkgs.follows = "nixpkgs";
     dank-greeter.url = "github:AvengeMedia/dank-greeter";
 
+    # Shell alternative to DMS (first-class niri support, own palette
+    # engine — see the noctalia aspect). Pinned by tag; greeter has no
+    # GitHub release objects, tags only.
+    noctalia.url = "github:noctalia-dev/noctalia/v5.2.1";
+    noctalia.inputs.nixpkgs.follows = "nixpkgs";
+    noctalia-greeter.url = "github:noctalia-dev/noctalia-greeter/v1.6.0";
+    noctalia-greeter.inputs.nixpkgs.follows = "nixpkgs";
+
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
 

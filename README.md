@@ -66,7 +66,8 @@ Vault-gated branches additionally require the host identity layout from [Secrets
 
 - `core` is standalone — no other tier is required. A WSL host running `core` + `development` (without `system`) evaluates and works.
 - **`core` is not injected.** The factory maps `dotnix.hosts.<hostname>` entries verbatim to `nixpkgs.lib.nixosSystem`; hosts declare their tiers themselves. Import `core` to get the home-manager wiring (`nixos.home-manager`).
-- **Host axis vs. user axis.** Hosts import NixOS tiers through `dotnix.hosts.<name>.modules`; user profiles import HM tiers through `homeManager.<user>` (see `modules/users/<user>/default.nix`). `desktop` is the one tier on both axes with different reach: on the host it pulls the NixOS socket (`desktop-shell`), in a user profile it pulls the shell **plus** the GUI applications (`desktop-shell` + `desktop-apps`).
+- **Host axis vs. user axis.** Hosts import NixOS tiers through `dotnix.hosts.<name>.modules`; user profiles import HM tiers through `homeManager.<user>` (see `modules/users/<user>/default.nix`). `desktop` is the one tier on both axes with different reach: on the host it pulls the NixOS socket (`desktop-shell`), in a user profile it pulls the socket **plus** the GUI applications (`desktop-shell` + `desktop-apps`).
+- **One shell, one greeter per host.** The desktop socket is shell-agnostic: pick `dms` or `noctalia` for the session shell, `dms-greeter` or `noctalia-greeter` for login, and import exactly one of each next to `desktop-shell`. Both greeters claim greetd's default session, so importing both fails the option merge instead of half-booting.
 - The `impermanence` aspects assume the btrfs-on-LUKS layout provided by the `disko` aspect; their `/persist` fragments only activate when the `impermanence` aspect is imported.
 - Impermanence audit one-liner: `grep -rn 'home.persistence' modules/`
 
@@ -78,14 +79,14 @@ Vault-gated branches additionally require the host identity layout from [Secrets
 
 Proven composition lines (host `modules` + user-profile HM imports):
 
-| Profile               | Host line                                  | User line                          |
-| --------------------- | ------------------------------------------ | ---------------------------------- |
-| WSL work host         | `[ <wsl-hw> core development ]`            | `[ terminal development ]`         |
-| Workstation           | `[ <hw> core system desktop development ]` | `[ terminal development desktop ]` |
-| VPS / headless server | `[ <vps-hw> core server ]`                 | `[ terminal development ]`         |
-| VM / container        | `[ <core ]`                                | —                                  |
+| Profile               | Host line                                                        | User line                          |
+| --------------------- | ---------------------------------------------------------------- | ---------------------------------- |
+| WSL work host         | `[ <wsl-hw> core development ]`                                  | `[ terminal development ]`         |
+| Workstation           | `[ <hw> core system desktop-shell dms dms-greeter development ]` | `[ terminal development desktop ]` |
+| VPS / headless server | `[ <vps-hw> core server ]`                                       | `[ terminal development ]`         |
+| VM / container        | `[ <core ]`                                                      | —                                  |
 
-`base` is an inherited boot socket — `system` and `server` pull it, nobody imports it directly. `mail` is an exclusion bundle: pull it only for users who read mail, so non-mailers don't inherit the mail timers. New tiers appear with their first real consumer, not from theory.
+`base` is an inherited boot socket — `system` and `server` pull it, nobody imports it directly. `mail` is an exclusion bundle: pull it only for users who read mail, so non-mailers don't inherit the mail timers. Swap `dms`/`dms-greeter` for `noctalia`/`noctalia-greeter` on hosts that prefer the alternative shell. New tiers appear with their first real consumer, not from theory.
 
 ## Secrets & paths (consumer contract)
 
@@ -103,6 +104,8 @@ Evaluating without these files is fine — the vault only gets declared once the
 ## Theming
 
 DMS/matugen is the single source of truth for the shell and its ~20 matugen template targets (bar, niri, GTK, Firefox, Qt5ct/Qt6ct, terminals …), recolored from the wallpaper palette. Stylix covers the targets matugen does not (GTK apps, Firefox, icons, cursors, fonts) and owns all NixOS `qt.*` options — its plain assignments always override `mkDefault`, which is why the former `qt-theme` aspect was removed as redundant. `dms-settings.nix` holds only real deltas against the pinned DMS rev; DMS itself manages schema defaults and `configVersion`. Keep per-app theme overrides out of aspects unless matugen/stylix provably cannot cover them.
+
+**Noctalia** is a second palette authority: it generates its own wallpaper-based palettes and must not double-theme apps — keep its built-in app templates off and let stylix own app themes. When the matugen bridge is wanted, feed matugen's output through `programs.noctalia.customPalettes` (`theme.source = "custom"`).
 
 ## Key Design Decisions
 
