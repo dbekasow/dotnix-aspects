@@ -1,7 +1,8 @@
 [files]
 extend-exclude = [
   "certificates/",
-  "secrets/"
+  "secrets/",
+  "docs/recherche-*/" # German research archive — typos churns it forever
 ]
 
 [default.extend-words]
