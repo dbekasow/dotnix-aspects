@@ -8,7 +8,7 @@
         nixd = {
           command = lib.getExe pkgs.nixd;
           config.nixd = {
-            formatting.command = "nixpkgs-fmt";
+            formatting.command = lib.getExe pkgs.nixpkgs-fmt;
             nixpkgs.expr = "import (builtins.getFlake (toString ./.)).inputs.nixpkgs { }";
             options.flake-parts.expr = "(builtins.getFlake (toString ./.)).debug.options";
             options.flake-parts-perSystem.expr = "(builtins.getFlake (toString ./.)).currentSystem.options";
@@ -18,7 +18,7 @@
       language = [{
         name = "nix";
         language-servers = [ "nixd" ];
-        formatter.command = "nixpkgs-fmt";
+        formatter.command = lib.getExe pkgs.nixpkgs-fmt;
         auto-format = true;
       }];
     };

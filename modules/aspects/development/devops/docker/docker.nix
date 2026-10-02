@@ -6,6 +6,9 @@
       rootless.enable = true;
       rootless.setSocketVariable = true;
 
+      # Prunes the rootful daemon, which this aspect leaves enabled: dead
+      # weight on rootless hosts, but the live daemon on WSL hosts where
+      # the wsl aspect forces rootless off — so keep it.
       autoPrune.enable = true;
     };
 

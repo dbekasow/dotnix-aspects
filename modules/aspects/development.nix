@@ -17,9 +17,11 @@
       helix-keys
       helix-lsp
 
-      # VCS
+      # VCS — delta is the canonical pager renderer across the review
+      # stack (the tuicr config mirrors its side-by-side look); difftastic
+      # is not imported here: it stays available as a single import for
+      # hosts that want a structural difftool.
       delta
-      difftastic
       gh
       lazygit
 

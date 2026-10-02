@@ -18,9 +18,16 @@
       };
     in
     {
+      # Clones land in $HOME, which the impermanence setup wipes at boot —
+      # they are read-mostly mirrors, not working copies.
       options.dotnix.git.repositories = lib.mkOption {
         type = with lib.types; attrsOf str;
         default = { };
+        description = ''
+          Repository mirrors to clone at activation: dest path relative
+          to $HOME mapped to its clone URL. Local work is lost on reboot —
+          keep working repositories in the persistent directory instead.
+        '';
       };
 
       config.home.activation.cloneGitRepos = lib.hm.dag.entryAfter [ "writeBoundary" ] (

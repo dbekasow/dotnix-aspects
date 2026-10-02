@@ -23,7 +23,6 @@
           core.editor = "hx";
           diff.algorithm = "histogram";
           diff.colorMoved = "default";
-          fetch.pruneTags = false;
           fetch.prune = true;
           init.defaultBranch = "main";
           log.abbrevCommit = true;
@@ -31,7 +30,6 @@
           merge.conflictStyle = "zdiff3";
           pull.rebase = true;
           push.autoSetupRemote = true;
-          push.default = "simple";
           push.followTags = true;
           rebase.autoSquash = true;
           rebase.autoStash = true;

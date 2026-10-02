@@ -52,6 +52,9 @@
         lsp.display-inlay-hints = true;
 
         # Diagnostics - new feature
+        # inline-diagnostics / end-of-line-diagnostics: helix consolidates
+        # diagnostics keys upstream into editor.diagnostics.* — re-check
+        # on the next helix bump; a key renamed upstream is silently ignored.
         inline-diagnostics = {
           cursor-line = "warning";
           other-lines = "disable";
