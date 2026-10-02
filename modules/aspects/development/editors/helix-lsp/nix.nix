@@ -1,6 +1,8 @@
 {
   flake.modules.homeManager.helix-lsp = { pkgs, lib, ... }: {
-    programs.helix.extraPackages = with pkgs; [ nixd nil nixpkgs-fmt statix deadnix ];
+    # One LSP per language: nixd covers completion + options; nil, statix and
+    # deadnix only duplicated server startup per buffer.
+    programs.helix.extraPackages = with pkgs; [ nixd nixpkgs-fmt ];
     programs.helix.languages = {
       language-server = {
         nixd = {
@@ -12,13 +14,10 @@
             options.flake-parts-perSystem.expr = "(builtins.getFlake (toString ./.)).currentSystem.options";
           };
         };
-        nil = {
-          command = lib.getExe pkgs.nil;
-        };
       };
       language = [{
         name = "nix";
-        language-servers = [ "nixd" "nil" ];
+        language-servers = [ "nixd" ];
         formatter.command = "nixpkgs-fmt";
         auto-format = true;
       }];

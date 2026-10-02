@@ -13,13 +13,16 @@ in
 
       settings = {
         app-notifications = "no-clipboard-copy";
-        background-blur = 20;
+        # Blur and animated shaders force per-frame GPU compositing on every
+        # visible terminal — the top slowness suspect (recherche 2026-10-02).
+        # Re-enable deliberately: blur = 20, animation = true.
+        background-blur = false;
         background-opacity = 0.98;
         background-opacity-cells = true;
         confirm-close-surface = false;
         cursor-opacity = 0.75;
         custom-shader = "${cursorShaders pkgs}/cursor_warp.glsl";
-        custom-shader-animation = true;
+        custom-shader-animation = false;
         shell-integration = "detect";
         shell-integration-features = "cursor,title,sudo";
         window-decoration = false;

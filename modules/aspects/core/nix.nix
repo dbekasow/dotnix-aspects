@@ -29,7 +29,6 @@
         download-attempts = 3;
         fallback = true;
         http-connections = 50;
-        narinfo-cache-negative-ttl = 30;
       };
 
       # Keeps a background rebuild invisible instead of blocking the desktop.

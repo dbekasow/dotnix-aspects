@@ -2,18 +2,15 @@
 let inherit (config.flake.factory.helix) withTypos prettier; in
 {
   flake.modules.homeManager.helix-lsp = { pkgs, lib, ... }: {
-    programs.helix.extraPackages = with pkgs; [ marksman markdown-oxide ];
+    # One LSP per language: markdown-oxide covers completion, refs, diagnostics.
+    programs.helix.extraPackages = with pkgs; [ markdown-oxide ];
     programs.helix.languages = {
       language-server = {
-        marksman = {
-          command = lib.getExe pkgs.marksman;
-          args = [ "server" ];
-        };
         markdown-oxide.command = lib.getExe pkgs.markdown-oxide;
       };
       language = [{
         name = "markdown";
-        language-servers = withTypos [ "marksman" "markdown-oxide" ];
+        language-servers = withTypos [ "markdown-oxide" ];
         formatter = prettier pkgs "markdown";
         auto-format = false;
         soft-wrap.enable = true;
