@@ -11,9 +11,6 @@
 
     programs.niri.enable = true;
     programs.niri.package = pkgs.niri-unstable;
-
-    # DMS ships its own polkit agent, so the flake's agent stays off.
-    systemd.user.services.niri-flake-polkit.enable = false;
   };
 
   flake.modules.homeManager.niri = { lib, pkgs, ... }: {
@@ -48,13 +45,14 @@
         focus-follows-mouse.max-scroll-amount = "0%";
       };
 
-      window-rules = [{
-        geometry-corner-radius = lib.genAttrs
-          [ "top-left" "top-right" "bottom-left" "bottom-right" ]
-          (lib.const 10.0);
-        clip-to-geometry = true;
-        draw-border-with-background = false;
-      }
+      window-rules = [
+        {
+          geometry-corner-radius = lib.genAttrs [ "top-left" "top-right" "bottom-left" "bottom-right" ] (
+            lib.const 10.0
+          );
+          clip-to-geometry = true;
+          draw-border-with-background = false;
+        }
         # Background blur behind the semitransparent terminals — niri's
         # window-effects (since 26.04) instead of per-app client requests.
         # xray stays on (default with any effect): the blurred wallpaper is
@@ -63,7 +61,8 @@
         {
           matches = [{ app-id = "^(ghostty|Alacritty)$"; }];
           background-effect.blur = true;
-        }];
+        }
+      ];
     };
   };
 }

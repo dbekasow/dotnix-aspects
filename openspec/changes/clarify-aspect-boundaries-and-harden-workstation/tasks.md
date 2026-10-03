@@ -9,7 +9,7 @@
 
 ## 2. Optional desktop and Tmux composition
 
-- [ ] 2.1 (up to 2 h) Separate DMS Niri IPC from the general Niri profile and make Polkit follow selected-shell ownership; check DMS option guards without a DMS option declaration and verify available Niri options against locked modules, then evaluate Niri-only, Niri+DMS, and class-correct Niri+Noctalia scenarios.
+- [x] 2.1 (up to 2 h) Separate DMS Niri IPC from the general Niri profile and make Polkit follow selected-shell ownership; check DMS option guards without a DMS option declaration and verify available Niri options against locked modules, then evaluate Niri-only, Niri+DMS, and class-correct Niri+Noctalia scenarios.
 - [ ] 2.2 (up to 2 h) Gate Workmux/Tuicr Tmux contributions on selection of the corresponding tool and available Tmux context; extend the consumer fixture for Tmux-only, tools+Tmux, and tools-only, and ensure all three evaluations pass.
 - [ ] 2.3 (up to 2 h) Complete desktop/Tmux composition changes with relevant regressions and a concise usage note; evaluate existing broad profiles and class-correct Noctalia Home Manager integration.
 - [x] 2.4 (up to 2 h) Provide and document a neutral headless/server composition (or narrower base) that excludes workstation laptop sysctls/zram, audio, Bluetooth, UPower/thermald, Hibernate/Disko defaults, workstation boot-systemd assumptions, and automatic root-disk selection. Keep `core` an explicit work/admin profile and avoid server/workstation boot-systemd assumptions; fixture must provide bootstrap root and bootloader explicitly.
