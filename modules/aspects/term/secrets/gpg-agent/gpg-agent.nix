@@ -5,8 +5,7 @@
     services.gpg-agent = rec {
       enable = true;
       enableSshSupport = true;
-      # Desktop default; headless hosts override to pinentry-curses.
-      pinentry.package = lib.mkDefault pkgs.pinentry-gnome3;
+      pinentry.package = lib.mkDefault pkgs.pinentry-curses;
 
       defaultCacheTtl = 7200; # 2h idle cache for normal keys
       maxCacheTtl = 28800; # 8h absolute cap

@@ -43,8 +43,8 @@
           plugin = tmux-thumbs;
           extraConfig = ''
             set -g @thumbs-key F
-            set -g @thumbs-command 'printf %s {} | wl-copy'
-            set -g @thumbs-upcase-command 'printf %s {} | wl-copy && tmux paste-buffer'
+            set -g @thumbs-command 'if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1; then printf %s "{}" | wl-copy; else tmux set-buffer -- "{}"; fi'
+            set -g @thumbs-upcase-command 'if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1; then printf %s "{}" | wl-copy && tmux paste-buffer; else tmux set-buffer -- "{}" && tmux paste-buffer; fi'
             set -g @thumbs-unique enabled
             set -g @thumbs-reverse enabled
 
@@ -64,7 +64,8 @@
         {
           plugin = yank;
           extraConfig = ''
-            set -g @override_copy_command 'wl-copy'
+            # copy-pipe keeps the tmux buffer even without an external clipboard.
+            set -g @override_copy_command 'if [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1; then wl-copy; else cat >/dev/null; fi'
             set -g @yank_action 'copy-pipe'
           '';
         }
