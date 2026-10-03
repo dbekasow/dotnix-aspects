@@ -12,7 +12,7 @@
       autoPrune.enable = true;
     };
 
-    users.users = lib.genAttrs config.dotnix.host.members (lib.const {
+    users.users = lib.genAttrs config.dotnix.members (lib.const {
       # required for rootless docker user namespace mapping
       subUidRanges = [{ startUid = 100000; count = 65536; }];
       subGidRanges = [{ startGid = 100000; count = 65536; }];

@@ -54,11 +54,13 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 
 ### dotnix-bound aspects
 
-16 of the 130 aspect files reference the `dotnix` options namespace; the rest are plain drop-in modules.
+Most aspects are plain drop-in modules; the remaining ones use the factory or collector options.
 
-- **Factory-bound** — read `dotnix.host`/`dotnix.hostname`/`dotnix.vaultReady`, options the factory injects via the wrapper module (exposed as `nixosModules.dotnix`). Plain consumers import that wrapper and fill `dotnix.host`/`dotnix.hostname` themselves: `users`, `users-profile`, `age`, `age-rekey`, `certificates`, `nh`, `yubikey-pam`, `docker`, `git-credentials`, `dms-greeter`.
+- **Factory-bound** — read `dotnix.members`/`dotnix.hostname`/`dotnix.vaultReady`, options the factory injects via the wrapper module (exposed as `nixosModules.dotnix`). Plain consumers import that wrapper and provide `dotnix.members`/`dotnix.hostname` themselves: `users`, `users-profile`, `age`, `age-rekey`, `certificates`, `nh`, `yubikey-pam`, `docker`, `git-credentials`, `dms-greeter`.
 - **Collector-bound** — write into the `dotnix.tmux` options that the `tmux-bindings` aspect declares; import it alongside: `tmux-popups`, `sesh`, `workmux`, `tuicr`.
 - **Self-contained group** — declares its own `dotnix.git` options: `git-repos`.
+
+For the new API, replace runtime `dotnix.host.members` with `dotnix.members`; `dotnix.hosts.<name>.members` remains the factory input. The generic `profile` now holds only `fullname` and `email`: remove `profile.username`/`profile.theme` assignments and configure SSH login keys through native `users.users.<name>.openssh.authorizedKeys.keys`. Preserve existing keys when migrating a caller.
 
 Vault-gated branches additionally require the host identity layout from [Secrets & paths](#secrets--paths-consumer-contract) to live under the flake that runs the factory. Via a plain module import that path resolves inside this library, so the vault stays off and evaluation stays green.
 
@@ -73,7 +75,7 @@ Vault-gated branches additionally require the host identity layout from [Secrets
 
 ## Tiers vs. groups
 
-`modules/aspects/core.nix` (the tier aggregator) and `modules/aspects/core/` (the group directory) share a name but play different roles: **tiers are composition layers** (what a host imports), **groups are thematic shelves** (where aspects live). Tiers import across groups — e.g. the `core` tier pulls the `fish` shell aspect from `term/shell/`, because every work profile needs a shell. Full group↔tier alignment is neither intended nor useful.
+`modules/aspects/profiles/core.nix` (the tier aggregator) and `modules/aspects/core/` (the group directory) share a name but play different roles: **tiers are composition layers** (what a host imports), **groups are thematic shelves** (where aspects live). Tiers import across groups — e.g. the `core` tier pulls the `fish` shell aspect from `term/shell/`, because every work profile needs a shell. Full group↔tier alignment is neither intended nor useful.
 
 ## Persona import lines
 

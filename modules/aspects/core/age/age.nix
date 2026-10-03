@@ -16,7 +16,7 @@
           inherit owner;
         };
       })
-      config.dotnix.host.members));
+      config.dotnix.members));
   };
 
   flake.modules.homeManager.age = { config, lib, osConfig, ... }: {

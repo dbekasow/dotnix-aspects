@@ -56,10 +56,10 @@ in
             default = null;
             description = "Registry key of this host, used for host-scoped path lookups (secrets, certificates).";
           };
-          host = lib.mkOption {
-            type = hostSubModule;
-            default = { };
-            description = "This host's registry entry (system, modules, members), injected by the factory.";
+          members = lib.mkOption {
+            type = listOf str;
+            default = [ ];
+            description = "Usernames registered for this host.";
           };
           vaultReady = lib.mkOption {
             type = bool;
@@ -94,7 +94,7 @@ in
             inherit (host) system;
             modules = host.modules ++ userModules ++ [
               { system.stateVersion = lib.mkDefault "26.11"; }
-              { dotnix = { inherit hostname host; }; }
+              { dotnix = { inherit hostname; inherit (host) members; }; }
               { networking.hostName = lib.mkDefault hostname; }
               modules.nixos.dotnix
             ];

@@ -10,14 +10,10 @@
       # yet) stays mutable so the console can bootstrap passwords.
       users.mutableUsers = !config.dotnix.vaultReady;
 
-      users.users = lib.genAttrs config.dotnix.host.members (name: {
+      users.users = lib.genAttrs config.dotnix.members (name: {
         hashedPasswordFile = lib.mkIf config.dotnix.vaultReady
           config.age.secrets."password-${name}-hashed".path;
         isNormalUser = lib.mkDefault true;
-        # The only login path on a fresh headless host: no password until
-        # the vault exists, so authorized keys come from the profile.
-        openssh.authorizedKeys.keys = lib.mkDefault
-          config.home-manager.users."${name}".profile.sshAuthorizedKeys;
       });
 
       age.secrets = vault (lib.mergeAttrsList (map
@@ -37,6 +33,6 @@
           };
 
         })
-        config.dotnix.host.members));
+        config.dotnix.members));
     };
 }
