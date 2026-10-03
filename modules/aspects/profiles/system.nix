@@ -1,9 +1,10 @@
 { self, ... }: {
   flake.modules = let inherit (self.modules) nixos homeManager; in {
-    # base carries the shared boot socket — boot, journald and performance
-    # need no individual lines here anymore.
+    # Workstation bootloader and laptop tuning stay out of the headless base.
     nixos.system.imports = with nixos; [
       base
+      boot-systemd
+      performance
       bluetooth
       disko
       impermanence

@@ -86,6 +86,8 @@ Proven composition lines (host `modules` + user-profile HM imports):
 | VPS / headless server | `[ <vps-hw> core server ]`                                       | `[ terminal development ]`         |
 | VM / container        | `[ <core ]`                                                      | —                                  |
 
+`server` composes `base`, which supplies generic boot behavior and journald only. It does not select a bootloader or root disk: each server must provide both explicitly, along with its hardware, networking, and any desired work/admin `core` profile. Laptop performance tuning and systemd-boot selection belong to `system`, not `server`. Run `nix eval --impure --file tests/headless-composition.nix` to evaluate the neutral server composition and verify that workstation tuning remains in `system`.
+
 `base` is an inherited boot socket — `system` and `server` pull it, nobody imports it directly. `mail` is an exclusion bundle: pull it only for users who read mail, so non-mailers don't inherit the mail timers. Swap `dms`/`dms-greeter` for `noctalia`/`noctalia-greeter` on hosts that prefer the alternative shell. New tiers appear with their first real consumer, not from theory.
 
 ## Channel choice
