@@ -31,4 +31,8 @@ The performance aspect also enables zram, a higher-priority compressed RAM
 swap device. Zram is volatile and cannot serve as a persistent Hibernate
 resume source. These are prerequisites only: no host-specific offset or
 resume-device override is configured automatically. Do not activate or test
-Hibernate against a live host as part of evaluation.
+Hibernate against a live host as part of evaluation. For break-glass root
+recovery, see [Btrfs root rollback recovery](rollback-recovery.md). Validate
+provisioning checks only on disposable storage; the Btrfs rollback regression
+is [tests/btrfs-rollback/vm.nix](../tests/btrfs-rollback/vm.nix), and initrd
+resume ordering checks are documented in [resume-order.md](resume-order.md).
