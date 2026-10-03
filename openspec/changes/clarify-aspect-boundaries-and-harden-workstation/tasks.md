@@ -22,7 +22,7 @@
 
 ## 4. Diagnostics, milestone review, and integration
 
-- [ ] 4.1 (up to 2 h) Create a diagnostic guide covering dock sink/card/profile/port/default before and after hotplug/resume, USB audio vs. HDMI/DP, power profile, boot chain, and CPU/GPU/I/O/thermals; the sample report must redact measurements and mark audio/performance causes as unresolved without data.
+- [x] 4.1 (up to 2 h) Create a diagnostic guide covering dock sink/card/profile/port/default before and after hotplug/resume, USB audio vs. HDMI/DP, power profile, boot chain, and CPU/GPU/I/O/thermals; the sample report must redact measurements and mark audio/performance causes as unresolved without data.
 - [ ] 4.2 (up to 2 h) After structure, composition, rollback, and their tests are complete, conduct exactly one independent overall review and address its findings; the review must not replace per-worker reviews or edit callers outside this repository.
 - [ ] 4.3 (up to 2 h) Run heavy builds once at the milestone gate, then verify `nix fmt` produces no diff, `nix flake check` does not write the lockfile, and the existing consumer fixture passes; final diagnosis may explicitly remain unresolved due to missing host data.
 - [ ] 4.4 (up to 2 h) Document the separate caller migration in `/home/denis/projects/dotnix` as an accompanying step requiring approval, without changing files, pins, or inputs there; the note must list the pin difference and namespace, DMS/greeter, Devtools, ISO, and repository changes.
