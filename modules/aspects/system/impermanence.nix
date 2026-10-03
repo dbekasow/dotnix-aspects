@@ -1,35 +1,46 @@
 { inputs, ... }: {
-  flake.modules.nixos.impermanence = { lib, config, ... }: {
+  flake.modules.nixos.impermanence = { lib, config, utils, ... }: {
     imports = [ inputs.impermanence.nixosModules.impermanence ];
 
     boot.initrd.supportedFilesystems.btrfs = true;
     boot.initrd.systemd.services.rollback-root =
       let
+        device = "/dev/disk/by-label/nixos";
+        deviceUnit = "${utils.escapeSystemdPath device}.device";
         dependencies =
-          lib.optionals (config.boot.initrd.luks.devices ? cryptroot) [ "systemd-cryptsetup@cryptroot.service" ]
+          [ deviceUnit ]
+          ++ lib.optionals (config.boot.initrd.luks.devices ? cryptroot) [ "systemd-cryptsetup@cryptroot.service" ]
           ++ lib.optionals (config.boot.resumeDevice != null && config.boot.resumeDevice != "") [ "systemd-hibernate-resume.service" ];
       in
       {
         description = "Roll @root back to @root-blank";
         wantedBy = [ "initrd.target" ];
+        requiredBy = [ "sysroot.mount" ];
         before = [ "sysroot.mount" ];
-        # Wait for configured LUKS/resume services, but keep cold boots without
-        # Hibernate independent of the resume unit.
+        # Wait for the actual root device and configured LUKS/resume services.
         requires = dependencies;
         after = dependencies;
         unitConfig.DefaultDependencies = "no";
         serviceConfig.Type = "oneshot";
         script = ''
-          mkdir -p /mnt
-          mount -o subvol=/ /dev/disk/by-label/nixos /mnt
+          set -eu
+          mountpoint=$(mktemp -d /run/rollback-root.XXXXXX)
+          cleanup() {
+            status=$?
+            trap - EXIT
+            if mountpoint -q "$mountpoint"; then
+              umount "$mountpoint" || status=1
+            fi
+            rmdir "$mountpoint" || status=1
+            exit "$status"
+          }
+          trap cleanup EXIT
 
-          btrfs subvolume list -o /mnt/@root | cut -f9- -d' ' | while read sv; do
-            btrfs subvolume delete "/mnt/$sv"
-          done
-          btrfs subvolume delete /mnt/@root
-          btrfs subvolume snapshot /mnt/@root-blank /mnt/@root
-
-          umount /mnt
+          mount -t btrfs -o subvolid=5 "${device}" "$mountpoint"
+          btrfs subvolume show "$mountpoint/@root" >/dev/null
+          btrfs subvolume show "$mountpoint/@root-blank" >/dev/null
+          btrfs subvolume delete --recursive "$mountpoint/@root"
+          btrfs subvolume snapshot "$mountpoint/@root-blank" "$mountpoint/@root"
         '';
       };
 
