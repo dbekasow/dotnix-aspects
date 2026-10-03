@@ -1,8 +1,9 @@
 let
   flake = builtins.getFlake (toString ../.);
   lib = flake.inputs.nixpkgs.lib;
-  pkgs = (import flake.inputs.nixpkgs { system = builtins.currentSystem; }).extend
-    flake.inputs.llm-agents.overlays.shared-nixpkgs;
+  pkgs =
+    (import flake.inputs.nixpkgs { system = builtins.currentSystem; }).extend
+      flake.inputs.llm-agents.overlays.shared-nixpkgs;
   homeManager = flake.inputs.home-manager;
   tmux = flake.homeManagerModules.tmux;
   workmux = flake.homeManagerModules.workmux;
@@ -13,10 +14,6 @@ let
       type = lib.types.str;
       default = "Fixture User";
     };
-    options.stylix.targets.tmux.enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-    };
   };
   osConfig = _: {
     _module.args.osConfig = {
@@ -24,23 +21,33 @@ let
       networking.wireless.iwd.enable = false;
     };
   };
-  evaluate = modules: homeManager.lib.homeManagerConfiguration {
-    inherit pkgs;
-    modules = [
-      fixture
-      osConfig
-      (_: {
-        home.username = "test";
-        home.homeDirectory = "/home/test";
-        home.stateVersion = "24.11";
-      })
-    ] ++ modules;
-  };
+  evaluate =
+    modules:
+    homeManager.lib.homeManagerConfiguration {
+      inherit pkgs;
+      modules = [
+        fixture
+        osConfig
+        (_: {
+          home.username = "test";
+          home.homeDirectory = "/home/test";
+          home.stateVersion = "24.11";
+        })
+      ]
+      ++ modules;
+    };
   names = attr: config: map (item: item.name) config.dotnix.tmux.${attr};
 
   tmuxOnly = evaluate [ tmux ];
-  toolsAndEnabledTmux = evaluate [ tmux workmux tuicr ];
-  toolsOnly = evaluate [ workmux tuicr ];
+  toolsAndEnabledTmux = evaluate [
+    tmux
+    workmux
+    tuicr
+  ];
+  toolsOnly = evaluate [
+    workmux
+    tuicr
+  ];
   toolsAndDisabledTmux = evaluate [
     tmux
     workmux
