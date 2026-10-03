@@ -9,6 +9,7 @@
       dms-greeter # greeter — swap for `noctalia-greeter`
       system # boot, disko, network, etc.
       development
+      { system.stateVersion = "26.11"; }
       {
         # Throwaway master identity so a fresh clone evaluates and `agenix`
         # demos against a key nobody holds. Replace before going live.

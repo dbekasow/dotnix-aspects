@@ -92,6 +92,7 @@ assert builtins.elem "dotnix" nixosExports;
 assert builtins.elem "disko" nixosExports;
 assert builtins.elem "tmux" homeManagerExports;
 assert builtins.elem "git-repos" homeManagerExports;
+assert !(builtins.elem "home-manager" homeManagerExports);
 assert alpha.dotnix.disk.encrypt;
 assert alpha.disko.devices.disk.main.content.partitions.root.content.type == "luks";
 assert !beta.dotnix.disk.encrypt;

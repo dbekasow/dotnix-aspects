@@ -93,7 +93,6 @@ in
           (if host.nixpkgs != null then host.nixpkgs else inputs.nixpkgs.lib).nixosSystem {
             inherit (host) system;
             modules = host.modules ++ userModules ++ [
-              { system.stateVersion = lib.mkDefault "26.11"; }
               { dotnix = { inherit hostname; inherit (host) members; }; }
               { networking.hostName = lib.mkDefault hostname; }
               modules.nixos.dotnix

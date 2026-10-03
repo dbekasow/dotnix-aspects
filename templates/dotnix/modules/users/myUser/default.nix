@@ -11,10 +11,13 @@ let hm = self.modules.homeManager; in {
       ];
     };
 
-    homeManager."${user}".imports = with hm; [
-      terminal # shells, tools, multiplexer
-      development # editor, vcs, automation
-    ];
+    homeManager."${user}" = {
+      imports = with hm; [
+        terminal # shells, tools, multiplexer
+        development # editor, vcs, automation
+      ];
+      home.stateVersion = "26.11";
+    };
 
     generic."${user}".profile = {
       fullname = "Full Name";
