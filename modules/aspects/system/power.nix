@@ -31,13 +31,11 @@
       HibernateDelaySec = "30min";
     };
 
-    # Swapfile hibernate on the library @swap layout (disko.nix) needs one
-    # more piece: resume_offset, the physical offset of the swapfile — a
-    # property of the provisioned disk, not derivable at eval time. Measure
-    # on the host with `filefrag -v /swap/swapfile` and set
-    # boot.kernelParams = [ "resume_offset=..." ] there. mkDefault on
-    # resumeDevice: hard-coupling to "cryptroot" silently breaks hosts with
-    # their own layout.
+    # Swapfile hibernate needs the provisioned offset from
+    # `btrfs inspect-internal map-swapfile -r /swap/swapfile`; see
+    # docs/hibernate.md. Offset depends on the swapfile and page size, so
+    # hosts supply it themselves. The resume device is separate; mkDefault
+    # suits the encrypted layout without overriding host layouts.
     boot.resumeDevice = lib.mkDefault "/dev/mapper/cryptroot";
 
     # Most Alder Lake Dells are s2idle-only with a broken S3 path — forcing
