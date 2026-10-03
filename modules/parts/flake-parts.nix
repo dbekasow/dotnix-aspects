@@ -1,7 +1,6 @@
 { inputs, lib, ... }: {
   imports = [
     inputs.flake-parts.flakeModules.modules
-    inputs.flake-parts.flakeModules.flakeModules # expose flake.flakeModules
   ];
 
   systems = lib.mkDefault [ "x86_64-linux" ];

@@ -4,7 +4,7 @@
 
 - [x] 1.1 (up to 2 h) Move composition files to `modules/aspects/profiles/` and group DMS/Helix/Tmux-only file families; check relative imports and assets, then run `git diff --check` and verify the change list for path/content equivalence only.
 - [ ] 1.2 (up to 2 h) Extend focused consumer-fixture evaluation for the documented target API: retained public factory/gates/collectors, migrated members-only payload, intentional removals, and original export error locations. Do not require the expensive fixture toplevel build before the milestone gate; verify focused evaluation now and run the toplevel at the gate.
-- [ ] 1.3 (up to 2 h) Implement `wrapMods` metadata handling using the locked nixpkgs `lib` and add regression coverage for an additional `_module.args` argument and caller `self`/input precedence; targeted evaluation must verify both contracts.
+- [x] 1.3 (up to 2 h) Implement `wrapMods` metadata handling using the locked nixpkgs `lib` and add regression coverage for an additional `_module.args` argument and caller `self`/input precedence; targeted evaluation must verify both contracts.
 - [x] 1.4 (up to 2 h) Remove only redundant custom option payloads (`username`, `theme`, duplicate runtime host payload, and mirrored SSH-key option where native NixOS authorizedKeys suffice); retain necessary factory, hostname registry key, `vaultReady` public-key gate, disk variants, and Tmux/Git collectors. Document each breaking migration and verify migrated behavior in focused fixtures.
 
 ## 2. Optional desktop and Tmux composition

@@ -6,7 +6,10 @@ let
     (file:
       let mod = import file;
       in if builtins.isFunction mod
-      then args: mod (args // { inputs = dotnixInputs // args.inputs; })
+      then
+        lib.setDefaultModuleLocation file
+          (lib.mirrorFunctionArgs mod
+            (args: mod (args // { inputs = dotnixInputs // args.inputs; })))
       else mod)
     files;
 
@@ -37,7 +40,9 @@ let
   ];
 in
 {
-  flake.flakeModule.imports = wrapMods (aspects ++ productParts);
+  imports = [ inputs.flake-parts.flakeModules.flakeModules ];
+
+  flake.flakeModules.default.imports = wrapMods (aspects ++ productParts);
 
   # Registry without the factory: aspects + tiers plus the flake-parts.nix
   # substrate that declares the flake.modules option they register into.
