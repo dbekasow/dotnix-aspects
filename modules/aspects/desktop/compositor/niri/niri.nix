@@ -13,7 +13,9 @@
     programs.niri.package = pkgs.niri-unstable;
   };
 
-  flake.modules.homeManager.niri = { lib, pkgs, ... }: {
+  flake.modules.homeManager.niri = { lib, specialArgs, pkgs, ... }: {
+    imports = lib.optional (!((specialArgs.osConfig or { }) ? niri-flake)) inputs.niri.homeModules.niri;
+
     programs.niri.settings = {
       xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite-unstable;
       hotkey-overlay.skip-at-startup = true;

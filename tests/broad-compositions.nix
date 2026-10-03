@@ -21,10 +21,16 @@ let
     system.stateVersion = "25.11";
     nixpkgs.hostPlatform = system;
   };
-  evaluateNixOS = modules: (nixpkgs.lib.nixosSystem {
-    inherit system;
-    modules = [ flake.nixosModules.dotnix { dotnix.hostname = "fixture"; } ] ++ modules;
-  }).config;
+  evaluateNixOS =
+    modules:
+    (nixpkgs.lib.nixosSystem {
+      inherit system;
+      modules = [
+        flake.nixosModules.dotnix
+        { dotnix.hostname = "fixture"; }
+      ]
+      ++ modules;
+    }).config;
   workstation = evaluateNixOS [
     homeManager.nixosModules.default
     flake.nixosModules.core
@@ -35,7 +41,6 @@ let
       home-manager.useGlobalPkgs = true;
       home-manager.users.fixture = {
         imports = [
-          flake.inputs.niri.homeModules.niri
           flake.homeManagerModules.desktop
           flake.homeManagerModules.development
           flake.homeManagerModules.noctalia
@@ -45,7 +50,10 @@ let
       };
     }
   ];
-  socketOnly = evaluateNixOS [ flake.nixosModules.desktop-shell bootstrap ];
+  socketOnly = evaluateNixOS [
+    flake.nixosModules.desktop-shell
+    bootstrap
+  ];
   dmsSelected = evaluateNixOS [
     flake.nixosModules.desktop-shell
     flake.nixosModules.dms
@@ -66,7 +74,6 @@ let
     inherit pkgs;
     extraSpecialArgs.osConfig.system.stateVersion = "25.11";
     modules = [
-      flake.inputs.niri.homeModules.niri
       flake.homeManagerModules.stylix
       flake.homeManagerModules.desktop
       flake.homeManagerModules.noctalia
@@ -81,7 +88,6 @@ let
     inherit pkgs;
     extraSpecialArgs.osConfig.system.stateVersion = "25.11";
     modules = [
-      flake.inputs.niri.homeModules.niri
       flake.homeManagerModules.desktop-shell
       flake.homeManagerModules.noctalia
       (_: {
@@ -92,24 +98,31 @@ let
     ];
   };
   checks = {
-    workstationHasSelectedRootAndBootloader = workstation.fileSystems."/".fsType == "btrfs"
-      && workstation.boot.loader.systemd-boot.enable;
-    workstationHasCoreSystemDesktopDevelopment = workstation.programs.fish.enable
+    workstationHasSelectedRootAndBootloader =
+      workstation.fileSystems."/".fsType == "btrfs" && workstation.boot.loader.systemd-boot.enable;
+    workstationHasCoreSystemDesktopDevelopment =
+      workstation.programs.fish.enable
       && workstation.zramSwap.enable
       && workstation.programs.niri.enable
       && workstation.virtualisation.docker.enable
       && workstation.home-manager.users.fixture.programs.helix.enable;
-    socketDoesNotSelectShellOrGreeter = !(socketOnly.programs.dank-material-shell.enable or false)
+    socketDoesNotSelectShellOrGreeter =
+      !(socketOnly.programs.dank-material-shell.enable or false)
       && !(socketOnly.programs.dms-greeter.enable or false)
       && !(socketOnly.services.displayManager.noctalia-greeter.enable or false);
-    dmsShellAndGreeterExplicitlySelected = dmsSelected.programs.dank-material-shell.enable
-      && dmsSelected.programs.dms-greeter.enable;
-    noctaliaGreeterExplicitlySelected = noctaliaSelected.services.displayManager.noctalia-greeter.enable;
+    dmsShellAndGreeterExplicitlySelected =
+      dmsSelected.programs.dank-material-shell.enable && dmsSelected.programs.dms-greeter.enable;
+    noctaliaGreeterExplicitlySelected =
+      noctaliaSelected.services.displayManager.noctalia-greeter.enable;
     noctaliaHomeShellExplicitlySelected = home.config.programs.noctalia.enable;
-    noctaliaNiriContextHasBinds = homeWithNiri.config.programs.noctalia.enable
+    noctaliaNiriContextHasBinds =
+      homeWithNiri.config.programs.noctalia.enable
       && builtins.hasAttr "Mod+Space" homeWithNiri.config.programs.niri.settings.binds;
     developmentOptional = !socketOnly.programs.nix-ld.enable;
   };
   failed = builtins.attrNames (nixpkgs.lib.filterAttrs (_: passed: !passed) checks);
 in
-if failed == [ ] then checks else throw "Broad composition fixture failed: ${nixpkgs.lib.concatStringsSep ", " failed}"
+if failed == [ ] then
+  checks
+else
+  throw "Broad composition fixture failed: ${nixpkgs.lib.concatStringsSep ", " failed}"
