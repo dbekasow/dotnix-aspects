@@ -6,12 +6,9 @@
     security.sudo-rs = {
       enable = true;
       execWheelOnly = true;
-      # Passwordless wheel is a convenience tradeoff for the workstation
-      # context this library assumes — yubikey-pam gates login and
-      # lockscreen, so anything past those owns the session anyway — not
-      # a security floor. mkDefault so hosts without that gate (headless
-      # servers) can require a password.
-      wheelNeedsPassword = lib.mkDefault false;
+      # Passwordless wheel access requires an explicit host override backed
+      # by a real hardware authentication gate.
+      wheelNeedsPassword = lib.mkDefault true;
     };
 
     security.rtkit.enable = true;

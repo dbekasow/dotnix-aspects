@@ -13,7 +13,7 @@
 - [ ] 2.2 (up to 2 h) Gate Workmux/Tuicr Tmux contributions on selection of the corresponding tool and available Tmux context; extend the consumer fixture for Tmux-only, tools+Tmux, and tools-only, and ensure all three evaluations pass.
 - [ ] 2.3 (up to 2 h) Complete desktop/Tmux composition changes with relevant regressions and a concise usage note; evaluate existing broad profiles and class-correct Noctalia Home Manager integration.
 - [x] 2.4 (up to 2 h) Provide and document a neutral headless/server composition (or narrower base) that excludes workstation laptop sysctls/zram, audio, Bluetooth, UPower/thermald, Hibernate/Disko defaults, workstation boot-systemd assumptions, and automatic root-disk selection. Keep `core` an explicit work/admin profile and avoid server/workstation boot-systemd assumptions; fixture must provide bootstrap root and bootloader explicitly.
-- [ ] 2.5 (up to 2 h) Add focused checks that wheel login requires a password by default, only an explicit hardware-gated opt-out permits passwordless login, and two distinct placeholder host registrations evaluate without hardware-specific names or provider assumptions.
+- [x] 2.5 (up to 2 h) Add focused checks that wheel login requires a password by default, only an explicit hardware-gated opt-out permits passwordless login, and two distinct placeholder host registrations evaluate without hardware-specific names or provider assumptions.
 
 ## 3. Btrfs rollback and Hibernate
 
