@@ -7,8 +7,21 @@
       desktop-shell # graphical socket; shell and greeter are per-host choices
       dms # shell — swap for `noctalia` to run the alternative
       dms-greeter # greeter — swap for `noctalia-greeter`
-      system # boot, disko, network, etc.
+      base # shared boot behavior
+      boot-systemd # systemd-boot loader
+      performance # workstation tuning
+      bluetooth # laptop radio
+      disko # starter Btrfs/LUKS layout; replace device below for this host
+      impermanence # persistent state on the Btrfs layout
+      geolocation # location service
+      network # NetworkManager and Avahi
+      network-wifi # Wi-Fi configuration
+      pipewire # audio
+      power # workstation power management and resume defaults
+      yubikey # hardware-backed login tools
+      yubikey-pam # PAM integration for YubiKey
       development
+      { disko.devices.disk.main.device = "/dev/nvme0n1"; } # replace with this host's boot disk
       { system.stateVersion = "26.11"; }
       {
         # Throwaway master identity so a fresh clone evaluates and `agenix`

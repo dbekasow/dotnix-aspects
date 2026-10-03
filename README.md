@@ -2,7 +2,7 @@
 
 A reusable library of [dendritic](https://github.com/mightyiam/dendritic) NixOS and Home Manager aspects, built on [flake-parts](https://flake.parts/).
 
-Every `.nix` file is a flake-parts module. Aspects register themselves in module classes (`flake.modules.nixos.*`, `flake.modules.homeManager.*`, `flake.modules.generic.*`). Tiers (`modules/aspects/<tier>.nix`: `core`, `base`, `system`, `server`, `desktop` = `desktop-shell` + `desktop-apps`, `development`, `terminal` = `term-shell` + `term-ux` + `term-cli` + `term-monitoring` + `term-nix` + `term-secrets`, `mail`) compose aspects into importable bundles, and the host/user factory in `modules/parts/configuration.nix` maps the `dotnix.hosts` namespace to `nixosConfigurations`.
+Every `.nix` file is a flake-parts module. Aspects register themselves in module classes (`flake.modules.nixos.*`, `flake.modules.homeManager.*`, `flake.modules.generic.*`). Tiers (`modules/aspects/profiles/`: `core`, `base`, `server`, `desktop` = `desktop-shell` + `desktop-apps`, `development`, `terminal` = `term-shell` + `term-ux` + `term-cli` + `term-monitoring` + `term-nix` + `term-secrets`, `mail`) compose aspects into importable bundles, and the host/user factory in `modules/parts/configuration.nix` maps the `dotnix.hosts` namespace to `nixosConfigurations`.
 
 ## Aspects
 
@@ -66,7 +66,7 @@ Vault-gated branches additionally require the host identity layout from [Secrets
 
 ## Composition rules
 
-- `core` is standalone — no other tier is required. A WSL host running `core` + `development` (without `system`) evaluates and works.
+- `core` is standalone — no other tier is required. A WSL host running `core` + `development` evaluates and works.
 - **`core` is not injected.** The factory maps `dotnix.hosts.<hostname>` entries verbatim to `nixpkgs.lib.nixosSystem`; hosts declare their tiers themselves. Import `core` to get the home-manager wiring (`nixos.home-manager`).
 - **State history belongs to its owner.** Set `system.stateVersion` in each host and `home.stateVersion` for each HM user to their existing installed values; the factory neither infers nor advances them.
 - **Host axis vs. user axis.** Hosts import NixOS tiers through `dotnix.hosts.<name>.modules`; user profiles import HM tiers through `homeManager.<user>` (see `modules/users/<user>/default.nix`). `desktop` is the one tier on both axes with different reach: on the host it pulls the NixOS socket (`desktop-shell`), in a user profile it pulls the socket **plus** the GUI applications (`desktop-shell` + `desktop-apps`).
@@ -83,16 +83,16 @@ Vault-gated branches additionally require the host identity layout from [Secrets
 
 Proven composition lines (host `modules` + user-profile HM imports):
 
-| Profile               | Host line                                                        | User line                          |
-| --------------------- | ---------------------------------------------------------------- | ---------------------------------- |
-| WSL work host         | `[ <wsl-hw> core development ]`                                  | `[ terminal development ]`         |
-| Workstation           | `[ <hw> core system desktop-shell dms dms-greeter development ]` | `[ terminal development desktop ]` |
-| VPS / headless server | `[ <vps-hw> core server ]`                                       | `[ terminal development ]`         |
-| VM / container        | `[ <core ]`                                                      | —                                  |
+| Profile               | Host line                                                                         | User line                          |
+| --------------------- | --------------------------------------------------------------------------------- | ---------------------------------- |
+| WSL work host         | `[ <wsl-hw> core development ]`                                                   | `[ terminal development ]`         |
+| Workstation           | [Explicit host template](templates/dotnix/modules/hosts/myHost/configuration.nix) | `[ terminal development desktop ]` |
+| VPS / headless server | `[ <vps-hw> core server ]`                                                        | `[ terminal development ]`         |
+| VM / container        | `[ <core ]`                                                                       | —                                  |
 
-`server` composes `base`, which supplies generic boot behavior and journald only. It does not select a bootloader or root disk: each server must provide both explicitly, along with its hardware, networking, and any desired work/admin `core` profile. Laptop performance tuning and systemd-boot selection belong to `system`, not `server`. Run `nix eval --impure --file tests/headless-composition.nix` to evaluate the neutral server composition and verify that workstation tuning remains in `system`.
+`server` composes `base`, which supplies generic boot behavior and journald only. It does not select a bootloader or root disk: each server must provide both explicitly, along with its hardware, networking, and any desired work/admin `core` profile. Workstations select required system features individually (for example, `boot-systemd`, `performance`, `disko`, `network`, `pipewire`, and `power`); there is no broad system profile. See the [consumer template](templates/dotnix/README.md) for an explicit host configuration. `disko` supplies reusable geometry but no device default: every host importing it must set native `disko.devices.disk.main.device` to its own disk path (for example, `/dev/nvme0n1`). Run `nix eval --impure --file tests/headless-composition.nix` to verify the server remains independent of workstation tuning and disk configuration.
 
-`base` is an inherited boot socket — `system` and `server` pull it, nobody imports it directly. `mail` is an exclusion bundle: pull it only for users who read mail, so non-mailers don't inherit the mail timers. Swap `dms`/`dms-greeter` for `noctalia`/`noctalia-greeter` on hosts that prefer the alternative shell. New tiers appear with their first real consumer, not from theory.
+`base` provides generic boot behavior; `server` pulls it, and host compositions may import it directly. `mail` is an exclusion bundle: pull it only for users who read mail, so non-mailers don't inherit the mail timers. Swap `dms`/`dms-greeter` for `noctalia`/`noctalia-greeter` on hosts that prefer the alternative shell. New tiers appear with their first real consumer, not from theory.
 
 ## Channel choice
 

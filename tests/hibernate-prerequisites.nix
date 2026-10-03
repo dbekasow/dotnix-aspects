@@ -9,6 +9,7 @@ let
       inherit system;
       modules = [
         source.modules.nixos.disko
+        { disko.devices.disk.main.device = "/dev/vda"; }
         source.modules.nixos.power
         source.modules.nixos.performance
         {

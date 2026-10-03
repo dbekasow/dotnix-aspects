@@ -18,6 +18,10 @@ let
         members = [ "alice" ];
         modules = [
           inputs.modules.nixos.disko
+          {
+            disko.devices.disk.main.device = "/dev/vda";
+            disko.devices.disk.main.content.partitions.ESP.size = "2G";
+          }
           (_: {
             boot.loader.grub.enable = true;
             boot.loader.grub.device = "nodev";
@@ -33,6 +37,7 @@ let
         members = [ "bob" ];
         modules = [
           inputs.modules.nixos.disko
+          { disko.devices.disk.main.device = "/dev/vdb"; }
           (_: {
             dotnix.disk.encrypt = false;
             boot.loader.grub.enable = true;
@@ -138,8 +143,16 @@ assert builtins.elem "tmux" homeManagerExports;
 assert builtins.elem "git-repos" homeManagerExports;
 assert !(builtins.elem "home-manager" homeManagerExports);
 assert alpha.dotnix.disk.encrypt;
+assert alpha.disko.devices.disk.main.content.type == "gpt";
+assert alpha.disko.devices.disk.main.content.partitions.ESP.size == "2G";
+assert alpha.disko.devices.disk.main.content.partitions.ESP.content.format == "vfat";
+assert alpha.disko.devices.disk.main.content.partitions.ESP.content.mountpoint == "/boot";
+assert alpha.disko.devices.disk.main.content.partitions.root.priority == 2;
+assert alpha.disko.devices.disk.main.content.partitions.root.size == "100%";
 assert alpha.disko.devices.disk.main.content.partitions.root.content.type == "luks";
 assert !beta.dotnix.disk.encrypt;
+assert beta.disko.devices.disk.main.content.type == "gpt";
+assert beta.disko.devices.disk.main.content.partitions.ESP.size == "1G";
 assert beta.disko.devices.disk.main.content.partitions.root.content.type == "btrfs";
 assert !(home.options ? stylix);
 assert builtins.any (binding: binding.key == "z") home.config.dotnix.tmux.bindings;

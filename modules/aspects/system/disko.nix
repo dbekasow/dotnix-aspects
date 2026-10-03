@@ -40,7 +40,11 @@ let
 in
 {
   flake.modules.nixos.disko = { lib, config, ... }:
-    let cfg = config.dotnix.disk; in {
+    let
+      cfg = config.dotnix.disk;
+      mkDefaultLeaves = lib.mapAttrsRecursive (_: lib.mkDefault);
+    in
+    {
       imports = [ inputs.disko.nixosModules.disko ];
 
       options.dotnix.disk = {
@@ -59,32 +63,29 @@ in
       config = {
         # Library default layout; hosts override it with their own disko
         # config, or keep the geometry and switch the crypto options off.
-        disko.devices.disk.main = lib.mkDefault {
-          device = "/dev/nvme0n1";
-          type = "disk";
-          content = {
-            type = "gpt";
-            partitions = {
-              ESP = {
-                priority = 1;
-                size = "1G";
-                type = "EF00";
-                content = {
-                  type = "filesystem";
-                  format = "vfat";
-                  mountpoint = "/boot";
-                  mountOptions = [ "umask=0077" ];
-                };
+        disko.devices.disk.main.type = lib.mkDefault "disk";
+        disko.devices.disk.main.content = mkDefaultLeaves {
+          type = "gpt";
+          partitions = {
+            ESP = {
+              priority = 1;
+              size = "1G";
+              type = "EF00";
+              content = {
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+                mountOptions = [ "umask=0077" ];
               };
+            };
 
-              root = {
-                priority = 2;
-                size = "100%";
-                content =
-                  if cfg.encrypt
-                  then mkLuksFido2 cfg.enrollFido2 "cryptroot" btrfsContent
-                  else btrfsContent;
-              };
+            root = {
+              priority = 2;
+              size = "100%";
+              content =
+                if cfg.encrypt
+                then mkLuksFido2 cfg.enrollFido2 "cryptroot" btrfsContent
+                else btrfsContent;
             };
           };
         };
