@@ -5,7 +5,6 @@
     homeManager.term-ux.imports = with homeManager; [
       atuin
       carapace
-      clipboard
       direnv
       fzf
       sesh

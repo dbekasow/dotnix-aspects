@@ -12,9 +12,21 @@
       xdg-portals
     ];
 
-    homeManager.desktop-shell.imports = with homeManager; [
-      niri
-      xdg
-    ];
+    homeManager.desktop-shell = { lib, options, pkgs, ... }: {
+      imports = with homeManager; [
+        clipboard
+        niri
+        xdg
+      ];
+
+      config = lib.mkMerge [
+        (lib.optionalAttrs (options.services ? "gpg-agent") {
+          services.gpg-agent.pinentry.package = lib.mkOverride 900 pkgs.pinentry-gnome3;
+        })
+        (lib.optionalAttrs (options.programs ? rbw) {
+          programs.rbw.settings.pinentry = lib.mkOverride 900 pkgs.pinentry-gnome3;
+        })
+      ];
+    };
   };
 }
