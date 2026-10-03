@@ -17,7 +17,7 @@
 
 ## 3. Btrfs rollback and Hibernate
 
-- [ ] 3.1 (up to 2 h) Check locked `btrfs-progs` support and the Disko-generated swapfile layout; record the permitted recursive deletion strategy, mount/compression behavior, and resume properties in the design note, without using live storage.
+- [x] 3.1 (up to 2 h) Check locked `btrfs-progs` support and the Disko-generated swapfile layout; record the permitted recursive deletion strategy, mount/compression behavior, and resume properties in the design note, without using live storage.
 - [ ] 3.2 (up to 2 h) Implement rollback prerequisites, device readiness, fail-safe root mounting, and an unmount trap; targeted initrd evaluation for encrypted `cryptroot` and a directly labeled device must verify ordering before `sysroot.mount`.
 - [ ] 3.3 (up to 2 h) Create disposable Btrfs VM regressions for multiple nesting levels, a path containing spaces, missing `@root-blank`, failures before root mount, and sentinel siblings `@persist`/`@nix`/`@log`/`@swap`; automated VM checks must verify data integrity and fail-closed behavior. Shell mocks alone are insufficient.
 - [ ] 3.4 (up to 2 h) Update the Hibernate comment and documentation to use `btrfs inspect-internal map-swapfile -r /swap/swapfile`, a separate resume device, and a clear distinction from zram; provisioning checks must verify prerequisites and must not override host parameters.
