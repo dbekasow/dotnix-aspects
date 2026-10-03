@@ -34,7 +34,20 @@ let
   workstation = evaluateNixOS [
     homeManager.nixosModules.default
     flake.nixosModules.core
-    flake.nixosModules.system
+    flake.nixosModules.base
+    flake.nixosModules.boot-systemd
+    flake.nixosModules.performance
+    flake.nixosModules.bluetooth
+    flake.nixosModules.disko
+    flake.nixosModules.impermanence
+    flake.nixosModules.geolocation
+    flake.nixosModules.network
+    flake.nixosModules.network-wifi
+    flake.nixosModules.pipewire
+    flake.nixosModules.power
+    flake.nixosModules.yubikey
+    flake.nixosModules.yubikey-pam
+    { disko.devices.disk.main.device = "/dev/vda"; }
     flake.nixosModules.desktop
     flake.nixosModules.development
     {
