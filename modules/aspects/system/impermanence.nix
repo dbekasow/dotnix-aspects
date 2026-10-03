@@ -21,7 +21,10 @@
         requires = dependencies;
         after = dependencies;
         unitConfig.DefaultDependencies = "no";
-        serviceConfig.Type = "oneshot";
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
         script = ''
           set -eu
           mountpoint=$(mktemp -d /run/rollback-root.XXXXXX)
