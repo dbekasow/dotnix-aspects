@@ -9,13 +9,4 @@
       useUserPackages = true;
     };
   };
-
-  flake.modules.homeManager.home-manager = { lib, osConfig, ... }: {
-    home.stateVersion =
-      let
-        hmVersions = [ "26.05" "26.11" ];
-        sys = osConfig.system.stateVersion;
-      in
-      if lib.elem sys hmVersions then sys else lib.last hmVersions;
-  };
 }

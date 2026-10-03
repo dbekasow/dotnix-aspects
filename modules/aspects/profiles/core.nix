@@ -43,7 +43,6 @@
       git-credentials
       git-repos
       gpg-agent
-      home-manager
       ssh
       stylix
       users-profile
