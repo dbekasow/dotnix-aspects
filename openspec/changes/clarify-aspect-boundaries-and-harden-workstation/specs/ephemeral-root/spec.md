@@ -53,6 +53,29 @@ Before mounting the Btrfs top level, rollback SHALL wait for the root device app
 - **WHEN** the layout uses the labeled device directly
 - **THEN** rollback waits for that device without assuming that a nonexistent `cryptroot` unit exists
 
+### Requirement: Rollback is selected only with ephemeral-root support
+
+The rollback service SHALL NOT be installed when the impermanence aspect is not selected. Resume-device configuration SHALL NOT be inferred or enabled unless Hibernate/power-management selection explicitly requires it.
+
+#### Scenario: No impermanence
+
+- **WHEN** a host does not select impermanence
+- **THEN** no ephemeral-root rollback service is installed
+
+#### Scenario: No Hibernate selection
+
+- **WHEN** a host does not select Hibernate/power-management support
+- **THEN** no implicit resume device or offset is configured
+
+### Requirement: Resume configuration cannot race destructive rollback
+
+Before destructive rollback can remove the swapfile or alter the root snapshot state, the implementation SHALL investigate and test whether initrd resume can be active and whether resume has completed. If safe ordering is not established, rollback SHALL fail closed rather than risk modifying a live resume source. This is a required pre-implementation investigation, not an assertion that the current system has a proven race.
+
+#### Scenario: Resume-before-rollback ordering
+
+- **WHEN** Hibernate is configured with a Btrfs swapfile and ephemeral-root rollback is selected
+- **THEN** a disposable test verifies resume completion precedes destructive rollback, or verifies rollback is prevented until that safety condition is guaranteed
+
 ### Requirement: Hibernate offset describes the provisioned swapfile
 
 Documentation SHALL describe the resume offset as a provisioned property of the swapfile, specify the Btrfs map command instead of `filefrag`, and identify the resume backing device separately from the offset. Zram SHALL NOT be presented as a persistent Hibernate resume target.
