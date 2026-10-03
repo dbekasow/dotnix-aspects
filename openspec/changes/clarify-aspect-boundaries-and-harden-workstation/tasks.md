@@ -2,7 +2,7 @@
 
 ## 1. Aspect structure and export contract
 
-- [ ] 1.1 (up to 2 h) Move composition files to `modules/aspects/profiles/` and group DMS/Helix/Tmux-only file families; check relative imports and assets, then run `git diff --check` and verify the change list for path/content equivalence only.
+- [x] 1.1 (up to 2 h) Move composition files to `modules/aspects/profiles/` and group DMS/Helix/Tmux-only file families; check relative imports and assets, then run `git diff --check` and verify the change list for path/content equivalence only.
 - [ ] 1.2 (up to 2 h) Extend the aspect export matrix for existing public names, classes, and subprofiles using the existing consumer fixture; build the fixture toplevel from `.github/workflows/flake-check.yml` and verify identical export names.
 - [ ] 1.3 (up to 2 h) Implement `wrapMods` metadata handling using the locked nixpkgs `lib` and add regression coverage for an additional `_module.args` argument and caller `self`/input precedence; targeted evaluation must verify both contracts.
 
