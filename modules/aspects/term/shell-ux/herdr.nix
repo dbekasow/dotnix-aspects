@@ -54,4 +54,11 @@
         };
       };
     };
+
+  # Worktree checkouts are real working copies; the default root lives in
+  # $HOME, which impermanence wipes at boot. Follows worktrees.directory's
+  # default (~/.herdr/worktrees).
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".herdr/worktrees" ];
+  };
 }
