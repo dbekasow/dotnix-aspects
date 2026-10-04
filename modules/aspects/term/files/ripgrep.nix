@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.ripgrep = {
+  dotnix.ripgrep.homeManager = {
     programs.ripgrep = {
       enable = true;
 

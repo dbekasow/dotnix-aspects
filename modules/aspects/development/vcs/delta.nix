@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.delta = { lib, pkgs, ... }: {
+  dotnix.delta.homeManager = { lib, pkgs, ... }: {
     programs.delta = {
       enable = true;
       enableGitIntegration = true;

@@ -37,13 +37,21 @@ let
   };
 in
 {
-  flake.modules.nixos.stylix = {
+  flake-file.inputs.stylix = {
+    url = "github:nix-community/stylix";
+    inputs = {
+      nixpkgs.follows = "nixpkgs";
+      nur.follows = "nur";
+    };
+  };
+
+  dotnix.stylix.nixos = {
     imports = [ inputs.stylix.nixosModules.stylix sharedConfig ];
     stylix.enableReleaseChecks = false;
     stylix.homeManagerIntegration.autoImport = false;
   };
 
-  flake.modules.homeManager.stylix = { config, lib, ... }: {
+  dotnix.stylix.homeManager = { config, lib, ... }: {
     imports = [ inputs.stylix.homeModules.stylix sharedConfig ];
     stylix.overlays.enable = false;
     stylix.image =

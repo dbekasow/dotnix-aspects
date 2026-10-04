@@ -1,7 +1,4 @@
-# Tier selection instead of host classes: headless machines import `server` —
-# the base boot socket without NetworkManager, avahi, audio or power management.
-{ self, ... }: {
-  flake.modules = let inherit (self.modules) nixos; in {
-    nixos.server.imports = with nixos; [ base ];
-  };
+# Headless composition without workstation network, audio or power defaults.
+{ dotnix, ... }: {
+  dotnix.server.includes = [ dotnix.base ];
 }

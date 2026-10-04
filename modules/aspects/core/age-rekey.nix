@@ -1,9 +1,19 @@
 { inputs, ... }: {
-  flake.modules.nixos.age-rekey = { config, lib, ... }: {
+  flake-file.inputs.agenix-rekey = {
+    url = "github:oddlama/agenix-rekey";
+    inputs = {
+      devshell.follows = "devshell";
+      flake-parts.follows = "flake-parts";
+      nixpkgs.follows = "nixpkgs";
+      pre-commit-hooks.follows = "git-hooks";
+      treefmt-nix.follows = "treefmt";
+    };
+  };
+  dotnix.age-rekey.nixos = { host, lib, ... }: {
     imports = [ inputs.agenix-rekey.nixosModules.default ];
 
     age.rekey = rec {
-      secretsDir = "${inputs.self}/modules/hosts/${config.dotnix.hostname}/secrets";
+      secretsDir = "${inputs.self}/modules/hosts/${host.name}/secrets";
       generatedSecretsDir = secretsDir + "/generated";
       localStorageDir = secretsDir + "/local";
       # optionalString lets template/CI consumers evaluate before host keys exist
@@ -15,7 +25,7 @@
     };
   };
 
-  flake.modules.homeManager.age-rekey = { config, lib, osConfig, ... }: {
+  dotnix.age-rekey.homeManager = { config, lib, osConfig, ... }: {
     imports = [ inputs.agenix-rekey.homeManagerModules.default ];
 
     age.rekey = rec {

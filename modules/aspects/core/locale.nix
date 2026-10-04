@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.locale = { lib, ... }: {
+  dotnix.locale.nixos = { lib, ... }: {
     time.timeZone = "Europe/Berlin";
 
     # No extraLocaleSettings: unset LC_* falls back to LANG anyway, so

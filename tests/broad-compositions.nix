@@ -1,6 +1,7 @@
 let
   flake = builtins.getFlake (toString ../.);
   nixpkgs = flake.inputs.nixpkgs;
+  inherit (nixpkgs) lib;
   homeManager = flake.inputs.home-manager;
   system = "x86_64-linux";
   pkgs = import nixpkgs {
@@ -87,6 +88,7 @@ let
     inherit pkgs;
     extraSpecialArgs.osConfig.system.stateVersion = "25.11";
     modules = [
+      flake.inputs.impermanence.homeManagerModules.impermanence
       flake.homeManagerModules.stylix
       flake.homeManagerModules.desktop
       flake.homeManagerModules.noctalia
@@ -101,6 +103,7 @@ let
     inherit pkgs;
     extraSpecialArgs.osConfig.system.stateVersion = "25.11";
     modules = [
+      flake.inputs.impermanence.homeManagerModules.impermanence
       flake.homeManagerModules.desktop-shell
       flake.homeManagerModules.noctalia
       (_: {
@@ -132,6 +135,14 @@ let
       homeWithNiri.config.programs.noctalia.enable
       && builtins.hasAttr "Mod+Space" homeWithNiri.config.programs.niri.settings.binds;
     developmentOptional = !socketOnly.programs.nix-ld.enable;
+    selectedSystemPersistence =
+      lib.elem "/var/lib/bluetooth" workstation.environment.persistence."/persist".directories
+      && !(lib.elem "/var/lib/dms-greeter" workstation.environment.persistence."/persist".directories);
+    persistenceNeedsImpermanence = !(socketOnly.options.environment ? persistence);
+    selectedHomePersistence =
+      lib.elem ".cache/mesa_shader_cache" homeWithNiri.config.home.persistence."/persist".directories
+      && !(lib.elem ".mozilla" homeWithNiri.config.home.persistence."/persist".directories)
+      && lib.elem ".mozilla" home.config.home.persistence."/persist".directories;
   };
   failed = builtins.attrNames (nixpkgs.lib.filterAttrs (_: passed: !passed) checks);
 in

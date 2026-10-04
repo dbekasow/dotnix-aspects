@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.kubernetes = { pkgs, ... }: {
+  dotnix.kubernetes.homeManager = { pkgs, ... }: {
     programs.k9s = {
       enable = true;
 

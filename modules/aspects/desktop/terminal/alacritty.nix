@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.alacritty = {
+  dotnix.alacritty.homeManager = {
     programs.alacritty = {
       enable = true;
 

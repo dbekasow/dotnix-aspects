@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.security = { lib, ... }: {
+  dotnix.security.nixos = { lib, ... }: {
     # No `security.sudo.enable = false` here: the sudo-rs module already
     # disables legacy sudo by default, and forcing it would break hosts
     # that deliberately keep legacy sudo.

@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.nushell = {
+  dotnix.nushell.homeManager = {
     programs.nushell.enable = true;
   };
 }

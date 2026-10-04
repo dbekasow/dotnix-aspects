@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.fd = {
+  dotnix.fd.homeManager = {
     programs.fd = {
       enable = true;
       hidden = true;

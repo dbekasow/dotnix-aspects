@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.zellij = { lib, ... }: {
+  dotnix.zellij.homeManager = { lib, ... }: {
     programs.zellij = {
       enable = lib.mkDefault false;
       enableFishIntegration = true;
@@ -35,7 +35,7 @@
   };
 
   # Impermanence contribution for zellij.
-  flake.modules.homeManager.impermanence = {
+  dotnix.zellij.homePersistence = {
     home.persistence."/persist".directories = [
       # session_serialization = true is a no-op without this.
       ".cache/zellij"

@@ -1,12 +1,8 @@
 {
-  flake.modules.homeManager.tuicr = { config, lib, options, pkgs, ... }:
+  dotnix.tuicr.homeManager = { config, lib, pkgs, ... }:
     let
       toml = pkgs.formats.toml { };
-      # profile.fullname is data held by the users-profile aspect; the
-      # existence check keeps standalone imports (flat
-      # homeManagerModules.tuicr output) evaluating when that aspect is
-      # absent.
-      fullname = if config ? profile && config.profile ? fullname then config.profile.fullname else null;
+      fullname = config.programs.git.settings.user.name or config.home.username;
     in
     {
       config = lib.mkMerge [
@@ -35,7 +31,7 @@
               no_update_check = true;
 
               # Stamped on local comments; profile.fullname is optional.
-              username = if fullname != null then fullname else config.home.username;
+              username = fullname;
 
               comment_types = [
                 { id = "issue"; definition = "must fix before merge"; color = "red"; }
@@ -50,12 +46,10 @@
 
           programs.fish.shellAbbrs.cr = "tuicr";
         }
-        (lib.optionalAttrs (options ? dotnix.tmux.popups) {
-          dotnix.tmux.popups = lib.mkIf config.programs.tmux.enable [{
-            key = "r";
-            name = "tuicr";
-            command = lib.getExe pkgs.llm-agents.tuicr;
-          }];
+        (lib.mkIf config.programs.tmux.enable {
+          programs.tmux.extraConfig = ''
+            bind -N "tuicr review" -T prefix r display-popup -EE -w 90% -h 85% -T " tuicr " "${lib.getExe pkgs.llm-agents.tuicr}"
+          '';
         })
       ];
     };

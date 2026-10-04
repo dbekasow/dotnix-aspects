@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.onlyoffice = {
+  dotnix.onlyoffice.homeManager = {
     programs.onlyoffice = {
       enable = true;
 

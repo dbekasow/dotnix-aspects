@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.xdg-portals = { pkgs, ... }: {
+  dotnix.xdg-portals.nixos = { pkgs, ... }: {
     xdg.portal = {
       enable = true;
 

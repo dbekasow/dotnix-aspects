@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.skim = {
+  dotnix.skim.homeManager = {
     programs.skim = {
       enable = true;
 

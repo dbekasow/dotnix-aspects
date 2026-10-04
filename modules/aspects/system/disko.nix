@@ -39,30 +39,18 @@ let
   };
 in
 {
-  flake.modules.nixos.disko = { lib, config, ... }:
-    let
-      cfg = config.dotnix.disk;
-      mkDefaultLeaves = lib.mapAttrsRecursive (_: lib.mkDefault);
-    in
+  flake-file.inputs.disko = {
+    url = "github:nix-community/disko";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  dotnix.disko.nixos = { lib, ... }:
+    let mkDefaultLeaves = lib.mapAttrsRecursive (_: lib.mkDefault); in
     {
       imports = [ inputs.disko.nixosModules.disko ];
 
-      options.dotnix.disk = {
-        encrypt = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-          description = "Wrap the root btrfs in a LUKS2 container. Hosts without disk encryption (VMs, most cloud images) set this to false and get the same subvolume geometry unencrypted.";
-        };
-        enrollFido2 = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-          description = "Enroll a FIDO2 key as an additional LUKS credential next to the passphrase; meaningless when encrypt is false.";
-        };
-      };
-
       config = {
-        # Library default layout; hosts override it with their own disko
-        # config, or keep the geometry and switch the crypto options off.
+        # Hosts with different storage layouts provide native Disko config.
         disko.devices.disk.main.type = lib.mkDefault "disk";
         disko.devices.disk.main.content = mkDefaultLeaves {
           type = "gpt";
@@ -82,10 +70,7 @@ in
             root = {
               priority = 2;
               size = "100%";
-              content =
-                if cfg.encrypt
-                then mkLuksFido2 cfg.enrollFido2 "cryptroot" btrfsContent
-                else btrfsContent;
+              content = mkLuksFido2 true "cryptroot" btrfsContent;
             };
           };
         };

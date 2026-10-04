@@ -5,7 +5,7 @@
   # accounts.conf world-readable into the store, so aerc refuses to start
   # without that flag. The msmtp password comes from the vault
   # (passwordCommand), never from a store path.
-  flake.modules.homeManager.aerc = {
+  dotnix.aerc.homeManager = {
     programs.aerc = {
       enable = true;
       extraConfig = {
@@ -28,7 +28,7 @@
   };
 
   # Impermanence contribution for aerc.
-  flake.modules.homeManager.impermanence = {
+  dotnix.aerc.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/aerc" ];
   };
 }

@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.workmux = { config, lib, options, pkgs, ... }:
+  dotnix.workmux.homeManager = { config, lib, pkgs, ... }:
     let yaml = pkgs.formats.yaml { }; in
     {
       config = lib.mkMerge [
@@ -26,18 +26,12 @@
 
           programs.fish.shellAbbrs.wx = "workmux";
         }
-        (lib.optionalAttrs (options ? dotnix.tmux.popups && options ? dotnix.tmux.bindings) {
-          dotnix.tmux.popups = lib.mkIf config.programs.tmux.enable [
-            { key = "a"; name = "agents"; command = "${pkgs.llm-agents.workmux}/bin/workmux dashboard"; }
-          ];
-
-          # Not a popup: the sidebar adds a real pane to every window, so it has
-          # to run against the server rather than inside an overlay. The command
-          # toggles on its own, one key covers both directions.
-          dotnix.tmux.bindings = lib.mkIf config.programs.tmux.enable [
-            { key = "a"; name = "Agent sidebar"; command = ''run-shell "${pkgs.llm-agents.workmux}/bin/workmux sidebar"''; }
-            { key = "A"; name = "Agent sidebar (session)"; command = ''run-shell "${pkgs.llm-agents.workmux}/bin/workmux sidebar --session"''; }
-          ];
+        (lib.mkIf config.programs.tmux.enable {
+          programs.tmux.extraConfig = ''
+            bind -N "Agent sidebar" a run-shell "${pkgs.llm-agents.workmux}/bin/workmux sidebar"
+            bind -N "Agent sidebar (session)" A run-shell "${pkgs.llm-agents.workmux}/bin/workmux sidebar --session"
+            bind -N "agents" -T prefix o display-menu -T " agents " -x C -y C "Dashboard" a "display-popup -EE -w 90% -h 85% -T ' agents ' '${pkgs.llm-agents.workmux}/bin/workmux dashboard'"
+          '';
         })
       ];
     };

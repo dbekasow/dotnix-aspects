@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.nix-search-tv = {
+  dotnix.nix-search-tv.homeManager = {
     programs.nix-search-tv = {
       enable = true;
 
@@ -20,7 +20,7 @@
 
   # Impermanence contribution for nix-search-tv.
   # Persist the downloaded indexes (tool default: $XDG_CACHE_HOME/nix-search-tv).
-  flake.modules.homeManager.impermanence = {
+  dotnix.nix-search-tv.homePersistence = {
     home.persistence."/persist".directories = [ ".cache/nix-search-tv" ];
   };
 }

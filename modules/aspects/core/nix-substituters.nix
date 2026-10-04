@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.nix = { lib, ... }: {
+  dotnix.nix.nixos = { lib, ... }: {
     # mkDefault so hosts can replace the caches (e.g. a VPS attaching its
     # own binary cache) instead of fighting the shared defaults.
     nix.settings = {

@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.boot-systemd = { lib, ... }: {
+  dotnix.boot-systemd.nixos = { lib, ... }: {
     boot.loader.systemd-boot = {
       enable = lib.mkDefault true;
       editor = false;

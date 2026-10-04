@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.boot = { lib, pkgs, ... }: {
+  dotnix.boot.nixos = { lib, pkgs, ... }: {
     boot = {
       initrd.systemd.enable = true;
       initrd.verbose = false;

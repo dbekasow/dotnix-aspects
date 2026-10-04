@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.gnupg = { pkgs, ... }: {
+  dotnix.gnupg.nixos = { pkgs, ... }: {
     programs.gnupg.agent.enable = true;
     programs.gnupg.agent.enableSSHSupport = true;
     # GUI prompting is owned by the HM gpg-agent aspect; system side

@@ -32,7 +32,7 @@ let
     };
 in
 {
-  flake.modules.homeManager.sesh = { config, lib, pkgs, ... }: {
+  dotnix.sesh.homeManager = { config, lib, pkgs, ... }: {
     programs.sesh = {
       enable = true;
 
@@ -53,19 +53,10 @@ in
         ${lib.getExe config.programs.sesh.package} connect (pwd)
       end
     '';
-  };
 
-  flake.modules.homeManager.tmux = { config, lib, pkgs, ... }:
-    let
-      sesh = lib.getExe config.programs.sesh.package;
-      picker = lib.getExe (mkPicker { inherit config lib pkgs; });
-    in
-    {
-      # The popup gives sk a real TTY; -EE closes it whatever the exit status.
-      dotnix.tmux.bindings = map
-        (base: base // { inherit (config.programs.sesh) enable; }) [
-        { key = "s"; name = "Sesh picker"; command = ''display-popup -EE -w 80% -h 70% -T " sesh " "${picker}"''; }
-        { key = "S"; name = "Last session"; command = ''run-shell "${sesh} last"''; }
-      ];
-    };
+    programs.tmux.extraConfig = lib.mkIf config.programs.tmux.enable ''
+      bind -N "Sesh picker" s display-popup -EE -w 80% -h 70% -T " sesh " "${lib.getExe (mkPicker { inherit config lib pkgs; })}"
+      bind -N "Last session" S run-shell "${lib.getExe config.programs.sesh.package} last"
+    '';
+  };
 }

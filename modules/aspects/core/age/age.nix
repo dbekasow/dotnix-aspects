@@ -2,34 +2,54 @@
 # imported alongside age-rekey (users.nix and yubikey-pam.nix depend on
 # the same extension).
 { inputs, ... }: {
-  flake.modules.nixos.age = { config, lib, ... }: {
-    imports = [ inputs.agenix.nixosModules.default ];
-
-    # Secrets follow the key material: dotnix.vaultReady is false until the
-    # host key exists (fresh template, CI fixture) — no vault is declared
-    # and evaluation stays green. `agenix generate` bootstraps the vault.
-    age.secrets = lib.optionalAttrs config.dotnix.vaultReady (lib.mergeAttrsList (map
-      (owner: {
-        "home-identity-${owner}" = {
-          generator.script = "ssh-ed25519";
-          mode = "600";
-          inherit owner;
-        };
-      })
-      config.dotnix.members));
+  flake-file.inputs.agenix = {
+    url = "github:ryantm/agenix";
+    inputs.nixpkgs.follows = "nixpkgs";
   };
+  dotnix.age.nixos =
+    { host, lib, ... }:
+    let
+      users = builtins.attrNames host.users;
+      secretsDir = "${inputs.self}/modules/hosts/${host.name}/secrets";
+      vaultReady = lib.pathExists "${secretsDir}/ssh_host_ed25519_key.pub";
+    in
+    {
+      imports = [ inputs.agenix.nixosModules.default ];
 
-  flake.modules.homeManager.age = { config, lib, osConfig, ... }: {
-    imports = [ inputs.agenix.homeManagerModules.default ];
+      # Keep fresh clones evaluable until host key material exists.
+      age.secrets = lib.optionalAttrs vaultReady (
+        lib.mergeAttrsList (
+          map
+            (owner: {
+              "home-identity-${owner}" = {
+                generator.script = "ssh-ed25519";
+                mode = "600";
+                inherit owner;
+              };
+            })
+            users
+        )
+      );
+    };
 
-    # Only route decryption through the vault secret once it is declared
-    # (dotnix.vaultReady gates the matching nixos.age declaration).
-    age.identityPaths = lib.optional osConfig.dotnix.vaultReady
-      osConfig.age.secrets."home-identity-${config.home.username}".path;
-  };
+  dotnix.age.homeManager =
+    { config
+    , lib
+    , osConfig
+    , ...
+    }:
+    {
+      imports = [ inputs.agenix.homeManagerModules.default ];
+
+      age.identityPaths = lib.optional
+        (
+          osConfig.age.secrets ? "home-identity-${config.home.username}"
+        )
+        osConfig.age.secrets."home-identity-${config.home.username}".path;
+    };
 
   # Impermanence contribution for age.
-  flake.modules.nixos.impermanence = {
+  dotnix.age.systemPersistence = {
     age.identityPaths = [ "/persist/etc/ssh/ssh_host_ed25519_key" ];
   };
 }

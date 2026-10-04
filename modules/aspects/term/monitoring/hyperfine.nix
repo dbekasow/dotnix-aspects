@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.hyperfine = { pkgs, ... }: {
+  dotnix.hyperfine.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.hyperfine ];
   };
 }

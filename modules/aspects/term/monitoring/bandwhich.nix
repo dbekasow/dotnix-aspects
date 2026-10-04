@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.bandwhich = { pkgs, ... }: {
+  dotnix.bandwhich.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.bandwhich ];
   };
 }

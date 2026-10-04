@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.git-alias = {
+  dotnix.git-alias.homeManager = {
     programs.git.settings.alias = {
       # Status shortcuts
       s = "status --short --branch";

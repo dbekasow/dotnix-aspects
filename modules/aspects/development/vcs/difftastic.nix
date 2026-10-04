@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.difftastic = { lib, pkgs, ... }: {
+  dotnix.difftastic.homeManager = { lib, pkgs, ... }: {
     programs.difftastic = {
       enable = true;
 

@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.system-packages = { pkgs, ... }: {
+  dotnix.system-packages.nixos = { pkgs, ... }: {
     environment.systemPackages = with pkgs; [
       # Coreutils but in rust
       uutils-coreutils-noprefix

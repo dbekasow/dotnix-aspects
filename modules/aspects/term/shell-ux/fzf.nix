@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.fzf = {
+  dotnix.fzf.homeManager = {
     programs.fzf = {
       enable = true;
 

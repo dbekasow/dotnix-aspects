@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.rbw = { config, lib, pkgs, ... }: {
+  dotnix.rbw.homeManager = { config, lib, pkgs, ... }: {
     programs.rbw = {
       enable = true;
 

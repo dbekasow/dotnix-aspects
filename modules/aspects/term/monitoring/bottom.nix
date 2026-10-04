@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.bottom = {
+  dotnix.bottom.homeManager = {
     programs.bottom = {
       enable = true;
 

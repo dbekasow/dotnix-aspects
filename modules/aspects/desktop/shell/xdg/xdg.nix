@@ -12,19 +12,23 @@ let
   };
 in
 {
-  flake.modules.homeManager.xdg = { config, lib, ... }: {
+  dotnix.xdg.homeManager = { config, lib, ... }: {
     xdg.userDirs =
-      let toAbsolute = dir: "${config.home.homeDirectory}/${dir}";
-      in {
+      let
+        toAbsolute = dir: "${config.home.homeDirectory}/${dir}";
+      in
+      {
         enable = true;
         createDirectories = true;
-      } // lib.mapAttrs (lib.const toAbsolute) persistedDirs;
+      }
+      // lib.mapAttrs (lib.const toAbsolute) persistedDirs;
   };
 
   # Impermanence contribution — the entry lives with the contributing
   # feature, not in the impermanence collector. persistedDirs mirrors the
   # map in xdg.nix — keep both in sync.
-  flake.modules.homeManager.impermanence = { lib, ... }:
+  dotnix.xdg.homePersistence =
+    { lib, ... }:
     let
       persistedDirs = {
         download = "downloads";

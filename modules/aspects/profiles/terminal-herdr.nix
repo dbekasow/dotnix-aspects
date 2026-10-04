@@ -1,6 +1,6 @@
 # Terminal profile with Herdr instead of Tmux/Sesh/Zellij.
-{ self, ... }: {
-  flake.modules.homeManager.terminal-herdr.imports = with self.modules.homeManager; [
+{ dotnix, ... }: {
+  dotnix.terminal-herdr.includes = with dotnix; [
     term-shell
     term-ux-herdr
     term-cli

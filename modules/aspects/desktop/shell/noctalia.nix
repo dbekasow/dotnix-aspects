@@ -5,7 +5,12 @@
 # owns app themes) and custom palettes can be fed from matugen through
 # programs.noctalia.customPalettes when the bridge is wanted.
 {
-  flake.modules.homeManager.noctalia = {
+  flake-file.inputs.noctalia = {
+    url = "github:noctalia-dev/noctalia/v5.2.1";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  dotnix.noctalia.homeManager = {
     # The pinned Home Manager ships its own programs.noctalia; disable it so the
     # flake module (pinned config schema + package) stays the single owner.
     # Importing both declares every option twice and fails evaluation.
@@ -44,7 +49,7 @@
     };
   };
 
-  flake.modules.nixos.noctalia = {
+  dotnix.noctalia.nixos = {
     nix.settings = {
       extra-substituters = [ "https://noctalia.cachix.org" ];
       extra-trusted-public-keys = [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];

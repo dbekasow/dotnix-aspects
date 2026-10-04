@@ -2,20 +2,17 @@
 
 ## Scope and mental model
 
-This repository is a reusable dendritic NixOS/Home Manager aspect library built on
-flake-parts. It is not the consumer's host configuration. Every `.nix` file under `modules/` is a flake-parts module; root and template
-`flake.nix` files are flake entry points. `modules/expose.nix` defines the public entry points.
+This repository is a reusable Den NixOS/Home Manager aspect library. The library
+exports its namespace as `flake.denful.dotnix`; consumers import it with
+`inputs.den.namespace "dotnix" [ inputs.dotnix true ]`. Every `.nix` file under
+`modules/` is a module; `modules/expose.nix` defines the public namespace and
+native `flakeModules.devTools` integration.
 
-Defining an aspect under `flake.modules.<class>.<name>` registers it; that alone does
-not activate it on a host. Composition happens when a consumer imports the aspect, a
-tier, or a profile. In this repository's public API:
-
-- `inputs.dotnix.flakeModule`: full factory product.
-- `flakeModules.aspects`: registry and tier surface.
-- `flakeModules.devTools`: development tooling.
-- `nixosModules` / `homeManagerModules`: plain-module aliases.
-
-Preserve these boundaries. Import-tree discovery is not host activation.
+Defining an aspect does not activate it on a host. Composition happens when a
+consumer imports the namespace and includes aspects or profiles on Den entities.
+There are no `flakeModule` factory, plain-module aliases, or generated
+`nixosModules` / `homeManagerModules` exports. Import-tree discovery is not host
+activation.
 
 ## Where changes belong
 

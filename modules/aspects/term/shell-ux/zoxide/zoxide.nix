@@ -1,12 +1,12 @@
 {
-  flake.modules.homeManager.zoxide = {
+  dotnix.zoxide.homeManager = {
     programs.zoxide = {
       enable = true;
     };
   };
 
   # Impermanence contribution for zoxide.
-  flake.modules.homeManager.impermanence = {
+  dotnix.zoxide.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/zoxide" ];
   };
 }

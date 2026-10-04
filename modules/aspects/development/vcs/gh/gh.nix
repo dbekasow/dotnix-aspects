@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.gh = { lib, pkgs, ... }: {
+  dotnix.gh.homeManager = { lib, pkgs, ... }: {
     programs.gh = {
       enable = true;
       # Stacks with dotnix.git.credentials helpers for github.com: git
@@ -17,7 +17,7 @@
   };
 
   # Impermanence contribution for gh.
-  flake.modules.homeManager.impermanence = {
+  dotnix.gh.homePersistence = {
     home.persistence."/persist".directories = [ ".config/gh" ];
   };
 }

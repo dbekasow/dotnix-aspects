@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.helix = { lib, ... }: {
+  dotnix.helix.homeManager = { lib, ... }: {
     programs.helix = {
       enable = true;
       defaultEditor = lib.mkDefault true;
@@ -104,7 +104,7 @@
   };
 
   # Impermanence contribution for helix.
-  flake.modules.homeManager.impermanence = {
+  dotnix.helix.homePersistence = {
     home.persistence."/persist".directories = [
       ".cache/helix"
     ];

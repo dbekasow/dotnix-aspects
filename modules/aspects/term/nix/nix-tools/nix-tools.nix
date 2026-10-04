@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.nix-tools = { pkgs, ... }: {
+  dotnix.nix-tools.homeManager = { pkgs, ... }: {
     programs.nix-init.enable = true;
 
     home.packages = with pkgs; [
@@ -15,7 +15,7 @@
 
   # Impermanence contribution for nix-tools.
   # Persist the per-user Nix cache
-  flake.modules.homeManager.impermanence = {
+  dotnix.nix-tools.homePersistence = {
     home.persistence."/persist".directories = [ ".cache/nix" ];
   };
 }

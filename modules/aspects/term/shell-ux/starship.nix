@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.starship = {
+  dotnix.starship.homeManager = {
     programs.starship = {
       enable = true;
 

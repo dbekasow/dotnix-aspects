@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.bacon = {
+  dotnix.bacon.homeManager = {
     programs.bacon.enable = true;
   };
 }

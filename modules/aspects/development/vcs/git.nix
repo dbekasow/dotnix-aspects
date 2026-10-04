@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.git = { config, lib, ... }:
+  dotnix.git.homeManager = { config, lib, ... }:
     let
       # profile.* is data held by the users-profile aspect; the existence
       # checks keep standalone imports (flat homeManagerModules.git output,
@@ -45,7 +45,7 @@
       };
     };
 
-  flake.modules.nixos.git = {
+  dotnix.git.nixos = {
     programs.git.enable = true;
     programs.git.lfs.enable = true;
   };

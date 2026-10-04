@@ -1,7 +1,7 @@
 { config, ... }:
 let inherit (config.flake.factory.helix) withTypos prettier; in
 {
-  flake.modules.homeManager.helix-lsp = { pkgs, ... }: {
+  dotnix.helix-lsp.homeManager = { pkgs, ... }: {
     programs.helix.languages = {
       language = [{
         name = "json";

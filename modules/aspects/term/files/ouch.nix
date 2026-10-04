@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.ouch = { pkgs, ... }: {
+  dotnix.ouch.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.ouch ];
   };
 }

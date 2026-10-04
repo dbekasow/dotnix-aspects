@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.docker = { config, lib, ... }: {
+  dotnix.docker.nixos = { host, lib, ... }: {
     virtualisation.docker = {
       enable = true;
 
@@ -12,16 +12,18 @@
       autoPrune.enable = true;
     };
 
-    users.users = lib.genAttrs config.dotnix.members (lib.const {
-      # Rootless docker needs subordinate ids. Auto-allocation (via
-      # update-users-groups.pl) hands every member a distinct 65536-wide
-      # range; explicit ranges here would collide across members.
-      autoSubUidGidRange = lib.mkDefault true;
-      linger = true;
-    });
+    users.users = lib.genAttrs (builtins.attrNames host.users) (
+      lib.const {
+        # Rootless docker needs subordinate ids. Auto-allocation (via
+        # update-users-groups.pl) hands every member a distinct 65536-wide
+        # range; explicit ranges here would collide across members.
+        autoSubUidGidRange = lib.mkDefault true;
+        linger = true;
+      }
+    );
   };
 
-  flake.modules.homeManager.docker = { pkgs, ... }: {
+  dotnix.docker.homeManager = { pkgs, ... }: {
     programs.lazydocker.enable = true;
     programs.fish.shellAbbrs.lzd = "lazydocker";
 
@@ -29,7 +31,7 @@
   };
 
   # Impermanence contribution for docker.
-  flake.modules.homeManager.impermanence = {
+  dotnix.docker.homePersistence = {
     # Rootless docker keeps images and containers in the user's home;
     # /var/lib/docker would only persist a rootful daemon no member talks
     # to (WSL hosts run rootful but have no wipe to begin with).

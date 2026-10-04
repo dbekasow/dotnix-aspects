@@ -1,7 +1,7 @@
 { config, ... }:
 let inherit (config.flake.factory.helix) withTypos; in
 {
-  flake.modules.homeManager.helix-lsp = { pkgs, lib, ... }: {
+  dotnix.helix-lsp.homeManager = { pkgs, lib, ... }: {
     programs.helix.extraPackages = [ pkgs.taplo ];
     programs.helix.languages = {
       language-server.taplo = {

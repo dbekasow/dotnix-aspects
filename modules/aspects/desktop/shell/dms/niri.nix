@@ -1,5 +1,5 @@
 _: {
-  flake.modules.nixos.dms =
+  dotnix.dms.nixos =
     { config
     , lib
     , options
@@ -12,7 +12,7 @@ _: {
       };
     };
 
-  flake.modules.homeManager.dms = { config, ... }: {
+  dotnix.dms.homeManager = { config, ... }: {
     programs.niri.settings.binds =
       with config.lib.niri.actions;
       let

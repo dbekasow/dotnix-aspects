@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.lazygit = {
+  dotnix.lazygit.homeManager = {
     programs.lazygit = {
       enable = true;
 

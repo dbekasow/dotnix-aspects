@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.fastfetch = { config, lib, ... }: {
+  dotnix.fastfetch.homeManager = { config, lib, ... }: {
     programs.fastfetch = {
       enable = true;
 

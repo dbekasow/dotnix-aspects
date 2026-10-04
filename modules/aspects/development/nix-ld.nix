@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.nix-ld = { lib, pkgs, ... }: {
+  dotnix.nix-ld.nixos = { lib, pkgs, ... }: {
     programs.nix-ld = {
       enable = lib.mkDefault true;
       libraries = with pkgs; [

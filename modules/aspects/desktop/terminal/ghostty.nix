@@ -7,7 +7,7 @@ let
   };
 in
 {
-  flake.modules.homeManager.ghostty = { pkgs, ... }: {
+  dotnix.ghostty.homeManager = { pkgs, ... }: {
     programs.ghostty = {
       enable = true;
 

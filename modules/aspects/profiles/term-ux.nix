@@ -1,22 +1,9 @@
-# term/shell-ux group as its own HM tier: prompt, navigation and multiplexer
-# ergonomics — the things that make a shell livable; `terminal` composes it.
-{ self, ... }:
+# Prompt, navigation and multiplexer ergonomics.
+{ dotnix, ... }:
 let
-  inherit (self.modules) homeManager;
-  shared = with homeManager; [
-    atuin
-    carapace
-    direnv
-    fzf
-    skim
-    starship
-    yazi
-    zoxide
-  ];
+  shared = with dotnix; [ atuin carapace direnv fzf skim starship yazi zoxide ];
 in
 {
-  flake.modules = {
-    homeManager.term-ux.imports = shared ++ (with homeManager; [ sesh tmux ]);
-    homeManager.term-ux-herdr.imports = shared ++ (with homeManager; [ herdr ]);
-  };
+  dotnix.term-ux.includes = shared ++ (with dotnix; [ sesh tmux ]);
+  dotnix.term-ux-herdr.includes = shared ++ [ dotnix.herdr ];
 }

@@ -21,7 +21,7 @@ modules/
   users/
     myUser/
       default.nix          # user definition (modules, profile)
-  parts.nix                # imports the dotnix flakeModule
+  parts.nix                # imports Den namespace and dotnix dev tools
 flake.nix
 ```
 

@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.network = { lib, pkgs, ... }: {
+  dotnix.network.nixos = { lib, pkgs, ... }: {
     networking = {
       networkmanager = {
         enable = true;
@@ -77,10 +77,13 @@
       publish.enable = false;
     };
 
-    environment.systemPackages = with pkgs; [ curl dig ];
+    environment.systemPackages = with pkgs; [
+      curl
+      dig
+    ];
   };
 
-  flake.modules.nixos.impermanence = {
+  dotnix.network.systemPersistence = {
     environment.persistence."/persist".directories = [
       "/var/lib/NetworkManager"
       "/etc/NetworkManager/system-connections"

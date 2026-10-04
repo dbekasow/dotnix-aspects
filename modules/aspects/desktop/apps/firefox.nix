@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.firefox = { lib, pkgs, ... }: {
+  dotnix.firefox.homeManager = { lib, pkgs, ... }: {
     programs.firefox = {
       enable = true;
 
@@ -106,19 +106,30 @@
         extensions.force = true;
       };
 
-      languagePacks = [ "en-US" "de" ];
+      languagePacks = [
+        "en-US"
+        "de"
+      ];
     };
 
-    home = let dicts = with pkgs.hunspellDicts; [ de_DE en_US ru_RU ]; in {
-      packages = [ pkgs.hunspell ] ++ dicts;
-      sessionVariables.DICPATH = lib.concatMapStringsSep ":" (d: "${d}/share/hunspell") dicts;
-    };
+    home =
+      let
+        dicts = with pkgs.hunspellDicts; [
+          de_DE
+          en_US
+          ru_RU
+        ];
+      in
+      {
+        packages = [ pkgs.hunspell ] ++ dicts;
+        sessionVariables.DICPATH = lib.concatMapStringsSep ":" (d: "${d}/share/hunspell") dicts;
+      };
 
     stylix.targets.firefox.profileNames = [ "default" ];
     stylix.targets.firefox.colorTheme.enable = true;
   };
 
-  flake.modules.homeManager.niri.programs.niri.settings.window-rules = [
+  dotnix.niri.homeManager.programs.niri.settings.window-rules = [
     {
       # Firefox uses CSDs that break clip-to-geometry — disable the global rule
       matches = [{ app-id = "firefox$"; }];
@@ -126,21 +137,31 @@
     }
     {
       # PiP window: floating, pinned to top-right corner
-      matches = [{ app-id = "firefox$"; title = "^Picture-in-Picture$"; }];
+      matches = [
+        {
+          app-id = "firefox$";
+          title = "^Picture-in-Picture$";
+        }
+      ];
       open-floating = true;
-      default-floating-position = { x = 32; y = 32; relative-to = "top-right"; };
+      default-floating-position = {
+        x = 32;
+        y = 32;
+        relative-to = "top-right";
+      };
     }
   ];
 
-  flake.modules.homeManager.impermanence = { lib, config, ... }: {
+  dotnix.firefox.homePersistence = { lib, config, ... }: {
     # Firefox profiles live in ~/.mozilla/firefox for stateVersion < 26.05
     # and ${xdg.configHome}/mozilla/firefox from 26.05; native-messaging
     # manifests stay in ~/.mozilla either way.
-    home.persistence."/persist".directories =
-      [ ".mozilla" ".cache/mozilla" ]
-      ++ lib.optionals
-        (config.programs.firefox.configPath != ".mozilla/firefox")
-        [ config.programs.firefox.configPath ];
+    home.persistence."/persist".directories = [
+      ".mozilla"
+      ".cache/mozilla"
+    ]
+    ++ lib.optionals (config.programs.firefox.configPath != ".mozilla/firefox") [
+      config.programs.firefox.configPath
+    ];
   };
 }
-

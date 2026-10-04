@@ -8,7 +8,7 @@
     };
   };
 
-  flake.modules.homeManager.helix-lsp = { pkgs, ... }: {
+  dotnix.helix-lsp.homeManager = { pkgs, ... }: {
     programs.helix.extraPackages = with pkgs; [ typos-lsp prettier ];
     programs.helix.languages.language-server = {
       typos-lsp.command = pkgs.lib.getExe pkgs.typos-lsp;

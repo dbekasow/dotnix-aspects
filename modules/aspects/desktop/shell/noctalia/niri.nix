@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  flake.modules.homeManager.noctalia =
+  dotnix.noctalia.homeManager =
     { config, options, ... }:
     {
       config = lib.optionalAttrs (options.programs ? niri && options.programs.niri ? settings) {

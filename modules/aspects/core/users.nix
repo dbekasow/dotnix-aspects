@@ -1,17 +1,19 @@
-{
-  flake.modules.nixos.users = { config, lib, pkgs, ... }:
-    # Accounts exist without key material; passwords follow the same vault
-    # gate as age.nix (locked accounts until `agenix generate` provides
-    # the material).
-    let vault = lib.optionalAttrs config.dotnix.vaultReady; in
+{ inputs, ... }: {
+  dotnix.users.nixos = { config, host, lib, pkgs, ... }:
+    let
+      users = builtins.attrNames host.users;
+      secretsDir = "${inputs.self}/modules/hosts/${host.name}/secrets";
+      vaultReady = lib.pathExists "${secretsDir}/ssh_host_ed25519_key.pub";
+      vault = lib.optionalAttrs vaultReady;
+    in
     {
       users.defaultUserShell = pkgs.fish;
       # Declarative lock only with vault material; a fresh clone (no vault
       # yet) stays mutable so the console can bootstrap passwords.
-      users.mutableUsers = !config.dotnix.vaultReady;
+      users.mutableUsers = !vaultReady;
 
-      users.users = lib.genAttrs config.dotnix.members (name: {
-        hashedPasswordFile = lib.mkIf config.dotnix.vaultReady
+      users.users = lib.genAttrs users (name: {
+        hashedPasswordFile = lib.mkIf vaultReady
           config.age.secrets."password-${name}-hashed".path;
         isNormalUser = lib.mkDefault true;
       });
@@ -33,6 +35,6 @@
           };
 
         })
-        config.dotnix.members));
+        users));
     };
 }

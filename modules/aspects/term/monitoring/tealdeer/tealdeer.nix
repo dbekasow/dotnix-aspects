@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.tealdeer = {
+  dotnix.tealdeer.homeManager = {
     programs.tealdeer = {
       enable = true;
       enableAutoUpdates = false;
@@ -13,7 +13,7 @@
 
   # Impermanence contribution for tealdeer.
   # Persist the tldr page cache.
-  flake.modules.homeManager.impermanence = {
+  dotnix.tealdeer.homePersistence = {
     home.persistence."/persist".directories = [ ".cache/tealdeer" ];
   };
 }

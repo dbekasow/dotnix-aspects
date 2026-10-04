@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.gpg-agent = { lib, pkgs, ... }: {
+  dotnix.gpg-agent.homeManager = { lib, pkgs, ... }: {
     programs.gpg.enable = true;
     programs.gpg.scdaemonSettings.disable-ccid = true;
     services.gpg-agent = rec {
@@ -16,7 +16,7 @@
   };
 
   # Impermanence contribution for gpg-agent.
-  flake.modules.homeManager.impermanence = {
+  dotnix.gpg-agent.homePersistence = {
     home.persistence."/persist".directories = [ ".gnupg" ];
   };
 }

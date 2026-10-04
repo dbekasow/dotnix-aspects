@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.tokei = { pkgs, ... }: {
+  dotnix.tokei.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.tokei ];
   };
 }

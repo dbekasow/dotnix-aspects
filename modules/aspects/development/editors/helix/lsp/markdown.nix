@@ -1,7 +1,7 @@
 { config, ... }:
 let inherit (config.flake.factory.helix) withTypos prettier; in
 {
-  flake.modules.homeManager.helix-lsp = { pkgs, lib, ... }: {
+  dotnix.helix-lsp.homeManager = { pkgs, lib, ... }: {
     # One LSP per language: markdown-oxide covers completion, refs, diagnostics.
     programs.helix.extraPackages = with pkgs; [ markdown-oxide ];
     programs.helix.languages = {

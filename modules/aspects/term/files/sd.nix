@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.sd = { pkgs, ... }: {
+  dotnix.sd.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.sd ];
   };
 }

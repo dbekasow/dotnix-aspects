@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.carapace = {
+  dotnix.carapace.homeManager = {
     programs.carapace = {
       enable = true;
     };

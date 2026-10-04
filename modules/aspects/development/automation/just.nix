@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.just = { pkgs, ... }: {
+  dotnix.just.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.just ];
   };
 }

@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.pipewire = { pkgs, ... }: {
+  dotnix.pipewire.nixos = { pkgs, ... }: {
     environment.systemPackages = [ pkgs.pavucontrol ];
     services.pipewire = {
       enable = true;
@@ -18,7 +18,14 @@
             "bluez5.enable-sbc-xq" = true;
             "bluez5.enable-msbc" = true;
             "bluez5.enable-hw-volume" = true;
-            "bluez5.codecs" = [ "sbc" "sbc_xq" "aac" "ldac" "aptx" "aptx_hd" ];
+            "bluez5.codecs" = [
+              "sbc"
+              "sbc_xq"
+              "aac"
+              "ldac"
+              "aptx"
+              "aptx_hd"
+            ];
           };
         };
       };
@@ -32,7 +39,7 @@
   # back to auto-priority — which ranks the internal speaker (~9900) above
   # the monitor (~5900), so the DP/HDMI sink silently loses "default".
   # PipeWire itself keeps no persistent state; one directory covers it all.
-  flake.modules.homeManager.impermanence = {
+  dotnix.pipewire.homePersistence = {
     home.persistence."/persist".directories = [ ".local/state/wireplumber" ];
   };
 }

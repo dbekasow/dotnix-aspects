@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.fonts = { pkgs, ... }: {
+  dotnix.fonts.nixos = { pkgs, ... }: {
     fonts = {
       enableDefaultPackages = false;
 

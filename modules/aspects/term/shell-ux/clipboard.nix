@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.clipboard = { lib, pkgs, ... }: {
+  dotnix.clipboard.homeManager = { lib, pkgs, ... }: {
     home.packages = with pkgs; [ wl-clipboard ];
 
     programs.fish.functions =

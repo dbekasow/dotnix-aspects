@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.atuin = { lib, ... }: {
+  dotnix.atuin.homeManager = { lib, ... }: {
     programs.atuin = {
       enable = true;
 
@@ -10,7 +10,14 @@
         auto_sync = lib.mkDefault false;
         update_check = false;
 
-        history_filter = [ "^clear$" "^exit$" "^menu$" "^l[salt]" "^y" "^z" ];
+        history_filter = [
+          "^clear$"
+          "^exit$"
+          "^menu$"
+          "^l[salt]"
+          "^y"
+          "^z"
+        ];
 
         # Search
         filter_mode = "host";
@@ -27,7 +34,7 @@
   };
 
   # Impermanence contribution for atuin.
-  flake.modules.homeManager.impermanence = {
+  dotnix.atuin.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/atuin" ];
   };
 }

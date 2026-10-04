@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.gnome-services = { pkgs, ... }: {
+  dotnix.gnome-services.nixos = { pkgs, ... }: {
     services = {
       dbus = {
         implementation = "broker";
@@ -20,7 +20,7 @@
   # Impermanence contribution for gnome-services.
   # gnome-services itself is a nixos aspect, but dconf and the keyring live in
   # the user's home, so the persistence entry is homeManager-side.
-  flake.modules.homeManager.impermanence = {
+  dotnix.gnome-services.homePersistence = {
     home.persistence."/persist".directories = [
       ".config/dconf"
       ".local/share/keyrings"

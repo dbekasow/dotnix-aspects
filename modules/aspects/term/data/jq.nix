@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.jq = { pkgs, ... }: {
+  dotnix.jq.homeManager = { pkgs, ... }: {
     programs.jq.enable = true;
     programs.jq.package = pkgs.gojq;
 

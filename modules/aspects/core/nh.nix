@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.nh = { config, lib, ... }: {
+  dotnix.nh.nixos = { config, host, lib, ... }: {
     programs.nh = {
       enable = true;
       clean = {
@@ -8,9 +8,9 @@
         dates = "weekly";
       };
     };
-    environment.variables = lib.optionalAttrs (config.dotnix.members != [ ]) (
+    environment.variables = lib.optionalAttrs (host.users != { }) (
       let
-        primary = lib.head config.dotnix.members;
+        primary = builtins.head (builtins.attrNames host.users);
         inherit (config.users.users."${primary}") home;
       in
       { NH_FLAKE = lib.mkDefault "${home}/.dotnix"; }

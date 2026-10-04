@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.rustscan = { pkgs, ... }: {
+  dotnix.rustscan.homeManager = { pkgs, ... }: {
     home.packages = with pkgs; [ nmap rustscan ];
   };
 }

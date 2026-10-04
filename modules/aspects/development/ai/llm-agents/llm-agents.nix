@@ -1,5 +1,9 @@
 { inputs, ... }: {
-  flake.modules.nixos.llm-agents = {
+  flake-file.inputs.llm-agents = {
+    url = "github:numtide/llm-agents.nix";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+  dotnix.llm-agents.nixos = {
     nixpkgs.overlays = [ inputs.llm-agents.overlays.shared-nixpkgs ];
     nix.settings = {
       substituters = [ "https://cache.numtide.com" ];
@@ -8,7 +12,7 @@
   };
 
   # Impermanence contribution for llm-agents.
-  flake.modules.homeManager.impermanence = {
+  dotnix.llm-agents.homePersistence = {
     # pi keeps sessions and chat history under its agent home, ~/.pi/agent
     # by default (pi docs v0.87.1 — a dot directory, not XDG data/cache).
     home.persistence."/persist".directories = [ ".pi" ];

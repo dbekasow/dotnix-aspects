@@ -27,9 +27,8 @@ jobs:
         # covers: treefmt checks (nixpkgs-fmt, deadnix, statix, typos, prettier …).
         # commitizen + detect-private-keys run locally via prek, not in CI.
 
-  # The product of this repo is its flakeModule export. Instantiate a fresh
-  # consumer template against this checkout and build its toplevel closure —
-  # the contract that `nix flake check` on the library alone cannot see.
+  # Instantiate fresh consumer using exported Den namespace against checkout
+  # and build its toplevel closure — the contract library checks alone miss.
   consumer-fixture:
     runs-on: ubuntu-latest
     permissions:

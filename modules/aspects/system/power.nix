@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.power = { config, lib, ... }: {
+  dotnix.power.nixos = { config, lib, ... }: {
     services = {
       logind.settings.Login = {
         HandlePowerKey = "suspend-then-hibernate";

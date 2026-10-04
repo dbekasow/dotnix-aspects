@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.repomix = { pkgs, ... }: {
+  dotnix.repomix.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.repomix ];
   };
 }

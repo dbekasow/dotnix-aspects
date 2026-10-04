@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.yazi = { pkgs, ... }: {
+  dotnix.yazi.homeManager = { pkgs, ... }: {
     # The glow previewer shells out to the glow binary; nixpkgs'
     # yaziPlugins.glow ships only the Lua half.
     home.packages = [ pkgs.glow ];
@@ -25,37 +25,100 @@
         plugin = {
           # git: show status badge on files
           prepend_fetchers = [
-            { url = "*"; run = "git"; group = "git"; }
-            { url = "/"; run = "git"; group = "git"; }
+            {
+              url = "*";
+              run = "git";
+              group = "git";
+            }
+            {
+              url = "/";
+              run = "git";
+              group = "git";
+            }
           ];
 
           prepend_previewers = [
             # glow: render markdown (before rich-preview catches text/*)
-            { mime = "text/markdown"; run = "glow"; }
+            {
+              mime = "text/markdown";
+              run = "glow";
+            }
             # ouch: preview archive contents before extraction
-            { mime = "application/{*zip,tar,bzip2,7z*,rar,xz,zstd}"; run = "ouch"; }
+            {
+              mime = "application/{*zip,tar,bzip2,7z*,rar,xz,zstd}";
+              run = "ouch";
+            }
           ];
         };
       };
 
       keymap.mgr.prepend_keymap = [
         # bookmarks: save / jump / delete
-        { on = [ "b" "m" ]; run = "plugin bookmarks save"; desc = "Bookmark save"; }
-        { on = [ "b" "d" ]; run = "plugin bookmarks delete"; desc = "Bookmark delete"; }
-        { on = [ "b" "D" ]; run = "plugin bookmarks delete_all"; desc = "Bookmark delete all"; }
-        { on = "'"; run = "plugin bookmarks jump"; desc = "Bookmark jump"; }
+        {
+          on = [
+            "b"
+            "m"
+          ];
+          run = "plugin bookmarks save";
+          desc = "Bookmark save";
+        }
+        {
+          on = [
+            "b"
+            "d"
+          ];
+          run = "plugin bookmarks delete";
+          desc = "Bookmark delete";
+        }
+        {
+          on = [
+            "b"
+            "D"
+          ];
+          run = "plugin bookmarks delete_all";
+          desc = "Bookmark delete all";
+        }
+        {
+          on = "'";
+          run = "plugin bookmarks jump";
+          desc = "Bookmark jump";
+        }
         # smart-enter: open file or enter directory with one key
-        { on = "l"; run = "plugin smart-enter"; desc = "Enter or open"; }
+        {
+          on = "l";
+          run = "plugin smart-enter";
+          desc = "Enter or open";
+        }
         # smart-filter: live filter, cursor follows match
-        { on = "F"; run = "plugin smart-filter"; desc = "Smart filter"; }
+        {
+          on = "F";
+          run = "plugin smart-filter";
+          desc = "Smart filter";
+        }
         # jump-to-char: vi-style f-jump to filename character
-        { on = "f"; run = "plugin jump-to-char"; desc = "Jump to char"; }
+        {
+          on = "f";
+          run = "plugin jump-to-char";
+          desc = "Jump to char";
+        }
         # ouch: compress selected entries
-        { on = "C"; run = "plugin ouch"; desc = "Compress with ouch"; }
+        {
+          on = "C";
+          run = "plugin ouch";
+          desc = "Compress with ouch";
+        }
         # toggle-pane: show/hide preview
-        { on = "T"; run = "plugin toggle-pane min-preview"; desc = "Show or hide preview pane"; }
+        {
+          on = "T";
+          run = "plugin toggle-pane min-preview";
+          desc = "Show or hide preview pane";
+        }
         # toggle-pane: maximize/restore preview
-        { on = "<A-T>"; run = "plugin toggle-pane max-preview"; desc = "Maximize or restore preview pane"; }
+        {
+          on = "<A-T>";
+          run = "plugin toggle-pane max-preview";
+          desc = "Maximize or restore preview pane";
+        }
       ];
 
       initLua = ''
@@ -72,7 +135,7 @@
   };
 
   # Impermanence contribution for yazi.
-  flake.modules.homeManager.impermanence = {
+  dotnix.yazi.homePersistence = {
     home.persistence."/persist".directories = [ ".local/state/yazi" ];
   };
 }

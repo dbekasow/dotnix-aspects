@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.bluetooth = { pkgs, ... }: {
+  dotnix.bluetooth.nixos = { pkgs, ... }: {
     hardware.bluetooth = {
       enable = true;
       powerOnBoot = true;
@@ -16,7 +16,7 @@
   };
 
   # Impermanence contribution for bluetooth.
-  flake.modules.nixos.impermanence = {
+  dotnix.bluetooth.systemPersistence = {
     environment.persistence."/persist".directories = [ "/var/lib/bluetooth" ];
   };
 }

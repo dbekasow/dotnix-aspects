@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.maildir = { config, ... }: {
+  dotnix.maildir.homeManager = { config, ... }: {
     accounts.email.maildirBasePath = "mail";
 
     programs.msmtp.enable = true;
@@ -11,8 +11,16 @@
     programs.notmuch = {
       enable = true;
 
-      new.tags = [ "inbox" "new" "unread" ];
-      search.excludeTags = [ "deleted" "trash" "spam" ];
+      new.tags = [
+        "inbox"
+        "new"
+        "unread"
+      ];
+      search.excludeTags = [
+        "deleted"
+        "trash"
+        "spam"
+      ];
 
       hooks.preNew = "mbsync --all";
 
@@ -24,7 +32,7 @@
   };
 
   # Impermanence contribution for maildir.
-  flake.modules.homeManager.impermanence = {
+  dotnix.maildir.homePersistence = {
     home.persistence."/persist".directories = [ "mail" ];
   };
 }

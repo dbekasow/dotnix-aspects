@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.dua = { pkgs, ... }: {
+  dotnix.dua.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.dua ];
   };
 }

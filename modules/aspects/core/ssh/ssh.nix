@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.ssh = { lib, pkgs, ... }: {
+  dotnix.ssh.nixos = { lib, pkgs, ... }: {
     services.openssh = {
       enable = lib.mkDefault true;
 
@@ -15,7 +15,7 @@
     environment.systemPackages = [ pkgs.openssh ];
   };
 
-  flake.modules.homeManager.ssh = {
+  dotnix.ssh.homeManager = {
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;
@@ -32,7 +32,7 @@
 
   # Impermanence contribution for ssh.
   # Host keys on the nixos side, the per-user ~/.ssh on the homeManager side.
-  flake.modules.nixos.impermanence = {
+  dotnix.ssh.systemPersistence = {
     environment.persistence."/persist".files = [
       "/etc/ssh/ssh_host_rsa_key"
       "/etc/ssh/ssh_host_rsa_key.pub"
@@ -41,7 +41,7 @@
     ];
   };
 
-  flake.modules.homeManager.impermanence = {
+  dotnix.ssh.homePersistence = {
     home.persistence."/persist".directories = [ ".ssh" ];
   };
 }

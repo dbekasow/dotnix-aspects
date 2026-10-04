@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.modules.nixos.nix = { lib, pkgs, ... }: {
+  dotnix.nix.nixos = { lib, pkgs, ... }: {
     nixpkgs.config.allowUnfree = true;
 
     nix = {
@@ -13,12 +13,18 @@
         # — once instead of a hundred times.
         auto-optimise-store = false;
 
-        experimental-features = [ "nix-command" "flakes" ];
+        experimental-features = [
+          "nix-command"
+          "flakes"
+        ];
 
         keep-derivations = lib.mkDefault false;
 
         allowed-users = lib.mkDefault [ "@wheel" ];
-        trusted-users = [ "root" "@wheel" ];
+        trusted-users = [
+          "root"
+          "@wheel"
+        ];
 
         # Five substituters over a flaky WLAN: without timeouts Nix can hang
         # for minutes on a poorly reachable cache. fallback=true builds
@@ -48,7 +54,7 @@
   };
 
   # Impermanence contribution for nix.
-  flake.modules.nixos.impermanence = {
+  dotnix.nix.systemPersistence = {
     environment.persistence."/persist".directories = [
       "/etc/nixos"
       "/var/lib/nixos"

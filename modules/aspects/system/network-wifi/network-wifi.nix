@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.network-wifi = { pkgs, ... }: {
+  dotnix.network-wifi.nixos = { pkgs, ... }: {
     networking = {
       networkmanager.wifi = {
         backend = "iwd";
@@ -25,11 +25,14 @@
     # `iw reg get` — should show DE, not "country 00".
     hardware.enableRedistributableFirmware = true;
 
-    environment.systemPackages = with pkgs; [ wifitui iw ];
+    environment.systemPackages = with pkgs; [
+      wifitui
+      iw
+    ];
   };
 
   # Impermanence contribution for network-wifi.
-  flake.modules.nixos.impermanence = {
+  dotnix.network-wifi.systemPersistence = {
     environment.persistence."/persist".directories = [ "/var/lib/iwd" ];
   };
 }

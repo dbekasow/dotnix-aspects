@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.thunar = { pkgs, ... }: {
+  dotnix.thunar.nixos = { pkgs, ... }: {
     programs.thunar = {
       enable = true;
       plugins = with pkgs; [

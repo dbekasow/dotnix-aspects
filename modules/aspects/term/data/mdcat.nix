@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.mdcat = { pkgs, ... }: {
+  dotnix.mdcat.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.mdcat ];
   };
 }

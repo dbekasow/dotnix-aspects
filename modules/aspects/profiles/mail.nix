@@ -1,10 +1,4 @@
-# Mail as its own tier on purpose: hosts that do not mail never pull
-# aerc/maildir — mailing is a workflow, not terminal furniture.
-{ self, ... }: {
-  flake.modules = let inherit (self.modules) homeManager; in {
-    homeManager.mail.imports = with homeManager; [
-      aerc
-      maildir
-    ];
-  };
+# Mail stays separate from general terminal features.
+{ dotnix, ... }: {
+  dotnix.mail.includes = with dotnix; [ aerc maildir ];
 }

@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.bat = { pkgs, ... }: {
+  dotnix.bat.homeManager = { pkgs, ... }: {
     programs.bat = {
       enable = true;
 

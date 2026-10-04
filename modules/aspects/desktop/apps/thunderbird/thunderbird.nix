@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.thunderbird = {
+  dotnix.thunderbird.homeManager = {
     programs.thunderbird = {
       enable = true;
 
@@ -53,7 +53,7 @@
   };
 
   # Impermanence contribution for thunderbird.
-  flake.modules.homeManager.impermanence = {
+  dotnix.thunderbird.homePersistence = {
     home.persistence."/persist".directories = [ ".thunderbird" ];
   };
 }

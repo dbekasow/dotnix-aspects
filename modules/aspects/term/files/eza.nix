@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.eza = {
+  dotnix.eza.homeManager = {
     programs.eza = {
       enable = true;
 

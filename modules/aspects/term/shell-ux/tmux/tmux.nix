@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.tmux =
+  dotnix.tmux.homeManager =
     { config
     , lib
     , options
@@ -181,7 +181,7 @@
   # Impermanence contribution for tmux.
   # tmux-resurrect state lives in $XDG_DATA_HOME/tmux/resurrect —
   # @continuum-restore is a no-op without this.
-  flake.modules.homeManager.impermanence = {
+  dotnix.tmux.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/tmux" ];
   };
 }
