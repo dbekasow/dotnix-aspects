@@ -31,14 +31,23 @@ let
   terminalHerdr = evaluate [ flake.modules.homeManager.terminal-herdr ] true;
   herdrConfig = standaloneHerdr.config.xdg.configFile."herdr/config.toml";
   containsPackage = config: package: builtins.elem package config.home.packages;
+  # Popup launcher mirrors the tmux popup menu; ungated tools only in the
+  # standalone evaluation (no osConfig, no enabled programs).
+  herdrBindings = standaloneHerdr.config.programs.herdr.settings.keys.command;
+  terminalHerdrBindings = terminalHerdr.config.programs.herdr.settings.keys.command;
 in
 assert containsPackage standaloneHerdr.config herdrPackage;
-assert standaloneHerdr.config.programs.herdr.settings == {
-  terminal.default_shell = lib.getExe pkgs.fish;
-  keys.prefix = "ctrl+space";
-};
 assert standaloneHerdr.config.programs.herdr.package == herdrPackage;
+assert standaloneHerdr.config.programs.herdr.settings.terminal.default_shell
+  == lib.getExe pkgs.fish;
+assert standaloneHerdr.config.programs.herdr.settings.keys.prefix == "ctrl+space";
 assert lib.hasSuffix "herdr-config.toml" (toString herdrConfig.source);
+assert builtins.all (b: b.type == "popup") herdrBindings;
+assert map (b: b.description) herdrBindings
+  == [ "shell" "nix-tree" "dua" "scratch" ];
+assert builtins.elem "yazi" (map (b: b.description) terminalHerdrBindings);
+assert !(builtins.elem "bluetui"
+  (map (b: b.description) terminalHerdrBindings));
 assert !(lib.any
   (name: lib.hasInfix "claude" name || lib.hasInfix "codex" name)
   (builtins.attrNames standaloneHerdr.config.xdg.configFile));
