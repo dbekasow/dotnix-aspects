@@ -132,10 +132,15 @@
     }
   ];
 
-  flake.modules.homeManager.impermanence = {
-    # HM's firefox keeps profiles in ~/.mozilla/firefox — .config/mozilla
-    # persists nothing.
-    home.persistence."/persist".directories = [ ".mozilla" ".cache/mozilla" ];
+  flake.modules.homeManager.impermanence = { lib, config, ... }: {
+    # Firefox profiles live in ~/.mozilla/firefox for stateVersion < 26.05
+    # and ${xdg.configHome}/mozilla/firefox from 26.05; native-messaging
+    # manifests stay in ~/.mozilla either way.
+    home.persistence."/persist".directories =
+      [ ".mozilla" ".cache/mozilla" ]
+      ++ lib.optionals
+        (config.programs.firefox.configPath != ".mozilla/firefox")
+        [ config.programs.firefox.configPath ];
   };
 }
 

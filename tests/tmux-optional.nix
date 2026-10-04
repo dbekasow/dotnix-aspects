@@ -21,6 +21,11 @@ let
       networking.wireless.iwd.enable = false;
     };
   };
+  user = _: {
+    home.username = "test";
+    home.homeDirectory = "/home/test";
+    home.stateVersion = "24.11";
+  };
   evaluate =
     modules:
     homeManager.lib.homeManagerConfiguration {
@@ -28,16 +33,20 @@ let
       modules = [
         fixture
         osConfig
-        (_: {
-          home.username = "test";
-          home.homeDirectory = "/home/test";
-          home.stateVersion = "24.11";
-        })
+        user
       ]
       ++ modules;
     };
+  # Standalone Home Manager: no host context supplied at all.
+  evaluateWithoutHost =
+    modules:
+    homeManager.lib.homeManagerConfiguration {
+      inherit pkgs;
+      modules = [ fixture user ] ++ modules;
+    };
   names = attr: config: map (item: item.name) config.dotnix.tmux.${attr};
 
+  standaloneTmux = evaluateWithoutHost [ tmux ];
   tmuxOnly = evaluate [ tmux ];
   toolsAndEnabledTmux = evaluate [
     tmux
@@ -59,6 +68,10 @@ let
   disabledPopups = names "popups" toolsAndDisabledTmux.config;
   disabledBindings = names "bindings" toolsAndDisabledTmux.config;
 in
+# Host popups follow the host; standalone Home Manager has none.
+assert !(lib.hasInfix "bluetui" standaloneTmux.config.programs.tmux.extraConfig);
+assert !(lib.hasInfix "wifitui" standaloneTmux.config.programs.tmux.extraConfig);
+assert lib.hasInfix "dua" standaloneTmux.config.programs.tmux.extraConfig;
 assert !(builtins.elem "agents" (names "popups" tmuxOnly.config));
 assert !(builtins.elem "tuicr" (names "popups" tmuxOnly.config));
 assert builtins.elem "agents" enabledPopups;
