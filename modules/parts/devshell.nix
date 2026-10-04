@@ -18,7 +18,7 @@
         nh
         nvd
         nurl
-        nix-tree
+        nix-graph
         nix-index
         nix-inspect
         nix-search-tv

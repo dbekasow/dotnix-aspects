@@ -44,7 +44,7 @@ assert standaloneHerdr.config.programs.herdr.settings.keys.prefix == "ctrl+space
 assert lib.hasSuffix "herdr-config.toml" (toString herdrConfig.source);
 assert builtins.all (b: b.type == "popup") herdrBindings;
 assert map (b: b.description) herdrBindings
-  == [ "shell" "nix-tree" "dua" "scratch" ];
+  == [ "shell" "nix-graph" "dua" "scratch" ];
 assert builtins.elem "yazi" (map (b: b.description) terminalHerdrBindings);
 assert !(builtins.elem "bluetui"
   (map (b: b.description) terminalHerdrBindings));

@@ -6,7 +6,7 @@
       nh
       nvd
       nurl
-      nix-tree
+      nix-graph
       nix-inspect
       nix-search-cli
       nix-output-monitor

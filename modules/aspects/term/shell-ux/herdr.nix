@@ -19,7 +19,7 @@
         { key = "prefix+alt+g"; name = "lazygit"; command = lib.getExe pkgs.lazygit; width = "95%"; height = "90%"; inherit (lazygit) enable; }
         { key = "prefix+alt+k"; name = "k9s"; command = lib.getExe pkgs.k9s; width = "95%"; height = "90%"; inherit (k9s) enable; }
         { key = "prefix+m"; name = "aerc"; command = lib.getExe pkgs.aerc; width = "90%"; height = "85%"; inherit (aerc) enable; }
-        { key = "prefix+alt+n"; name = "nix-tree"; command = lib.getExe pkgs.nix-tree; width = "90%"; height = "80%"; enable = true; }
+        { key = "prefix+alt+n"; name = "nix-graph"; command = lib.getExe pkgs.nix-graph; width = "90%"; height = "80%"; enable = true; }
         { key = "prefix+alt+p"; name = "gh-dash"; command = lib.getExe pkgs.gh-dash; width = "90%"; height = "80%"; inherit (gh-dash) enable; }
         { key = "prefix+u"; name = "dua"; command = "${lib.getExe pkgs.dua} i"; width = "75%"; height = "75%"; enable = true; }
         { key = "prefix+alt+w"; name = "wifitui"; command = lib.getExe pkgs.wifitui; width = "60%"; height = "55%"; enable = hostFlag [ "networking" "wireless" "iwd" "enable" ]; }
