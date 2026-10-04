@@ -16,4 +16,14 @@
 
     security.pam.services.greetd.enableGnomeKeyring = true;
   };
+
+  # Impermanence contribution for gnome-services.
+  # gnome-services itself is a nixos aspect, but dconf and the keyring live in
+  # the user's home, so the persistence entry is homeManager-side.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [
+      ".config/dconf"
+      ".local/share/keyrings"
+    ];
+  };
 }

@@ -19,4 +19,9 @@
     # longer than 4s, it opens a tmux split with direnv's output.
     programs.direnv-instant.enable = true;
   };
+
+  # Impermanence contribution for direnv.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".local/share/direnv" ];
+  };
 }

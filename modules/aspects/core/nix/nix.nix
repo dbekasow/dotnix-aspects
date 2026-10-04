@@ -46,4 +46,13 @@
       rm -rf /nix/var/nix/profiles/per-user/root/channels
     '';
   };
+
+  # Impermanence contribution for nix.
+  flake.modules.nixos.impermanence = {
+    environment.persistence."/persist".directories = [
+      "/etc/nixos"
+      "/var/lib/nixos"
+      "/var/lib/systemd"
+    ];
+  };
 }

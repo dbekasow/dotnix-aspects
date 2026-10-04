@@ -10,5 +10,10 @@
       };
     };
   };
-}
 
+  # Impermanence contribution for tealdeer.
+  # Persist the tldr page cache.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".cache/tealdeer" ];
+  };
+}

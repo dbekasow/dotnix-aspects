@@ -177,4 +177,11 @@
         '';
       }
     ];
+
+  # Impermanence contribution for tmux.
+  # tmux-resurrect state lives in $XDG_DATA_HOME/tmux/resurrect —
+  # @continuum-restore is a no-op without this.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".local/share/tmux" ];
+  };
 }

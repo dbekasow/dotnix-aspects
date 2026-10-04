@@ -24,4 +24,9 @@
       quickshell.package = pkgs.quickshell;
     };
   };
+
+  # Impermanence contribution for dms-greeter.
+  flake.modules.nixos.impermanence = {
+    environment.persistence."/persist".directories = [ "/var/lib/dms-greeter" ];
+  };
 }

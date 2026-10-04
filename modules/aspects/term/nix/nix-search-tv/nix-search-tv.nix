@@ -17,4 +17,10 @@
       };
     };
   };
+
+  # Impermanence contribution for nix-search-tv.
+  # Persist the downloaded indexes (tool default: $XDG_CACHE_HOME/nix-search-tv).
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".cache/nix-search-tv" ];
+  };
 }

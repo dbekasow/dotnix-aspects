@@ -22,4 +22,9 @@
       };
     };
   };
+
+  # Impermanence contribution for maildir.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ "mail" ];
+  };
 }

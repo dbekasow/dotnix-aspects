@@ -14,4 +14,9 @@
       maxCacheTtlSsh = maxCacheTtl;
     };
   };
+
+  # Impermanence contribution for gpg-agent.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".gnupg" ];
+  };
 }

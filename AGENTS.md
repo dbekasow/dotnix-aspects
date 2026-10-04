@@ -26,9 +26,10 @@ Preserve these boundaries. Import-tree discovery is not host activation.
   profiles assemble reusable aspects; they should not hide feature implementation.
 - Keep related platform/class contributions together when that makes the feature easier
   to understand. Do not split every feature into class-specific files by rule.
-- Follow the feature-folder plus `impermanence.nix` contributor pattern where a
-  feature contributes its persistence entry to the shared `impermanence` aspect.
-  Contributions to a collector belong with contributors, not in one central list.
+- Keep each aspect self-contained: an aspect's impermanence contribution
+  lives inside the aspect's own file as a sibling
+  `flake.modules.<class>.impermanence` attribute (see `firefox.nix`,
+  `herdr.nix`), not in a separate contributor file.
 - `[Nn]` documentation markers are optional. `I` is not a module class. Use current
   neighbors and the active change plan for naming details.
 - Add an option only for real per-host/per-user variation or a genuine collection

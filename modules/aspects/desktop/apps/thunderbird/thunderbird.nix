@@ -51,5 +51,9 @@
       };
     };
   };
-}
 
+  # Impermanence contribution for thunderbird.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".thunderbird" ];
+  };
+}

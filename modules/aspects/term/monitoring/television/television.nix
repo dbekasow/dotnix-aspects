@@ -27,4 +27,10 @@
       };
     };
   };
+
+  # Impermanence contribution for television.
+  # Persist the channel cache.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".cache/television" ];
+  };
 }

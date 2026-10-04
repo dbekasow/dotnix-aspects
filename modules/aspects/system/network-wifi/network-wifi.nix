@@ -27,4 +27,9 @@
 
     environment.systemPackages = with pkgs; [ wifitui iw ];
   };
+
+  # Impermanence contribution for network-wifi.
+  flake.modules.nixos.impermanence = {
+    environment.persistence."/persist".directories = [ "/var/lib/iwd" ];
+  };
 }

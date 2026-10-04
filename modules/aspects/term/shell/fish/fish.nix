@@ -20,5 +20,9 @@ in
       ];
     };
   };
-}
 
+  # Impermanence contribution for fish.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".local/share/fish" ];
+  };
+}

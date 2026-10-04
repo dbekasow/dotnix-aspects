@@ -5,5 +5,12 @@
     programs.nix-index.enable = true;
     programs.nix-index-database.comma.enable = true;
   };
-}
 
+  # Impermanence contribution for nix-index-database.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [
+      # nix-index-database/comma
+      ".cache/nix-index"
+    ];
+  };
+}

@@ -27,4 +27,9 @@
     age.identityPaths = lib.optional osConfig.dotnix.vaultReady
       osConfig.age.secrets."home-identity-${config.home.username}".path;
   };
+
+  # Impermanence contribution for age.
+  flake.modules.nixos.impermanence = {
+    age.identityPaths = [ "/persist/etc/ssh/ssh_host_ed25519_key" ];
+  };
 }

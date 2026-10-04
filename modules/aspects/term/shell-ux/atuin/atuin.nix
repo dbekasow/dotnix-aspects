@@ -25,4 +25,9 @@
       };
     };
   };
+
+  # Impermanence contribution for atuin.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".local/share/atuin" ];
+  };
 }

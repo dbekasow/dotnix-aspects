@@ -70,5 +70,9 @@
       '';
     };
   };
-}
 
+  # Impermanence contribution for yazi.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".local/state/yazi" ];
+  };
+}

@@ -33,4 +33,12 @@
       };
     };
   };
+
+  # Impermanence contribution for zellij.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [
+      # session_serialization = true is a no-op without this.
+      ".cache/zellij"
+    ];
+  };
 }

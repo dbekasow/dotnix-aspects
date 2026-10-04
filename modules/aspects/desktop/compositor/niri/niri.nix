@@ -67,4 +67,9 @@
       ];
     };
   };
+
+  # Impermanence contribution for niri.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".cache/mesa_shader_cache" ];
+  };
 }

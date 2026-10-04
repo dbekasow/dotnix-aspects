@@ -15,4 +15,9 @@
     };
     programs.gh-dash.enable = true;
   };
+
+  # Impermanence contribution for gh.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".config/gh" ];
+  };
 }

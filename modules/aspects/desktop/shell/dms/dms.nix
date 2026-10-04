@@ -50,4 +50,9 @@
 
     # No local config.kdl override: upstream generates identical output incl. border fix — verified against rev a609b5f, see docs/recherche-2026-10-02/oracle-desktop.md
   };
+
+  # Impermanence contribution for dms.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".config/niri/dms" ];
+  };
 }

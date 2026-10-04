@@ -16,11 +16,7 @@ let
 in
 {
   flake.modules = {
-    homeManager.term-ux.imports = shared ++ (with homeManager; [
-      sesh
-      tmux
-      zellij
-    ]);
+    homeManager.term-ux.imports = shared ++ (with homeManager; [ sesh tmux ]);
     homeManager.term-ux-herdr.imports = shared ++ (with homeManager; [ herdr ]);
   };
 }

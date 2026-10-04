@@ -26,4 +26,9 @@
       };
     };
   };
+
+  # Impermanence contribution for aerc.
+  flake.modules.homeManager.impermanence = {
+    home.persistence."/persist".directories = [ ".local/share/aerc" ];
+  };
 }
