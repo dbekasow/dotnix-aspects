@@ -1,9 +1,12 @@
 let
   flake = builtins.getFlake (toString ../.);
   lib = flake.inputs.nixpkgs.lib;
-  pkgs = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
+  pkgs = import flake.inputs.nixpkgs {
+    system = "x86_64-linux";
+    overlays = [ flake.inputs.llm-agents.overlays.shared-nixpkgs ];
+  };
   homeManager = flake.inputs.home-manager;
-  herdrPackage = flake.inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
+  herdrPackage = pkgs.llm-agents.herdr;
 
   evaluate = modules: withOsConfig:
     homeManager.lib.homeManagerConfiguration {
@@ -26,12 +29,14 @@ let
   standaloneHerdr = evaluate [ flake.modules.homeManager.herdr ] false;
   terminal = evaluate [ flake.modules.homeManager.terminal ] true;
   terminalHerdr = evaluate [ flake.modules.homeManager.terminal-herdr ] true;
-  herdrConfig = builtins.readFile standaloneHerdr.config.xdg.configFile."herdr/config.toml".source;
+  herdrConfig = standaloneHerdr.config.xdg.configFile."herdr/config.toml";
   containsPackage = config: package: builtins.elem package config.home.packages;
 in
 assert containsPackage standaloneHerdr.config herdrPackage;
-assert herdrConfig == "[terminal]\ndefault_shell = \"${lib.getExe pkgs.fish}\"\n";
-assert standaloneHerdr.config.xdg.configFile ? "herdr/config.toml";
+assert standaloneHerdr.config.programs.herdr.settings
+  == { terminal.default_shell = lib.getExe pkgs.fish; };
+assert standaloneHerdr.config.programs.herdr.package == herdrPackage;
+assert lib.hasSuffix "herdr-config.toml" (toString herdrConfig.source);
 assert !(lib.any
   (name: lib.hasInfix "claude" name || lib.hasInfix "codex" name)
   (builtins.attrNames standaloneHerdr.config.xdg.configFile));

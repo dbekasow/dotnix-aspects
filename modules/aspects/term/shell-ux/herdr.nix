@@ -1,12 +1,14 @@
-{ inputs, ... }: {
-  flake.modules.homeManager.herdr = { lib, pkgs, ... }:
-    let
-      toml = pkgs.formats.toml { };
-    in
-    {
-      home.packages = [ inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr ];
-      xdg.configFile."herdr/config.toml".source = toml.generate "herdr.toml" {
+{
+  flake.modules.homeManager.herdr = { lib, pkgs, ... }: {
+    programs.herdr = {
+      enable = true;
+      package = pkgs.llm-agents.herdr;
+      settings = {
         terminal.default_shell = lib.getExe pkgs.fish;
+        keys = {
+          prefix = "ctrl+space";
+        };
       };
     };
+  };
 }
