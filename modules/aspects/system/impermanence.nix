@@ -1,8 +1,11 @@
 { inputs, ... }: {
-  flake.modules.nixos.impermanence = { lib, config, utils, ... }: {
+  flake.modules.nixos.impermanence = { lib, pkgs, config, utils, ... }: {
     imports = [ inputs.impermanence.nixosModules.impermanence ];
 
     boot.initrd.supportedFilesystems.btrfs = true;
+    # The cleanup trap checks with mountpoint(1); systemd's initrd ships
+    # mount/umount but not mountpoint.
+    boot.initrd.systemd.extraBin.mountpoint = "${pkgs.util-linux}/bin/mountpoint";
     boot.initrd.systemd.services.rollback-root =
       let
         device = "/dev/disk/by-label/nixos";

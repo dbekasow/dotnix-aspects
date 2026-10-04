@@ -7,6 +7,13 @@
       # with "attribute missing".
       fullname = if config ? profile && config.profile ? fullname then config.profile.fullname else null;
       email = if config ? profile && config.profile ? email then config.profile.email else null;
+      # Identity keys only when the profile supplied them — a null value
+      # would render invalid gitconfig. Fields merged per key so both
+      # survive together.
+      user = lib.filterAttrs (_: v: v != null) {
+        name = fullname;
+        inherit email;
+      };
     in
     {
       programs.git = {
@@ -15,8 +22,6 @@
 
         ignores = [ ".direnv" ".devenv" ];
 
-        # Identity keys only when the profile supplied them — a null value
-        # would render invalid gitconfig.
         settings = {
           branch.sort = "-committerdate";
           commit.verbose = true;
@@ -36,11 +41,7 @@
           status.showUntrackedFiles = "all";
           status.submoduleSummary = true;
           submodule.recurse = true;
-        } // lib.optionalAttrs (fullname != null) {
-          user.name = fullname;
-        } // lib.optionalAttrs (email != null) {
-          user.email = email;
-        };
+        } // lib.optionalAttrs (user != { }) { inherit user; };
       };
     };
 

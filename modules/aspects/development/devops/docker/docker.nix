@@ -13,9 +13,10 @@
     };
 
     users.users = lib.genAttrs config.dotnix.members (lib.const {
-      # required for rootless docker user namespace mapping
-      subUidRanges = [{ startUid = 100000; count = 65536; }];
-      subGidRanges = [{ startGid = 100000; count = 65536; }];
+      # Rootless docker needs subordinate ids. Auto-allocation (via
+      # update-users-groups.pl) hands every member a distinct 65536-wide
+      # range; explicit ranges here would collide across members.
+      autoSubUidGidRange = lib.mkDefault true;
       linger = true;
     });
   };

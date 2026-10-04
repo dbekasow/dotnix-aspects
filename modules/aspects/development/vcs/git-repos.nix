@@ -32,7 +32,8 @@
 
       config.home.activation.cloneGitRepos = lib.hm.dag.entryAfter [ "writeBoundary" ] (
         lib.concatLines (lib.mapAttrsToList
-          (dest: url: "$DRY_RUN_CMD ${lib.getExe cloneRepo} ${dest} ${url}")
+          (dest: url:
+            "$DRY_RUN_CMD ${lib.getExe cloneRepo} ${lib.escapeShellArgs [ dest url ]}")
           config.dotnix.git.repositories)
       );
     };
