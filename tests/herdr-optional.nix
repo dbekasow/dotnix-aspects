@@ -33,8 +33,10 @@ let
   containsPackage = config: package: builtins.elem package config.home.packages;
 in
 assert containsPackage standaloneHerdr.config herdrPackage;
-assert standaloneHerdr.config.programs.herdr.settings
-  == { terminal.default_shell = lib.getExe pkgs.fish; };
+assert standaloneHerdr.config.programs.herdr.settings == {
+  terminal.default_shell = lib.getExe pkgs.fish;
+  keys.prefix = "ctrl+space";
+};
 assert standaloneHerdr.config.programs.herdr.package == herdrPackage;
 assert lib.hasSuffix "herdr-config.toml" (toString herdrConfig.source);
 assert !(lib.any
