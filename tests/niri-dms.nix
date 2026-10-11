@@ -1,237 +1,229 @@
 let
   source = builtins.getFlake (toString ../.);
-  inherit (source.inputs)
-    nixpkgs
-    home-manager
-    niri
-    ;
+  inputs = source.inputs // { dotnix = source; self = source; };
+  inherit (inputs) nixpkgs;
   inherit (nixpkgs) lib;
+  dotnix = source.denful.dotnix;
   system = "x86_64-linux";
-  pkgs = import nixpkgs {
-    inherit system;
-    overlays = [ niri.overlays.niri ];
+
+  evaluate =
+    { hostIncludes ? [ ]
+    , userIncludes ? [ ]
+    , hostModule ? { }
+    , userModule ? { }
+    ,
+    }:
+    let
+      fixture = {
+        imports = [
+          inputs.den.flakeModule
+          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
+          ({ den, ... }: { den.default.includes = [ den.batteries.flake-scope ]; })
+        ];
+        den.hosts.${system}.fixture = {
+          users.fixture.classes = [ "homeManager" ];
+          instantiate = args:
+            inputs.nixpkgs.lib.nixosSystem (args // {
+              pkgs = import inputs.nixpkgs {
+                inherit system;
+                overlays = [ inputs.niri.overlays.niri ];
+              };
+            });
+        };
+        den.aspects.fixture = {
+          includes = hostIncludes;
+          nixos = {
+            system.stateVersion = "25.11";
+            nixpkgs.hostPlatform = system;
+            nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+            home-manager.useGlobalPkgs = true;
+            users.users.fixture = {
+              isNormalUser = true;
+              home = "/home/fixture";
+            };
+          } // hostModule;
+          provides.fixture = {
+            includes = userIncludes;
+            homeManager = {
+              home.username = "fixture";
+              home.homeDirectory = "/home/fixture";
+              home.stateVersion = "25.11";
+            } // userModule;
+          };
+        };
+      };
+      flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } fixture;
+      config = flake.nixosConfigurations.fixture.config;
+    in
+    {
+      inherit config;
+      home = config.home-manager.users.fixture;
+    };
+
+  niriOnly = evaluate {
+    hostIncludes = with dotnix; [ niri ];
+    userIncludes = with dotnix; [ niri ];
+  };
+  niriDisabled = evaluate {
+    hostIncludes = with dotnix; [ niri ];
+    userIncludes = with dotnix; [ niri ];
+    hostModule = { programs.niri.enable = lib.mkForce false; };
+  };
+  niriDms = evaluate {
+    hostIncludes = with dotnix; [ niri dms ];
+    userIncludes = with dotnix; [ niri dms ];
+  };
+  niriNoctalia = evaluate {
+    hostIncludes = with dotnix; [ niri ];
+    userIncludes = with dotnix; [ niri noctalia ];
+  };
+  standaloneHome =
+    let
+      fixture = {
+        imports = [
+          inputs.den.flakeModule
+          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
+          ({ den, ... }: { den.default.includes = [ den.batteries.flake-scope ]; })
+        ];
+        den.homes.${system}.fixture.pkgs = import inputs.nixpkgs {
+          inherit system;
+          overlays = [ inputs.niri.overlays.niri ];
+        };
+        den.aspects.fixture.includes = with dotnix; [ niri ];
+        den.aspects.fixture.homeManager = { specialArgs, ... }: {
+          home.username = "fixture";
+          home.homeDirectory = "/home/fixture";
+          home.stateVersion = "25.11";
+          programs.niri.enable = true;
+          assertions = [
+            {
+              assertion = !(builtins.hasAttr "osConfig" specialArgs);
+              message = "Standalone Home Manager must not receive osConfig";
+            }
+          ];
+        };
+      };
+      flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } fixture;
+    in
+    { home = flake.homeConfigurations.fixture.config; };
+  niriOnlyHome = standaloneHome;
+  niriNoctaliaHome = evaluate {
+    userIncludes = with dotnix; [ niri noctalia ];
+  };
+  noctaliaOnlyHome = evaluate {
+    userIncludes = with dotnix; [ noctalia ];
+  };
+  handyOnlyHome = evaluate {
+    userIncludes = with dotnix; [ handy ];
+  };
+  handyNiriHome = evaluate {
+    userIncludes = with dotnix; [ niri handy ];
+  };
+  desktopShellHome = evaluate {
+    userIncludes = with dotnix; [ desktop-shell gpg-agent rbw ];
+  };
+  desktopShellOverrideHome = evaluate {
+    userIncludes = with dotnix; [ desktop-shell gpg-agent rbw ];
+    userModule = {
+      services.gpg-agent.pinentry.package = nixpkgs.legacyPackages.${system}.pinentry-curses;
+      programs.rbw.settings.pinentry = nixpkgs.legacyPackages.${system}.pinentry-curses;
+    };
+  };
+  dmsHome = evaluate {
+    userIncludes = with dotnix; [ niri dms ];
   };
 
-  hm =
-    modules:
-    home-manager.lib.homeManagerConfiguration {
-      inherit pkgs;
-      modules = [
-        {
-          options.profile.email = lib.mkOption {
-            type = lib.types.str;
-            default = "fixture@example.invalid";
-          };
-          config = {
-            profile.email = "fixture@example.invalid";
-            home.username = "fixture";
-            home.homeDirectory = "/home/fixture";
-            home.stateVersion = "25.11";
-          };
-        }
-      ]
-      ++ modules;
-    };
-
-  nixos =
-    modules:
-    lib.nixosSystem {
-      inherit system;
-      modules = [
-        home-manager.nixosModules.home-manager
-        {
-          system.stateVersion = "25.11";
-          nixpkgs.hostPlatform = system;
-          users.users.fixture = {
-            isNormalUser = true;
-            home = "/home/fixture";
-          };
-          home-manager.useGlobalPkgs = true;
-          home-manager.users.fixture = {
-            imports = [ source.modules.homeManager.niri ];
-            home.stateVersion = "25.11";
-          };
-        }
-      ]
-      ++ modules;
-    };
-
-  niriOnly = nixos [ source.modules.nixos.niri ];
-  niriDisabled = nixos [
-    source.modules.nixos.niri
-    { programs.niri.enable = lib.mkForce false; }
-  ];
-  niriDms = nixos [
-    source.modules.nixos.niri
-    source.modules.nixos.dms
-    { home-manager.users.fixture.imports = [ source.modules.homeManager.dms ]; }
-  ];
-  niriNoctalia = nixos [
-    source.modules.nixos.niri
-    { home-manager.users.fixture.imports = [ source.modules.homeManager.noctalia ]; }
-  ];
-  niriOnlyHome = hm [
-    source.modules.homeManager.niri
-    { programs.niri.enable = true; }
-  ];
-  niriNoctaliaHome = hm [
-    source.modules.homeManager.niri
-    source.modules.homeManager.noctalia
-  ];
-  noctaliaOnlyHome = hm [ source.modules.homeManager.noctalia ];
-  handyOnlyHome = hm [ source.modules.homeManager.handy ];
-  handyNiriHome = hm [
-    source.modules.homeManager.niri
-    source.modules.homeManager.handy
-  ];
-  desktopShellHome = hm [
-    source.modules.homeManager.desktop-shell
-    source.modules.homeManager.gpg-agent
-    source.modules.homeManager.rbw
-  ];
-  desktopShellOverrideHome = hm [
-    source.modules.homeManager.desktop-shell
-    source.modules.homeManager.gpg-agent
-    source.modules.homeManager.rbw
-    {
-      services.gpg-agent.pinentry.package = pkgs.pinentry-curses;
-      programs.rbw.settings.pinentry = pkgs.pinentry-curses;
-    }
-  ];
-  dmsHome = hm [
-    source.modules.homeManager.niri
-    source.modules.homeManager.dms
-  ];
-
   assertions = {
-    integratedNiriFinalConfig =
-      niriOnly.config.home-manager.users.fixture.programs.niri.finalConfig != null;
-    integratedNiriActivationPackage =
-      niriOnly.config.home-manager.users.fixture.home.activationPackage.drvPath != "";
-    integratedNiriDmsFinalConfig =
-      niriDms.config.home-manager.users.fixture.programs.niri.finalConfig != null;
+    integratedNiriFinalConfig = niriOnly.home.programs.niri.finalConfig != null;
+    integratedNiriActivationPackage = niriOnly.home.home.activationPackage.drvPath != "";
+    integratedNiriDmsFinalConfig = niriDms.home.programs.niri.finalConfig != null;
     integratedNiriPackagePropagated =
-      niriOnly.config.home-manager.users.fixture.programs.niri.package.outPath
-      == niriOnly.config.programs.niri.package.outPath;
-    disabledProviderFinalConfig =
-      niriDisabled.config.home-manager.users.fixture.programs.niri.finalConfig != null;
+      niriOnly.home.programs.niri.package.outPath == niriOnly.config.programs.niri.package.outPath;
+    disabledProviderFinalConfig = niriDisabled.home.programs.niri.finalConfig != null;
     disabledProviderPackagePropagated =
-      niriDisabled.config.home-manager.users.fixture.programs.niri.package.outPath
-      == niriDisabled.config.programs.niri.package.outPath;
-    disabledProviderActivationPackage =
-      niriDisabled.config.home-manager.users.fixture.home.activationPackage.drvPath != "";
-    standaloneNiriFinalConfig = niriOnlyHome.config.programs.niri.finalConfig != null;
-    standaloneNiriActivationPackage = niriOnlyHome.config.home.activationPackage.drvPath != "";
+      niriDisabled.home.programs.niri.package.outPath == niriDisabled.config.programs.niri.package.outPath;
+    disabledProviderActivationPackage = niriDisabled.home.home.activationPackage.drvPath != "";
+    standaloneNiriFinalConfig = niriOnlyHome.home.programs.niri.finalConfig != null;
+    standaloneNiriActivationPackage = niriOnlyHome.home.home.activationPackage.drvPath != "";
     niriOnlyPolkitAgent = niriOnly.config.systemd.user.services.niri-flake-polkit.enable;
     dmsOwnsPolkitAgent = !niriDms.config.systemd.user.services.niri-flake-polkit.enable;
     noctaliaLeavesPolkitToNiri = niriNoctalia.config.systemd.user.services.niri-flake-polkit.enable;
-    niriOnlyHasGeneralBinding = builtins.hasAttr "Mod+Q" niriOnlyHome.config.programs.niri.settings.binds;
-    niriOnlyHasNoDmsBinding =
-      !(builtins.hasAttr "Mod+Space" niriOnlyHome.config.programs.niri.settings.binds);
+    niriOnlyHasGeneralBinding = builtins.hasAttr "Mod+Q" niriOnlyHome.home.programs.niri.settings.binds;
+    niriOnlyHasNoDmsBinding = !(builtins.hasAttr "Mod+Space" niriOnlyHome.home.programs.niri.settings.binds);
     niriOnlyHasNoHandyBindings =
-      !(builtins.hasAttr "Mod+D" niriOnlyHome.config.programs.niri.settings.binds)
-      && !(builtins.hasAttr "Mod+Shift+D" niriOnlyHome.config.programs.niri.settings.binds);
-    handyWorksWithoutNiri = !(handyOnlyHome.config.programs ? niri);
+      !(builtins.hasAttr "Mod+D" niriOnlyHome.home.programs.niri.settings.binds)
+      && !(builtins.hasAttr "Mod+Shift+D" niriOnlyHome.home.programs.niri.settings.binds);
+    handyWorksWithoutNiri = !(handyOnlyHome.home.programs ? niri);
     handyNiriHasBindings =
-      handyNiriHome.config.programs.niri.settings.binds."Mod+D".action.spawn == [
+      handyNiriHome.home.programs.niri.settings.binds."Mod+D".action.spawn == [
         "handy"
         "--toggle-transcription"
       ]
-      &&
-      handyNiriHome.config.programs.niri.settings.binds."Mod+Shift+D".action.spawn == [
+      && handyNiriHome.home.programs.niri.settings.binds."Mod+Shift+D".action.spawn == [
         "handy"
         "--cancel"
       ];
     desktopShellUsesGuiPinentry =
-      desktopShellHome.config.services.gpg-agent.pinentry.package.pname == "pinentry-gnome3"
-      &&
-      desktopShellHome.config.programs.rbw.settings.pinentry == nixpkgs.lib.getExe pkgs.pinentry-gnome3;
+      desktopShellHome.home.services.gpg-agent.pinentry.package.pname == "pinentry-gnome3"
+      && desktopShellHome.home.programs.rbw.settings.pinentry
+      == lib.getExe nixpkgs.legacyPackages.${system}.pinentry-gnome3;
     desktopShellPreservesConsumerPinentry =
-      desktopShellOverrideHome.config.services.gpg-agent.pinentry.package.pname == "pinentry-curses"
-      &&
-      desktopShellOverrideHome.config.programs.rbw.settings.pinentry
-      == nixpkgs.lib.getExe pkgs.pinentry-curses;
-    desktopShellIncludesClipboard = builtins.elem pkgs.wl-clipboard desktopShellHome.config.home.packages;
+      desktopShellOverrideHome.home.services.gpg-agent.pinentry.package.pname == "pinentry-curses"
+      && desktopShellOverrideHome.home.programs.rbw.settings.pinentry
+      == lib.getExe nixpkgs.legacyPackages.${system}.pinentry-curses;
+    desktopShellIncludesClipboard = builtins.elem nixpkgs.legacyPackages.${system}.wl-clipboard desktopShellHome.home.home.packages;
     dmsHasIpcBinding =
-      dmsHome.config.programs.niri.settings.binds."Mod+Space".action.spawn == [
+      dmsHome.home.programs.niri.settings.binds."Mod+Space".action.spawn == [
         "dms"
         "ipc"
         "call"
         "spotlight"
         "toggle"
       ];
-    noctaliaNiriConfigGenerated = niriNoctaliaHome.config.xdg.configFile.niri-config.enable;
-    noctaliaIsEnabled = niriNoctaliaHome.config.programs.noctalia.enable;
-    noctaliaServiceEnabled = niriNoctaliaHome.config.programs.noctalia.systemd.enable;
+    noctaliaNiriConfigGenerated = niriNoctaliaHome.home.xdg.configFile.niri-config.enable;
+    noctaliaIsEnabled = niriNoctaliaHome.home.programs.noctalia.enable;
+    noctaliaServiceEnabled = niriNoctaliaHome.home.programs.noctalia.systemd.enable;
     noctaliaUsesPinnedPackage =
-      niriNoctaliaHome.config.programs.noctalia.package.outPath
-      == source.inputs.noctalia.packages.${system}.default.outPath;
+      niriNoctaliaHome.home.programs.noctalia.package.outPath
+      == inputs.noctalia.packages.${system}.default.outPath;
     noctaliaHasLauncherBinding =
-      niriNoctaliaHome.config.programs.niri.settings.binds."Mod+Space".action.spawn == [
+      niriNoctaliaHome.home.programs.niri.settings.binds."Mod+Space".action.spawn == [
         "noctalia"
         "msg"
         "panel-toggle"
         "launcher"
       ];
     noctaliaHasControlCenterBinding =
-      niriNoctaliaHome.config.programs.niri.settings.binds."Mod+S".action.spawn == [
+      niriNoctaliaHome.home.programs.niri.settings.binds."Mod+S".action.spawn == [
         "noctalia"
         "msg"
         "panel-toggle"
         "control-center"
       ];
     noctaliaHasSettingsBinding =
-      niriNoctaliaHome.config.programs.niri.settings.binds."Mod+Comma".action.spawn == [
+      niriNoctaliaHome.home.programs.niri.settings.binds."Mod+Comma".action.spawn == [
         "noctalia"
         "msg"
         "settings-toggle"
       ];
     noctaliaHasHoldWindowSwitcherBinding =
-      niriNoctaliaHome.config.programs.niri.settings.binds."Alt+Tab".action.spawn == [
+      niriNoctaliaHome.home.programs.niri.settings.binds."Alt+Tab".action.spawn == [
         "noctalia"
         "msg"
         "window-switcher"
         "hold"
       ];
     noctaliaHasVolumeBinding =
-      niriNoctaliaHome.config.programs.niri.settings.binds.XF86AudioRaiseVolume.action.spawn == [
-        "noctalia"
-        "msg"
-        "volume-up"
-      ]
-      &&
-      niriNoctaliaHome.config.programs.niri.settings.binds.XF86AudioLowerVolume.action.spawn == [
-        "noctalia"
-        "msg"
-        "volume-down"
-      ]
-      &&
-      niriNoctaliaHome.config.programs.niri.settings.binds.XF86AudioMute.action.spawn == [
-        "noctalia"
-        "msg"
-        "volume-mute"
-      ];
+      niriNoctaliaHome.home.programs.niri.settings.binds.XF86AudioRaiseVolume.action.spawn == [ "noctalia" "msg" "volume-up" ]
+      && niriNoctaliaHome.home.programs.niri.settings.binds.XF86AudioLowerVolume.action.spawn == [ "noctalia" "msg" "volume-down" ]
+      && niriNoctaliaHome.home.programs.niri.settings.binds.XF86AudioMute.action.spawn == [ "noctalia" "msg" "volume-mute" ];
     noctaliaHasBrightnessBinding =
-      niriNoctaliaHome.config.programs.niri.settings.binds.XF86MonBrightnessUp.action.spawn == [
-        "noctalia"
-        "msg"
-        "brightness-up"
-      ]
-      &&
-      niriNoctaliaHome.config.programs.niri.settings.binds.XF86MonBrightnessDown.action.spawn == [
-        "noctalia"
-        "msg"
-        "brightness-down"
-      ];
+      niriNoctaliaHome.home.programs.niri.settings.binds.XF86MonBrightnessUp.action.spawn == [ "noctalia" "msg" "brightness-up" ]
+      && niriNoctaliaHome.home.programs.niri.settings.binds.XF86MonBrightnessDown.action.spawn == [ "noctalia" "msg" "brightness-down" ];
     noctaliaHasFloatingRule = builtins.any
-      (
-        rule:
-        rule.open-floating == true
-        && builtins.any (match: match.app-id == "dev.noctalia.Noctalia") (rule.matches or [ ])
-      )
-      niriNoctaliaHome.config.programs.niri.settings.window-rules;
-    noctaliaWorksWithoutNiri =
-      noctaliaOnlyHome.config.programs.noctalia.enable && !(noctaliaOnlyHome.config.programs ? niri);
+      (rule: rule.open-floating == true && builtins.any (match: match.app-id == "dev.noctalia.Noctalia") (rule.matches or [ ]))
+      niriNoctaliaHome.home.programs.niri.settings.window-rules;
+    noctaliaWorksWithoutNiri = noctaliaOnlyHome.home.programs.noctalia.enable && !(noctaliaOnlyHome.home.programs ? niri);
   };
   failed = builtins.attrNames (lib.filterAttrs (_: passed: !passed) assertions);
 in

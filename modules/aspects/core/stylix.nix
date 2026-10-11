@@ -1,5 +1,9 @@
 { inputs, ... }:
 let
+  # Library dependency inputs (stylix modules) stay closed over the library
+  # flake; the wallpaper path resolves from the aspect `inputs` argument
+  # (consumer flake) exposed by den.batteries.flake-scope.
+  libraryInputs = inputs;
   sharedConfig = { pkgs, ... }: {
     stylix = {
       enable = true;
@@ -45,19 +49,33 @@ in
     };
   };
 
-  dotnix.stylix.nixos = {
-    imports = [ inputs.stylix.nixosModules.stylix sharedConfig ];
-    stylix.enableReleaseChecks = false;
-    stylix.homeManagerIntegration.autoImport = false;
-  };
+  dotnix.stylix = { inputs, ... }: {
+    nixos = {
+      # Keyed so host- and user-scope copies collapse to one module tree; the
+      # package-valued stylix settings reject duplicate (even equal) definitions.
+      imports = [
+        {
+          key = "dotnix:stylix:nixos";
+          imports = [ libraryInputs.stylix.nixosModules.stylix sharedConfig ];
+        }
+      ];
+      stylix.enableReleaseChecks = false;
+      stylix.homeManagerIntegration.autoImport = false;
+    };
 
-  dotnix.stylix.homeManager = { config, lib, ... }: {
-    imports = [ inputs.stylix.homeModules.stylix sharedConfig ];
-    stylix.overlays.enable = false;
-    stylix.image =
-      let
-        path = "${inputs.self}/modules/users/${config.home.username}/assets/wallpaper.png";
-      in
-      lib.mkIf (lib.pathExists path) path;
+    homeManager = { config, lib, ... }: {
+      imports = [
+        {
+          key = "dotnix:stylix:homeManager";
+          imports = [ libraryInputs.stylix.homeModules.stylix sharedConfig ];
+        }
+      ];
+      stylix.overlays.enable = false;
+      stylix.image =
+        let
+          path = "${inputs.self}/modules/users/${config.home.username}/assets/wallpaper.png";
+        in
+        lib.mkIf (lib.pathExists path) path;
+    };
   };
 }
