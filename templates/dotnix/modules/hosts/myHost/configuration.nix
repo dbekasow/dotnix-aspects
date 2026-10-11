@@ -7,13 +7,17 @@
 
   den.aspects.myHost = {
     # must match the user aspect name in modules/users/<user>/default.nix
-    provides.myuser.includes = [ dotnix.myuser ];
+    provides.myuser.includes = with dotnix; [
+      myuser
+      desktop-shell # Home Manager shell integration for this user
+      dms # Home Manager DMS launcher and settings; use noctalia here too to select it instead
+    ];
 
     includes = with dotnix; [
       dell-precision-5570 # from ./hardware.nix
       core # Home Manager NixOS integration is explicitly selected
-      desktop-shell # graphical socket; shell and greeter are per-host choices
-      dms # shell — swap for `noctalia` to run the alternative
+      desktop-shell # host graphical socket
+      dms # host shell — use noctalia instead for that host
       dms-greeter # greeter — swap for `noctalia-greeter`
       base # shared boot behavior
       boot-systemd # systemd-boot loader
