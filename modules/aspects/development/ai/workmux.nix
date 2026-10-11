@@ -30,7 +30,9 @@
           programs.tmux.extraConfig = ''
             bind -N "Agent sidebar" a run-shell "${pkgs.llm-agents.workmux}/bin/workmux sidebar"
             bind -N "Agent sidebar (session)" A run-shell "${pkgs.llm-agents.workmux}/bin/workmux sidebar --session"
-            bind -N "agents" -T prefix o display-menu -T " agents " -x C -y C "Dashboard" a "display-popup -EE -w 90% -h 85% -T ' agents ' '${pkgs.llm-agents.workmux}/bin/workmux dashboard'"
+            # Prefix o belongs to the TUI popups menu; keep this one on w so both
+            # menus stay reachable when development and terminal are selected together.
+            bind -N "agents" -T prefix w display-menu -T " agents " -x C -y C "Dashboard" a "display-popup -EE -w 90% -h 85% -T ' agents ' '${pkgs.llm-agents.workmux}/bin/workmux dashboard'"
           '';
         })
       ];
