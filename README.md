@@ -28,6 +28,10 @@ Add the library and Den as flake inputs. Import Den's flake module and the expor
     inputs.dotnix.flakeModules.devTools
   ];
 
+  den.quirks.popup-launcher = {
+    description = "Enabled popup launcher records shared by selected user-scope aspects";
+  };
+
   den.default.includes = [
     den.batteries.flake-scope
     den.batteries.hostname
@@ -65,7 +69,7 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 
 ### Namespace and classes
 
-`denful.dotnix` includes namespace-owned aspect definitions and custom class declarations. Import it through Den's namespace helper so the consumer merges class schemas and aspect providers into its own Den evaluation. Select features in Den aspects and entities; namespace discovery alone never activates them.
+`denful.dotnix` includes namespace-owned aspect definitions and custom class declarations. Import it through Den's namespace helper so the consumer merges class schemas and aspect providers into its own Den evaluation. Select features in Den aspects and entities; namespace discovery alone never activates them. Declare the `popup-launcher` Quirk in the consumer entry point as shown above: Den's namespace exports aspects and classes, not Quirk declarations. Selected Tmux and Herdr aspects share enabled launcher data only within the same user; each renders its own keys and runtime behavior.
 
 ## Composition rules
 

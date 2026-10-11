@@ -43,7 +43,12 @@ let
         imports = [
           inputs.den.flakeModule
           (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
-          ({ den, ... }: { den.default.includes = [ den.batteries.flake-scope ]; })
+          ({ den, ... }: {
+            den.default.includes = [ den.batteries.flake-scope ];
+            den.quirks.popup-launcher = {
+              description = "Enabled popup launcher records shared by selected user-scope aspects";
+            };
+          })
         ];
         den.hosts.${system}.fixture = {
           users = (lib.optionalAttrs withUser {
@@ -181,7 +186,77 @@ let
       };
     };
   };
+  popupTmuxOnly = evaluate {
+    userIncludes = [ dotnix.tmux ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+  };
+  popupEnabled = evaluate {
+    userIncludes = with dotnix; [ tmux herdr workmux ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+    userModule.programs.k9s.enable = true;
+  };
+  popupDisabled = evaluate {
+    userIncludes = with dotnix; [ tmux herdr workmux ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+    userModule.programs.k9s.enable = false;
+  };
+  standaloneHerdr =
+    let
+      fixture = {
+        imports = [
+          inputs.den.flakeModule
+          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
+          ({ den, ... }: {
+            den.default.includes = [ den.batteries.flake-scope ];
+            den.quirks.popup-launcher = {
+              description = "Enabled popup launcher records shared by selected user-scope aspects";
+            };
+          })
+        ];
+        den.homes.${system}.fixture.pkgs = import nixpkgs { inherit system; };
+        den.aspects.fixture.includes = [ dotnix.herdr ];
+        den.aspects.fixture.homeManager = { specialArgs, ... }: {
+          home.username = "fixture";
+          home.homeDirectory = "/home/fixture";
+          home.stateVersion = "25.11";
+          programs.herdr.settings.keys.prefix = "ctrl+a";
+          assertions = [
+            {
+              assertion = !(builtins.hasAttr "osConfig" specialArgs);
+              message = "Standalone Herdr must not receive osConfig";
+            }
+          ];
+        };
+      };
+      flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } fixture;
+    in
+    flake.homeConfigurations.fixture.config;
   checks = {
+    popupTmuxWorksWithoutWorkmux =
+      let tmux = popupTmuxOnly.home-manager.users.fixture.programs.tmux;
+      in tmux.enable
+        && lib.hasInfix ''bind -N "TUI popups" o display-menu'' tmux.extraConfig
+        && !(lib.hasInfix ''bind -N "agents" -T prefix w display-menu'' tmux.extraConfig);
+    popupQuirkEnabledForBothBackends =
+      lib.any (entry: entry.description == "k9s") popupEnabled.home-manager.users.fixture.programs.herdr.settings.keys.command
+      && lib.hasInfix "k9s" popupEnabled.home-manager.users.fixture.programs.tmux.extraConfig;
+    popupQuirkExcludesDisabledLauncher =
+      !(lib.any (entry: entry.description == "k9s") popupDisabled.home-manager.users.fixture.programs.herdr.settings.keys.command)
+      && !(lib.hasInfix "k9s" popupDisabled.home-manager.users.fixture.programs.tmux.extraConfig);
+    popupMenuCoexistsWithWorkmux =
+      let
+        enabled = popupEnabled.home-manager.users.fixture.programs.tmux.extraConfig;
+        disabled = popupDisabled.home-manager.users.fixture.programs.tmux.extraConfig;
+      in
+      lib.hasInfix ''bind -N "TUI popups" o display-menu'' enabled
+      && lib.hasInfix ''bind -N "agents" -T prefix w display-menu'' enabled
+      && lib.hasInfix ''bind -N "agents" -T prefix w display-menu'' disabled;
+    popupQuirkDoesNotLeakToUnrelatedUser =
+      !(popupEnabled.home-manager.users.unrelated.programs.herdr.settings.keys.command or [ ] != [ ])
+      && !(lib.hasInfix "k9s" (popupEnabled.home-manager.users.unrelated.programs.tmux.extraConfig or ""));
+    standaloneHerdrWorksWithoutHostOverlay =
+      standaloneHerdr.programs.herdr.settings.keys.prefix == "ctrl+a"
+      && !(lib.any (entry: entry.description == "bluetui") standaloneHerdr.programs.herdr.settings.keys.command);
     populatedResourcesUseConsumerTree =
       populatedSelf.inputs == source.inputs
       && toString populatedSelf.outPath == toString resourceTree;

@@ -23,7 +23,7 @@ modules/
 flake.nix
 ```
 
-`modules/parts.nix` is the Den entry point. It imports Den's flake module and the library namespace, then enables the `flake-scope` and `hostname` batteries. The host configuration registers `myHost` and its `myuser` Home Manager class; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that user entity.
+`modules/parts.nix` is the Den entry point. It imports Den's flake module and the library namespace, declares the user-scope `popup-launcher` Quirk for Tmux/Herdr, then enables the `flake-scope` and `hostname` batteries. The host configuration registers `myHost` and its `myuser` Home Manager class; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that user entity. Desktop shell selection is explicit at both scopes: `desktop-shell` and `dms` are provided to `myuser` for Home Manager configuration and included by the host for NixOS configuration. To select Noctalia, replace `dms` with `noctalia` in both `provides.myuser.includes` and host `includes`; greeter remains host-only.
 
 ## Usage
 

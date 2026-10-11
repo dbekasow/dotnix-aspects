@@ -9,6 +9,10 @@
     inputs.dotnix.flakeModules.devTools # devshell, pre-commit, treefmt, agenix-rekey
   ];
 
+  den.quirks.popup-launcher = {
+    description = "Enabled popup launcher records shared by selected user-scope aspects";
+  };
+
   den.default.includes = [
     den.batteries.flake-scope
     den.batteries.hostname
