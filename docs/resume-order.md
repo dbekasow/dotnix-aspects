@@ -13,7 +13,7 @@ The test uses NixOS `runNixOSTest` and disposable QEMU guests. It exercises the 
 From the repository root, evaluate the disposable VM against this checkout and its current lock:
 
 ```sh
-nix build --impure --no-link --no-write-lock-file --expr 'let root = builtins.getFlake (toString ./.); pkgs = import root.inputs.nixpkgs { system = "x86_64-linux"; }; in import ./tests/resume-order/vm.nix { inherit pkgs; library = root; }' --print-build-logs
+nix build --impure --no-link --no-write-lock-file --expr 'let root = builtins.getFlake (toString ./.); pkgs = import root.inputs.nixpkgs { system = "x86_64-linux"; }; in import ./tests/resume-order/vm.nix { inherit pkgs; dotnix = root.denful.dotnix; library = root; }' --print-build-logs
 ```
 
 The initial run on the disposable worktree used systemd 261.2. A rerun against the current main-worktree lock used systemd 261.3. Both runs passed; the command above reproduces the current-checkout run. Assertions passed:

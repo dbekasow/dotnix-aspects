@@ -1,4 +1,4 @@
-{ pkgs, library }:
+{ pkgs, dotnix, library }:
 let
   delayedResume = {
     description = "Synthetic delayed hibernate resume for ordering test";
@@ -48,7 +48,7 @@ pkgs.testers.runNixOSTest {
       imports = [
         library.inputs.agenix.nixosModules.default
         library.inputs.home-manager.nixosModules.home-manager
-        library.nixosModules.impermanence
+        dotnix.impermanence.nixos
       ];
       boot = {
         initrd.systemd.enable = true;

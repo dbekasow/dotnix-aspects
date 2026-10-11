@@ -1,10 +1,10 @@
-{ pkgs, library }:
+{ pkgs, dotnix, library }:
 let
   provision = { ... }: {
     imports = [
       library.inputs.agenix.nixosModules.default
       library.inputs.home-manager.nixosModules.home-manager
-      library.nixosModules.impermanence
+      dotnix.impermanence.nixos
     ];
 
     boot = {
