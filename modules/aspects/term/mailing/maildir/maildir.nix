@@ -1,5 +1,7 @@
 {
-  dotnix.maildir.homeManager = { config, ... }: {
+  # Notmuch identity (user.name / user.primary_email) is consumer-owned: set
+  # `programs.notmuch.settings` in the consumer's own Home Manager module.
+  dotnix.maildir.homeManager = {
     accounts.email.maildirBasePath = "mail";
 
     programs.msmtp.enable = true;
@@ -23,11 +25,6 @@
       ];
 
       hooks.preNew = "mbsync --all";
-
-      extraConfig = {
-        user.name = config.profile.fullname;
-        user.primary_email = config.profile.email;
-      };
     };
   };
 

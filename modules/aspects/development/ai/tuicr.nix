@@ -30,7 +30,7 @@
               # Nix owns the binary, so an update prompt can only ever be wrong.
               no_update_check = true;
 
-              # Stamped on local comments; profile.fullname is optional.
+              # Stamped on local comments; falls back from Git identity to home.username.
               username = fullname;
 
               comment_types = [
