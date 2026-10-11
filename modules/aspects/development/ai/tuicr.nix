@@ -1,13 +1,16 @@
+{ inputs, ... }:
 {
   dotnix.tuicr.homeManager = { config, lib, pkgs, ... }:
     let
+      packages = pkgs.llm-agents or inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+      inherit (packages) tuicr;
       toml = pkgs.formats.toml { };
       fullname = config.programs.git.settings.user.name or config.home.username;
     in
     {
       config = lib.mkMerge [
         {
-          home.packages = [ pkgs.llm-agents.tuicr ];
+          home.packages = [ tuicr ];
 
           xdg = {
             configFile."tuicr/config.toml".source = toml.generate "tuicr.toml" {
@@ -48,7 +51,7 @@
         }
         (lib.mkIf config.programs.tmux.enable {
           programs.tmux.extraConfig = ''
-            bind -N "tuicr review" -T prefix r display-popup -EE -w 90% -h 85% -T " tuicr " "${lib.getExe pkgs.llm-agents.tuicr}"
+            bind -N "tuicr review" -T prefix r display-popup -EE -w 90% -h 85% -T " tuicr " "${lib.getExe tuicr}"
           '';
         })
       ];
