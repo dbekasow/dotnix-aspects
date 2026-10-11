@@ -16,21 +16,46 @@ All aspects live under `modules/aspects/`. Each file contributes Den aspects for
 
 ## Usage
 
-Add library as a flake input, then import exported namespace in the consumer's Den module. The public library output is `denful.dotnix`; consumers do not receive wrapped module aliases or an independent host builder.
+Add the library and Den as flake inputs. Import Den's flake module and the exported namespace in the consumer's native Den entry point. The public library output is `denful.dotnix`; consumers do not receive wrapped module aliases or an independent host builder.
 
 ```nix
-{ inputs, dotnix, ... }:
+# modules/parts.nix — same entry point used by templates/dotnix
+{ inputs, den, ... }:
 {
   imports = [
     inputs.den.flakeModule
     (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
+    inputs.dotnix.flakeModules.devTools
   ];
 
-  den.aspects.my-host.includes = [ dotnix.core dotnix.desktop-shell ];
+  den.default.includes = [
+    den.batteries.flake-scope
+    den.batteries.hostname
+  ];
 }
 ```
 
-The library exposes `flakeModules.devTools` as native flake-parts module for consumers that want its devshell, pre-commit, treefmt, and agenix-rekey tooling. Import that module into a flake-parts composition; Den host and user outputs still come from Den's native output integration.
+Compose host and user behavior through Den entities and aspects, as in the executable template at `templates/dotnix/modules/hosts/myHost/configuration.nix` and `templates/dotnix/modules/users/myUser/default.nix`:
+
+```nix
+{ dotnix, ... }:
+{
+  den.hosts.x86_64-linux.myHost.users.myuser.classes = [ "homeManager" ];
+
+  den.aspects.myHost = {
+    provides.myuser.includes = [ dotnix.myuser ];
+    includes = with dotnix; [ core network boot ];
+    nixos.system.stateVersion = "26.11";
+  };
+
+  dotnix.myuser = {
+    includes = with dotnix; [ core-home terminal ];
+    homeManager.home.stateVersion = "26.11";
+  };
+}
+```
+
+The example illustrates the native entry/entity contract; real hosts also need hardware, disk, identity, and secret configuration. The library exposes `flakeModules.devTools` as a flake-parts module for its devshell, pre-commit, treefmt, and agenix-rekey tooling. In a consumer importing it, use `nix develop`, `nix fmt`, and `nix flake check`. Regenerate the root flake from its `flake-file` declarations with `nix run .#write-flake`; this is separate from the vault commands `nix run .#generate` and `nix run .#rekey`. Den's native output integration creates NixOS and Home Manager outputs.
 
 Or start from the consumer template:
 
@@ -40,7 +65,7 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 
 ### Namespace and classes
 
-`denful.dotnix` includes namespace-owned aspect definitions and custom class declarations. Import it through Den's namespace helper so the consumer merges class schemas and aspect providers into its own Den evaluation. Select features on `den.hosts` or user-profiles with `includes`; library discovery alone never activates them.
+`denful.dotnix` includes namespace-owned aspect definitions and custom class declarations. Import it through Den's namespace helper so the consumer merges class schemas and aspect providers into its own Den evaluation. Select features in Den aspects and entities; namespace discovery alone never activates them.
 
 ## Composition rules
 
@@ -49,8 +74,8 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 - **State history belongs to its owner.** Set `system.stateVersion` in each host and `home.stateVersion` for each HM user to their existing installed values; Den does not infer or advance them.
 - **Host axis vs. user axis.** Consumers select aspects on `den.hosts.<system>.<host>` and user entities; Den's native output integration creates NixOS and Home Manager outputs. `desktop` is a reusable include bundle with the graphical socket and GUI applications.
 - **Select a shell and greeter explicitly.** Import NixOS `desktop-shell`, then `dms` with HM `dms` for a DMS session, or HM `noctalia` for Noctalia. HM `desktop` adds graphical applications; HM `desktop-shell` selects only the Niri socket. Noctalia's Niri bindings require the HM Niri context. Select exactly one NixOS greeter (`dms-greeter` or `noctalia-greeter`); both own greetd's default session. The HM Niri aspect imports Niri's options provider; remove direct `inputs.niri.homeModules.niri` imports wherever `homeManager.niri`, `desktop`, or `desktop-shell` is imported to avoid duplicate option declarations.
-- Registering an aspect does not activate it. Import `development` only for the chosen toolchain; Workmux/Tuicr Tmux bindings require both their tool aspect and enabled Tmux.
-- Herdr is an explicit Tmux alternative: import `terminal-herdr` instead of `terminal` for a user who wants Herdr. Existing `terminal` and `term-ux` imports keep Tmux, Sesh, and Zellij; selecting Herdr does not change any caller profile automatically.
+- Registering an aspect does not activate it. Import `development` only for the chosen toolchain; Workmux/Tuicr Tmux bindings require both their tool aspect and enabled Tmux. Prefix `o` opens TUI popups; Prefix `w` opens Workmux's agents menu. The K9s popup follows `programs.k9s.enable`.
+- Herdr is an explicit Tmux alternative: import `terminal-herdr` instead of `terminal` for a user who wants Herdr. Existing `terminal` and `term-ux` imports keep Tmux, Sesh, and Zellij; selecting Herdr does not change any consumer composition automatically.
 - The `impermanence` aspects assume the btrfs-on-LUKS layout provided by the `disko` aspect; their `/persist` fragments only activate when the `impermanence` aspect is imported.
 - Impermanence audit one-liner: `grep -rn 'home.persistence' modules/`
 
@@ -69,27 +94,21 @@ Compose host system functions and personal Home Manager choices independently:
 
 `core` is an optional host feature bundle, not a prerequisite for other profiles. Its matching Home Manager feature bundle, `core-home`, reaches users only through the explicitly activated `den.policies.core-home-to-users` policy. This keeps shared host-to-home routing visible and reusable. `workstation` remains a convenience bundle; hosts can select its individual features instead. `server` provides only its intentionally small reusable behavior. `disko` supplies reusable geometry but no device default: every host importing it must set native `disko.devices.disk.main.device` to its own disk path. Run `nix eval --impure --file tests/headless-composition.nix` to verify the server remains independent of workstation tuning and disk configuration.
 
+Persistence follows the same scope separation: selected `systemPersistence` contributions route to the host's OS class, while selected `homePersistence` contributions route only to the relevant user's Home Manager class. `impermanence` explicitly activates these routing policies. For PipeWire, select `pipewire` on the host for audio services and in the intended user's scope for `.local/state/wireplumber`; do not import the entire host aspect tree into that user's home. Unselected features and unrelated users receive no contribution. Excluding the routing policies leaves the Impermanence baseline available without routing feature contributions. Run `nix eval --impure --file tests/broad-compositions.nix` to check selected, unselected, unrelated-user and routing-disabled cases.
+
 `mail` is an opt-in bundle; include it only for users who read mail. Select `dms`/`dms-greeter` or `noctalia`/`noctalia-greeter` explicitly on hosts that need a graphical session. New bundles should appear with their first real consumer, not from theory.
+
+Personal identities also belong in the consumer's Home Manager class: set `programs.git.settings.user`, `programs.rbw.settings.email`, and, when selecting `maildir`, `programs.notmuch.settings.user.name` and `programs.notmuch.settings.user.primary_email` through their native options. Keep each `accounts.email.accounts.<name>.address` distinct; a Git, vault or primary mail address does not replace other account addresses. The retained `tests/broad-compositions.nix` fixture checks these independent identities and Home Manager activation evaluation.
 
 ## Channel choice
 
-The fleet-wide pin follows the consumer: `dotnix.inputs.nixpkgs.follows = "nixpkgs"` in the consumer's flake redirects the library's nixpkgs — and every tool input following it — to the consumer's channel. Point your `nixpkgs` input at a stable branch and every host builds on it.
+The consumer owns its nixpkgs channel. Set `dotnix.inputs.nixpkgs.follows = "nixpkgs"` in the consumer flake to make the library and its dependent inputs follow that channel. This is a flake-level choice; no per-host channel selector is provided by this library.
 
-Mixed fleets pick a channel per host:
-
-```nix
-# consumer flake.nix
-inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-inputs.nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
-
-# host module
-
-dotnix.hosts.vps.nixpkgs = inputs.nixpkgs-stable.lib;
-```
-
-Caveat: the library's option surfaces are verified against unstable — a stable host may hit upstream option renames on its first pin.
+A local `path:/home/denis/projects/dotnix-aspects` input is development-only and not portable. Nix hashes the entire directory, including `.git`, untracked and ignored files; never keep private files in that library tree. After library changes, refresh only that input with `nix flake update dotnix`, or test current code with `--no-write-lock-file --override-input dotnix path:/home/denis/projects/dotnix-aspects`. Plain `nix flake lock` does not refresh an existing local snapshot.
 
 ## Secrets & paths (consumer contract)
+
+Secret identities, vault files, certificates, wallpapers, and other host/user resources belong to the consumer repository, not the library input. Activate `den.batteries.flake-scope` as shown above: resource-owning aspect functions capture the consumer's `inputs.self`, while dependency imports retain the library's inputs. Set identities and secret-manager references through native consumer options. No wrapper or custom `dotnix` option namespace is required.
 
 agenix-rekey expects this layout in the **consumer** repo:
 
@@ -114,7 +133,7 @@ DMS/matugen is the single source of truth for the shell and its ~20 matugen temp
 
 **Secrets with agenix-rekey** — Host and user secrets are managed through `age.rekey` with local storage mode and a master identity. Password generation is handled declaratively.
 
-**Den-native outputs** — the consumer evaluates `den.hosts` and imports `denful.dotnix` through `den.namespace`. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
+**Den-native outputs** — the consumer evaluates Den host and user entities and imports `denful.dotnix` through `den.namespace`. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
 
 ## License
 

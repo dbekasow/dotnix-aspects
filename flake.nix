@@ -3,13 +3,14 @@
 {
   outputs =
     inputs:
-    (inputs.nixpkgs.lib.evalModules {
-      specialArgs = {
-        inherit inputs;
-        inherit (inputs) self;
-      };
-      modules = [ ./modules/expose.nix ];
-    }).config.flake;
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        inputs.flake-file.flakeModules.default
+        inputs.den.flakeModule
+        (inputs.den.namespace "dotnix" true)
+        ./modules/expose.nix
+      ];
+    };
 
   inputs = {
     agenix = {
