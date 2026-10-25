@@ -1,5 +1,5 @@
 {
-  dotnix.boot-systemd.nixos = { lib, ... }: {
+  dotnix.host.boot-systemd.nixos = { lib, ... }: {
     boot.loader.systemd-boot = {
       enable = lib.mkDefault true;
       editor = false;

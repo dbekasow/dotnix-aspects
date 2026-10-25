@@ -1,5 +1,5 @@
 {
-  dotnix.power.nixos = { config, lib, ... }: {
+  dotnix.host.power.nixos = { config, lib, ... }: {
     services = {
       logind.settings.Login = {
         HandlePowerKey = "suspend-then-hibernate";

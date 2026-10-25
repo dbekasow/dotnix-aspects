@@ -1,18 +1,18 @@
 # Optional laptop-oriented bundle; consumers may select its aspects individually.
 { dotnix, ... }: {
   dotnix.workstation.includes = with dotnix; [
-    boot
-    journald
-    boot-systemd
-    performance
-    bluetooth
-    disko
+    host.boot
+    host.journald
+    host.boot-systemd
+    host.performance
+    host.bluetooth
+    host.disko
     impermanence
-    geolocation
-    network
-    network-wifi
+    host.geolocation
+    host.network
+    host.network-wifi
     host.pipewire
-    power
+    host.power
     yubikey
     yubikey-pam
   ];

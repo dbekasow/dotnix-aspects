@@ -1,5 +1,5 @@
 {
-  dotnix.boot.nixos = { lib, pkgs, ... }: {
+  dotnix.host.boot.nixos = { lib, pkgs, ... }: {
     boot = {
       initrd.systemd.enable = true;
       initrd.verbose = false;

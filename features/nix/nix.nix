@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  dotnix.nix.nixos = { lib, pkgs, ... }: {
+  dotnix.host.nix.nixos = { lib, pkgs, ... }: {
     nixpkgs.config.allowUnfree = true;
 
     nix = {
@@ -54,7 +54,7 @@
   };
 
   # Impermanence contribution for nix.
-  dotnix.nix.systemPersistence = {
+  dotnix.host.nix.systemPersistence = {
     environment.persistence."/persist".directories = [
       "/etc/nixos"
       "/var/lib/nixos"

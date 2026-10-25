@@ -40,16 +40,16 @@ let
     hostIncludes = with dotnix; [
       host.home-manager
       base
-      boot-systemd
-      performance
-      bluetooth
-      disko
+      host.boot-systemd
+      host.performance
+      host.bluetooth
+      host.disko
       impermanence
-      geolocation
-      network
-      network-wifi
+      host.geolocation
+      host.network
+      host.network-wifi
       host.pipewire
-      power
+      host.power
       age
       age-rekey
       yubikey
