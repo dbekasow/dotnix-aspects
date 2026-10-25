@@ -3,7 +3,7 @@
 **What to build:** Offer the Docker host daemon, account settings, and user tools as separate consumer selections while preserving rootful and rootless use. Existing subuid/subgid and linger contributions must no longer be applied indiscriminately to every host account.
 
 **Blocked by:** [05: Configure accounts without hidden shell or vault choices](05-account-selection.md), [07: Select Persistence independently from the Btrfs root reset](07-persistence-root-reset.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria

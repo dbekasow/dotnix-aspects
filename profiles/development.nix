@@ -1,7 +1,8 @@
 { dotnix, ... }: {
   dotnix.development = {
     includes = with dotnix; [
-      docker
+      host.docker
+      home.docker
       host.nix-ld
       llm-agents
       helix

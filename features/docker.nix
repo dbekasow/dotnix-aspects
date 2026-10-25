@@ -1,40 +1,34 @@
 {
-  dotnix.docker.nixos = { host, lib, ... }: {
+  dotnix.host.docker.nixos = _: {
     virtualisation.docker = {
       enable = true;
 
       rootless.enable = true;
       rootless.setSocketVariable = true;
 
-      # Prunes the rootful daemon, which this aspect leaves enabled: dead
-      # weight on rootless hosts, but the live daemon on WSL hosts where
-      # the wsl aspect forces rootless off — so keep it.
+      # Auto-pruning applies to the rootful daemon, which remains enabled
+      # alongside the optional rootless Docker service.
       autoPrune.enable = true;
     };
-
-    users.users = lib.genAttrs (builtins.attrNames host.users) (
-      lib.const {
-        # Rootless docker needs subordinate ids. Auto-allocation (via
-        # update-users-groups.pl) hands every member a distinct 65536-wide
-        # range; explicit ranges here would collide across members.
-        autoSubUidGidRange = lib.mkDefault true;
-        linger = true;
-      }
-    );
   };
 
-  dotnix.docker.homeManager = { pkgs, ... }: {
+  dotnix.account.docker.user = { lib, ... }: {
+    # Rootless Docker needs subordinate IDs and a lingering user service.
+    # This does not grant Docker group membership or additional privileges.
+    autoSubUidGidRange = lib.mkDefault true;
+    linger = lib.mkDefault true;
+  };
+
+  dotnix.home.docker.homeManager = { pkgs, ... }: {
     programs.lazydocker.enable = true;
     programs.fish.shellAbbrs.lzd = "lazydocker";
 
     home.packages = [ pkgs.dive ];
   };
 
-  # Impermanence contribution for docker.
-  dotnix.docker.homePersistence = {
-    # Rootless docker keeps images and containers in the user's home;
-    # /var/lib/docker would only persist a rootful daemon no member talks
-    # to (WSL hosts run rootful but have no wipe to begin with).
+  # Rootless Docker stores images and containers in this account's home.
+  # Select explicitly only when that state should survive persistence cleanup.
+  dotnix.home.docker-persistence.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/docker" ];
   };
 }
