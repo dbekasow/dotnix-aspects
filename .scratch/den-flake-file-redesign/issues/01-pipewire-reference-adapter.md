@@ -3,17 +3,17 @@
 **What to build:** Eine Consumer-Komposition, die PipeWire als erste vollständige Referenz durch den neuen nativen Rollen-Katalog und den normalen Adapter nutzbar macht. Der Adapter registriert Den, die eine `dotnix`-Namespace und Bibliotheksverträge wie Popup-Quirk und passende Persistence-Klassenmetadaten, aktiviert aber keine Programme, Dienste, Home-Manager-Konfiguration oder Persistence. Die Namespace allein registriert keine Quirks; optionale Entwicklungstools bleiben separat. Eine Host-only-Auswahl bleibt ohne Home Manager gültig.
 
 **Blocked by:** None (can start immediately).
-**Status:** claimed
+**Status:** resolved
 **Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
 
 ## Akzeptanzkriterien
 
-- [ ] PipeWire ist über die öffentliche Host- und Home-Auswahl verwendbar; Home PipeWire zieht transitiv weder NixOS-, Account-Verhalten noch Host-Provider ein.
-- [ ] Ein expliziter integrierter Home-Manager-Brückenschritt erhält getrennte Rollen. Eine reine Host-Konfiguration kann denselben Bibliothekseinstieg ohne Home Manager evaluieren.
-- [ ] Namespace-Import allein bleibt inert und registriert keinen Quirk; der normale Adapter registriert benötigte globale Verträge, ohne Feature-Verhalten zu aktivieren.
-- [ ] Der öffentliche Consumer-Einstieg schließt die bekannte user-only-Host-Aktivierung (#694): ausgewählte User- und Host-Ziele wirken nur auf ihre Auswahl; ein unbeteiligter User und Host bleiben unverändert.
-- [ ] Ein gewöhnlicher nativer Consumer-Override funktioniert. Die Referenz belegt Input-Eigentum ohne dedizierten externen PipeWire-Input und mit Consumer-Fixture sowie bibliotheksseitig erfasster Impermanence-Abhängigkeit; bestehende Persistence-Beiträge bleiben verfügbar.
-- [ ] Eine notwendige Regression wird einmal an einen passenden bestehenden Prüfpfad angeschlossen. Kein neues Varianten- oder Deklarationsspiegel-Matrix.
+- [x] PipeWire ist über die öffentliche Host- und Home-Auswahl verwendbar; Home PipeWire zieht transitiv weder NixOS-, Account-Verhalten noch Host-Provider ein.
+- [x] Ein expliziter integrierter Home-Manager-Brückenschritt erhält getrennte Rollen. Eine reine Host-Konfiguration kann denselben Bibliothekseinstieg ohne Home Manager evaluieren.
+- [x] Namespace-Import allein bleibt inert und registriert keinen Quirk; der normale Adapter registriert benötigte globale Verträge, ohne Feature-Verhalten zu aktivieren.
+- [x] Der öffentliche Consumer-Einstieg schließt die bekannte user-only-Host-Aktivierung (#694): ausgewählte User- und Host-Ziele wirken nur auf ihre Auswahl; ein unbeteiligter User und Host bleiben unverändert.
+- [x] Ein gewöhnlicher nativer Consumer-Override funktioniert. Die Referenz belegt Input-Eigentum ohne dedizierten externen PipeWire-Input und mit Consumer-Fixture sowie bibliotheksseitig erfasster Impermanence-Abhängigkeit; bestehende Persistence-Beiträge bleiben verfügbar.
+- [x] Eine notwendige Regression wird einmal an einen passenden bestehenden Prüfpfad angeschlossen. Kein neues Varianten- oder Deklarationsspiegel-Matrix.
 
 ## Comments
 
@@ -33,3 +33,11 @@
 - RED: supplied minimal consumer with `library = source` and no consumer `dotnix` failed with `attribute 'dotnix' missing` at `modules/integration/default.nix:3`; same expression with `dotnix = source` returned PipeWire/Home Manager false.
 - GREEN: captured provider factory now returns the adapter with library source bound by producer `inputs.self`; same consumer-key fixture returns `{"homeManager":false,"pipewire":false}`. Existing `adapterOnly` regression removes `dotnix`, adds `library = source`, and broad-compositions assertions all pass.
 - `nix eval --impure --file tests/headless-composition.nix`, `nix flake check --no-build --no-write-lock-file`, and `nix fmt -- --ci` on changed Nix files passed. No input or lock changes. Ticket stays claimed pending focused review/integration.
+
+### Integration acceptance
+
+- Independent focused review `90f98978-a205-43b`: approved, no open findings. Approved source SHA: `a96bfe2b6dba6dcbe97f0719e302d972271ce5a8`; integrated without conflicts in merge `8ec0bf34a9ac6b1b05aaf196428cdb024647fb38`.
+- In integration worktree, `nix eval --impure --json --file tests/broad-compositions.nix` passed: all 34 values true. `nix flake check --no-build --no-write-lock-file` passed (exit 0); earlier baseline store-path failure did not recur.
+- Coordinator independently observed minimal consumer with library alias inert without Home Manager/PipeWire; namespace-only popup registration false versus normal adapter true, without Home Manager/PipeWire. These focused observations were coordinator-run, not rerun by serial merger.
+- Source `flake.nix` and `flake.lock` unchanged against planning baseline `799093af9a49abb859b2822a9833ba01f9d19202`; lock SHA-256 remains `6f9c06db3f8a4211e10a99998c20c27c3307d8a4eedd9a69d3fed9b0af2f0e47`. Original checkout snapshot verified unchanged (221 files).
+- Evidence covers evaluation only: no build, runtime, activation, or disk operations. Implementation authorization follows coordinator's approved execution context; all six acceptance criteria fulfilled, ticket resolved after successful integration evaluation.
