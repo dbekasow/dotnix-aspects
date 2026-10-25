@@ -36,10 +36,10 @@
       programs.herdr = {
         enable = true;
         package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
-        # Opinionated defaults — same intent as the tmux aspect: fish is pinned
-        # (users.defaultUserShell), the prefix matches tmux's C-Space. Theme and
-        # scrollback keep herdr's defaults (catppuccin; 10 MB scrollback already
-        # exceeds tmux's 20000-line historyLimit).
+        # Opinionated defaults — fish is pinned independently of account login
+        # shell, and the prefix matches tmux's C-Space. Theme and scrollback keep
+        # herdr's defaults (catppuccin; 10 MB scrollback already exceeds tmux's
+        # 20000-line historyLimit).
         settings = {
           terminal.default_shell = lib.mkDefault (lib.getExe pkgs.fish);
           keys.prefix = lib.mkDefault "ctrl+space";

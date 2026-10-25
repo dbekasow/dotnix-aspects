@@ -16,9 +16,8 @@
         programs.tmux = {
           enable = true;
 
-          # fish is users.defaultUserShell — pin it instead of inheriting whatever
-          # $SHELL the greeter happened to export.
-          shell = lib.getExe pkgs.fish;
+          # Keep tmux's command shell on fish regardless of account login shell.
+          shell = lib.mkDefault (lib.getExe pkgs.fish);
 
           # Load tmux-sensible first so everything below can still override it.
           sensibleOnTop = true;
