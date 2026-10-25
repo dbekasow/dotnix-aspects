@@ -7,8 +7,9 @@ let
   system = "x86_64-linux";
   # Markers prove resource presence only; contents are not usable keys, certificates, or images. This suite evaluates gates only and never builds or activates these fake resource configs.
   resourceTree = (import nixpkgs { inherit system; }).runCommand "consumer-resources" { } ''
-    mkdir -p $out/modules/hosts/fixture/secrets $out/modules/hosts/fixture/certificates $out/modules/users/fixture/secrets $out/modules/users/fixture/assets
+    mkdir -p $out/modules/hosts/fixture/secrets $out/modules/hosts/fixture/certificates $out/modules/users/fixture/secrets $out/modules/users/fixture/assets $out/password-vault
     printf 'public fixture marker\\n' > $out/modules/hosts/fixture/secrets/ssh_host_ed25519_key.pub
+    printf 'public fixture marker\\n' > $out/password-vault/ssh_host_ed25519_key.pub
     printf 'public fixture marker\\n' > $out/modules/users/fixture/secrets/home-key.pub
     printf 'certificate presence marker\\n' > $out/modules/hosts/fixture/certificates/fixture.crt
     printf 'ignored presence marker\\n' > $out/modules/hosts/fixture/certificates/ignored.txt
@@ -100,13 +101,30 @@ let
   populatedResources = evaluate {
     consumerSelf = populatedSelf;
     hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms stylix certificates ];
-    userIncludes = with dotnix; [ age-rekey stylix ];
+    userClasses = [ "user" "homeManager" ];
+    userIncludes = with dotnix; [ account.passwords age-rekey stylix ];
     hostModule.users.users.fixture.home = "/home/fixture";
   };
   emptyResources = evaluate {
     hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms stylix certificates ];
     userIncludes = with dotnix; [ age-rekey stylix ];
     hostModule.users.users.fixture.home = "/home/fixture";
+  };
+  passwordsWithoutVault = evaluate {
+    hostIncludes = with dotnix; [ age age-rekey ];
+    userClasses = [ "user" ];
+    userIncludes = [ dotnix.account.passwords ];
+  };
+  passwordsWithOverriddenSecretsDir = evaluate {
+    consumerSelf = source;
+    hostIncludes = with dotnix; [ age age-rekey ];
+    userClasses = [ "user" ];
+    userIncludes = [ dotnix.account.passwords ];
+    hostModule.age.rekey.secretsDir = lib.mkForce "${resourceTree}/password-vault";
+  };
+  coreOnly = evaluate {
+    hostIncludes = [ dotnix.core ];
+    userClasses = [ "user" ];
   };
   accountOnly = evaluate {
     userClasses = [ "user" ];
@@ -295,6 +313,9 @@ let
       && populatedResources.home-manager.users.fixture.age.rekey.secretsDir == "${resourceTree}/modules/users/fixture/secrets"
       && populatedResources.home-manager.users.fixture.age.rekey.hostPubkey != ""
       && populatedResources.age.secrets ? "home-identity-fixture"
+      && populatedResources.age.secrets ? "password-fixture"
+      && populatedResources.users.users.fixture.hashedPasswordFile == populatedResources.age.secrets."password-fixture-hashed".path
+      && !populatedResources.users.mutableUsers
       && populatedResources.security.pam.u2f.enable
       && populatedResources.security.pam.u2f.settings.authfile == populatedResources.age.secrets.u2f.path
       && populatedResources.programs.dank-material-shell.lockscreen.securityKey.enable
@@ -305,6 +326,7 @@ let
       emptyResources.age.secrets == { }
       && emptyResources.users.users.fixture.hashedPasswordFile == null
       && emptyResources.users.mutableUsers
+      && !(emptyResources.age.secrets ? "password-fixture")
       && !(emptyResources.security.pam.u2f.enable or false)
       && !(emptyResources.programs.dank-material-shell.lockscreen.securityKey.enable or false)
       && emptyResources.age.rekey.hostPubkey == ""
@@ -323,6 +345,21 @@ let
     accountSelectionSupportsHomeManagerAndOverrides =
       accountWithHomeManager.users.users.fixture.isNormalUser == false
       && accountWithHomeManager.home-manager.users.fixture.home.username == "fixture";
+    selectedPasswordRecipeStaysMutableWithoutVault =
+      passwordsWithoutVault.users.mutableUsers
+      && passwordsWithoutVault.users.users.fixture.hashedPasswordFile == null
+      && !(passwordsWithoutVault.age.secrets ? "password-fixture")
+      && !(passwordsWithoutVault.age.secrets ? "password-fixture-hashed");
+    passwordRecipeUsesNativeSecretsDirOverride =
+      passwordsWithOverriddenSecretsDir.age.rekey.secretsDir == "${resourceTree}/password-vault"
+      && passwordsWithOverriddenSecretsDir.age.secrets ? "password-fixture"
+      && passwordsWithOverriddenSecretsDir.users.users.fixture.hashedPasswordFile == passwordsWithOverriddenSecretsDir.age.secrets."password-fixture-hashed".path
+      && !passwordsWithOverriddenSecretsDir.users.mutableUsers;
+    coreDoesNotSelectPasswordRecipe =
+      coreOnly.users.mutableUsers
+      && coreOnly.users.users.fixture.hashedPasswordFile == null
+      && !(coreOnly.age.secrets ? "password-fixture")
+      && !(coreOnly.age.secrets ? "password-fixture-hashed");
     workstationHasSelectedRootAndBootloader =
       workstation.fileSystems."/".fsType == "btrfs" && workstation.boot.loader.systemd-boot.enable;
     workstationHasCoreSystemDesktopDevelopment =
