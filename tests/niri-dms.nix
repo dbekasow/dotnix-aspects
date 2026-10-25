@@ -11,6 +11,7 @@ let
     , userIncludes ? [ ]
     , hostModule ? { }
     , userModule ? { }
+    , niriOverlay ? true
     ,
     }:
     let
@@ -26,7 +27,7 @@ let
             inputs.nixpkgs.lib.nixosSystem (args // {
               pkgs = import inputs.nixpkgs {
                 inherit system;
-                overlays = [ inputs.niri.overlays.niri ];
+                overlays = lib.optional niriOverlay inputs.niri.overlays.niri;
               };
             });
         };
@@ -35,7 +36,7 @@ let
           nixos = {
             system.stateVersion = "25.11";
             nixpkgs.hostPlatform = system;
-            nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+            nixpkgs.overlays = lib.optional niriOverlay inputs.niri.overlays.niri;
             home-manager.useGlobalPkgs = true;
             users.users.fixture = {
               isNormalUser = true;
@@ -61,21 +62,28 @@ let
     };
 
   niriOnly = evaluate {
-    hostIncludes = with dotnix; [ niri ];
-    userIncludes = with dotnix; [ niri ];
+    hostIncludes = with dotnix; [ host.niri ];
+    userIncludes = with dotnix; [ home.niri ];
+  };
+  userNiriOnly = evaluate {
+    userIncludes = with dotnix; [ home.niri ];
+  };
+  overlayFreeHomeNiri = evaluate {
+    userIncludes = [ dotnix.home.niri ];
+    niriOverlay = false;
   };
   niriDisabled = evaluate {
-    hostIncludes = with dotnix; [ niri ];
-    userIncludes = with dotnix; [ niri ];
+    hostIncludes = with dotnix; [ host.niri ];
+    userIncludes = with dotnix; [ home.niri ];
     hostModule = { programs.niri.enable = lib.mkForce false; };
   };
   niriDms = evaluate {
-    hostIncludes = with dotnix; [ niri dms ];
-    userIncludes = with dotnix; [ niri dms ];
+    hostIncludes = with dotnix; [ host.niri dms ];
+    userIncludes = with dotnix; [ home.niri dms ];
   };
   niriNoctalia = evaluate {
-    hostIncludes = with dotnix; [ niri ];
-    userIncludes = with dotnix; [ niri noctalia ];
+    hostIncludes = with dotnix; [ host.niri ];
+    userIncludes = with dotnix; [ home.niri noctalia ];
   };
   standaloneHome =
     let
@@ -89,7 +97,7 @@ let
           inherit system;
           overlays = [ inputs.niri.overlays.niri ];
         };
-        den.aspects.fixture.includes = with dotnix; [ niri ];
+        den.aspects.fixture.includes = with dotnix; [ home.niri ];
         den.aspects.fixture.homeManager = { specialArgs, ... }: {
           home.username = "fixture";
           home.homeDirectory = "/home/fixture";
@@ -108,7 +116,7 @@ let
     { home = flake.homeConfigurations.fixture.config; };
   niriOnlyHome = standaloneHome;
   niriNoctaliaHome = evaluate {
-    userIncludes = with dotnix; [ niri noctalia ];
+    userIncludes = with dotnix; [ home.niri noctalia ];
   };
   noctaliaOnlyHome = evaluate {
     userIncludes = with dotnix; [ noctalia ];
@@ -117,7 +125,7 @@ let
     userIncludes = with dotnix; [ handy ];
   };
   handyNiriHome = evaluate {
-    userIncludes = with dotnix; [ niri handy ];
+    userIncludes = with dotnix; [ home.niri handy ];
   };
   desktopShellHome = evaluate {
     userIncludes = with dotnix; [ desktop-shell gpg-agent rbw ];
@@ -130,7 +138,7 @@ let
     };
   };
   dmsHome = evaluate {
-    userIncludes = with dotnix; [ niri dms ];
+    userIncludes = with dotnix; [ home.niri dms ];
   };
   multiUser =
     let
@@ -154,7 +162,7 @@ let
             });
         };
         den.aspects.fixture = {
-          includes = with dotnix; [ niri dms ];
+          includes = with dotnix; [ host.niri dms ];
           nixos = {
             system.stateVersion = "25.11";
             nixpkgs.hostPlatform = system;
@@ -167,7 +175,7 @@ let
           };
           provides = {
             alice = {
-              includes = with dotnix; [ niri dms ];
+              includes = with dotnix; [ home.niri dms ];
               homeManager = {
                 home.username = "alice";
                 home.homeDirectory = "/home/alice";
@@ -175,7 +183,7 @@ let
               };
             };
             bob = {
-              includes = with dotnix; [ niri noctalia ];
+              includes = with dotnix; [ home.niri noctalia ];
               homeManager = {
                 home.username = "bob";
                 home.homeDirectory = "/home/bob";
@@ -194,7 +202,7 @@ let
       bob = config.home-manager.users.bob;
     };
   bothShells = evaluate {
-    userIncludes = with dotnix; [ niri dms noctalia ];
+    userIncludes = with dotnix; [ home.niri dms noctalia ];
   };
   sameTargetConflict = builtins.tryEval bothShells.home.home.activationPackage.drvPath;
 
@@ -204,6 +212,7 @@ let
     integratedNiriDmsFinalConfig = niriDms.home.programs.niri.finalConfig != null;
     integratedNiriPackagePropagated =
       niriOnly.home.programs.niri.package.outPath == niriOnly.config.programs.niri.package.outPath;
+    disabledHostCanOverrideNiri = !niriDisabled.config.programs.niri.enable;
     disabledProviderFinalConfig = niriDisabled.home.programs.niri.finalConfig != null;
     disabledProviderPackagePropagated =
       niriDisabled.home.programs.niri.package.outPath == niriDisabled.config.programs.niri.package.outPath;
@@ -222,6 +231,8 @@ let
     dmsHostRuntimeIsDisabled = !(multiUser.config.systemd.user.services.dms.enable or false);
     aliceDmsServiceExists = multiUser.alice.systemd.user.services ? dms;
     bobDmsServiceIsAbsent = !(multiUser.bob.systemd.user.services ? dms);
+    aliceDoesNotGetNoctaliaRuntime = !(multiUser.alice.programs.noctalia.enable or false);
+    bobNoctaliaServiceEnabled = multiUser.bob.programs.noctalia.systemd.enable;
     dmsUserDoesNotRunNiriPolkitAgent =
       !(builtins.elem "niri.service" (multiUser.alice.systemd.user.services.niri-flake-polkit.Install.WantedBy or [ ]));
     noctaliaUserGetsAuthentication =
@@ -237,6 +248,11 @@ let
         !assertion.assertion
         && assertion.message == "DMS and Noctalia cannot both be selected for the same Home Manager target.")
       bothShells.home.assertions;
+    userNiriSelectionDoesNotEnableHost = !(userNiriOnly.config.programs.niri.enable or false);
+    homeNiriWorksWithoutHostOverlay =
+      !(overlayFreeHomeNiri.config.programs.niri.enable or false)
+      && overlayFreeHomeNiri.home.programs.niri.finalConfig != null
+      && builtins.hasAttr "Mod+Q" overlayFreeHomeNiri.home.programs.niri.settings.binds;
     niriOnlyHasGeneralBinding = builtins.hasAttr "Mod+Q" niriOnlyHome.home.programs.niri.settings.binds;
     niriOnlyHasNoDmsBinding = !(builtins.hasAttr "Mod+Space" niriOnlyHome.home.programs.niri.settings.binds);
     niriOnlyHasNoHandyBindings =
@@ -261,6 +277,7 @@ let
       && desktopShellOverrideHome.home.programs.rbw.settings.pinentry
       == lib.getExe nixpkgs.legacyPackages.${system}.pinentry-curses;
     desktopShellIncludesClipboard = builtins.elem nixpkgs.legacyPackages.${system}.wl-clipboard desktopShellHome.home.home.packages;
+    desktopShellDoesNotSelectNiri = !(desktopShellHome.home.programs ? niri);
     dmsHasIpcBinding =
       dmsHome.home.programs.niri.settings.binds."Mod+Space".action.spawn == [
         "dms"

@@ -2,7 +2,6 @@ _: {
   dotnix.dms.homeManager = { config, lib, ... }: {
     # DMS provides its own Polkit agent; do not also start Niri's per-user one.
     systemd.user.services.niri-flake-polkit.Install.WantedBy = lib.mkForce [ ];
-
     programs.niri.settings.binds =
       with config.lib.niri.actions;
       let

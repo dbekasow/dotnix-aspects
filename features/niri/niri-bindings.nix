@@ -1,5 +1,5 @@
 {
-  dotnix.niri.homeManager = { config, ... }: {
+  dotnix.home.niri.homeManager = { config, ... }: {
     programs.niri.settings.binds = with config.lib.niri.actions; {
       # ── Hotkey overlay ─────────────────────────────────────────
       "Mod+Shift+Slash".action = show-hotkey-overlay;

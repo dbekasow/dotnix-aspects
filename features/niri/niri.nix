@@ -5,7 +5,7 @@
     # Only niri-unstable is used, so the stable lane shares unstable pin.
     inputs.nixpkgs-stable.follows = "nixpkgs";
   };
-  dotnix.niri.nixos = { lib, pkgs, ... }: {
+  dotnix.host.niri.nixos = { lib, pkgs, ... }: {
     imports = [ inputs.niri.nixosModules.niri ];
 
     nix.settings = {
@@ -23,7 +23,7 @@
     systemd.user.services.niri-flake-polkit.enable = lib.mkDefault false;
   };
 
-  dotnix.niri.homeManager =
+  dotnix.home.niri.homeManager =
     { lib
     , specialArgs
     , pkgs
@@ -49,7 +49,10 @@
       };
 
       programs.niri.settings = {
-        xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite-unstable;
+        xwayland-satellite.path = lib.getExe (
+          pkgs.xwayland-satellite-unstable
+            or inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-unstable
+        );
         hotkey-overlay.skip-at-startup = true;
 
         # niri's default ~/Pictures (capital P) collides with the persisted
@@ -101,7 +104,7 @@
     };
 
   # Impermanence contribution for niri.
-  dotnix.niri.homePersistence = {
+  dotnix.home.niri.homePersistence = {
     home.persistence."/persist".directories = [ ".cache/mesa_shader_cache" ];
   };
 }

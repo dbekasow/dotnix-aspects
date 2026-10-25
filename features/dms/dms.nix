@@ -9,7 +9,7 @@ in
     url = "github:AvengeMedia/DankMaterialShell";
     inputs.nixpkgs.follows = "nixpkgs";
   };
-  dotnix.dms = { ... }: {
+  dotnix.dms = _: {
     nixos =
       { lib
       , pkgs
