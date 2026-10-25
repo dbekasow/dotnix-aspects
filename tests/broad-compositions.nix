@@ -32,6 +32,8 @@ let
     , userIncludes ? [ ]
     , hostModule ? { }
     , userModule ? { }
+    , accountModule ? { }
+    , userClasses ? [ "homeManager" ]
     , withUser ? true
     , extraUsers ? { }
     , disablePersistenceRouting ? false
@@ -53,7 +55,7 @@ let
         den.hosts.${system} = {
           fixture = {
             users = (lib.optionalAttrs withUser {
-              fixture.classes = [ "homeManager" ];
+              fixture.classes = userClasses;
             }) // extraUsers;
             inherit instantiate;
           };
@@ -68,6 +70,7 @@ let
             provides = {
               fixture = {
                 includes = userIncludes;
+                user = accountModule;
                 homeManager = {
                   home.username = "fixture";
                   home.homeDirectory = "/home/fixture";
@@ -129,6 +132,51 @@ let
     ];
     userIncludes = with dotnix; [ desktop development noctalia ];
     hostModule = { disko.devices.disk.main.device = "/dev/vda"; };
+  };
+  fishHomeOnly = evaluate {
+    userIncludes = [ dotnix.home.fish ];
+  };
+  nushellHomeOnly = evaluate {
+    userIncludes = [ dotnix.home.nushell ];
+  };
+  fishHostOnly = evaluate {
+    hostIncludes = [ dotnix.host.fish ];
+  };
+  nushellHostOnly = evaluate {
+    hostIncludes = [ dotnix.host.nushell ];
+  };
+  fishAccountOnly = evaluate {
+    userClasses = [ "user" ];
+    userIncludes = [ dotnix.account.fish ];
+    extraUsers.unrelated.classes = [ "user" ];
+  };
+  nushellAccountOnly = evaluate {
+    userClasses = [ "user" ];
+    userIncludes = [ dotnix.account.nushell ];
+    extraUsers.unrelated.classes = [ "user" ];
+  };
+  hostShellWithOneAccount = evaluate {
+    hostIncludes = [ dotnix.host.fish dotnix.host.nushell ];
+    userClasses = [ "user" ];
+    userIncludes = [ dotnix.account.fish ];
+    extraUsers.unrelated.classes = [ "user" ];
+  };
+  shellHomeProfileOnly = evaluate {
+    userIncludes = [ dotnix.term-shell ];
+  };
+  terminalShellAndUx = evaluate {
+    userIncludes = [ dotnix.term-shell dotnix.term-ux ];
+  };
+  shellUxOnly = evaluate {
+    userIncludes = with dotnix; [ atuin carapace starship fzf skim zoxide ];
+    userModule.programs.starship.settings.add_newline = lib.mkForce true;
+  };
+  shellNativeOverrides = evaluate {
+    hostIncludes = [ dotnix.host.fish ];
+    userIncludes = [ dotnix.home.fish dotnix.account.fish ];
+    hostModule.programs.fish.enable = false;
+    userModule.programs.fish.enable = false;
+    accountModule.shell = (import nixpkgs { inherit system; }).bashInteractive;
   };
   adapterOnly = evaluate {
     withUser = false;
@@ -398,6 +446,68 @@ let
       && workstation.programs.niri.enable
       && workstation.virtualisation.docker.enable
       && workstation.home-manager.users.fixture.programs.helix.enable;
+    shellHomeSelectionIsIndependent =
+      fishHomeOnly.home-manager.users.fixture.programs.fish.enable
+      && !(fishHomeOnly.programs.fish.enable or false)
+      && (fishHomeOnly.users.users.fixture.shell or null) != fishHomeOnly.programs.fish.package
+      && nushellHomeOnly.home-manager.users.fixture.programs.nushell.enable
+      && !(nushellHomeOnly.programs.nushell.enable or false)
+      && (nushellHomeOnly.users.users.fixture.shell or null) != nushellHomeOnly.programs.nushell.package;
+    shellHostSelectionIsIndependent =
+      fishHostOnly.programs.fish.enable
+      && !(fishHostOnly.home-manager.users.fixture.programs.fish.enable or false)
+      && (fishHostOnly.users.users.fixture.shell or null) != fishHostOnly.programs.fish.package
+      && nushellHostOnly.programs.nushell.enable
+      && !(nushellHostOnly.home-manager.users.fixture.programs.nushell.enable or false)
+      && (nushellHostOnly.users.users.fixture.shell or null) != nushellHostOnly.programs.nushell.package;
+    accountShellSelectionIsExplicitAndTargeted =
+      fishAccountOnly.users.users.fixture.shell == fishAccountOnly.programs.fish.package
+      && (fishAccountOnly.users.users.unrelated.shell or null) != fishAccountOnly.programs.fish.package
+      && !(fishAccountOnly.home-manager.users.fixture.programs.fish.enable or false)
+      && !(fishAccountOnly.programs.fish.enable or false)
+      && nushellAccountOnly.users.users.fixture.shell == nushellAccountOnly.programs.nushell.package
+      && (nushellAccountOnly.users.users.unrelated.shell or null) != nushellAccountOnly.programs.nushell.package
+      && !(nushellAccountOnly.home-manager.users.fixture.programs.nushell.enable or false)
+      && !(nushellAccountOnly.programs.nushell.enable or false)
+      && hostShellWithOneAccount.programs.fish.enable
+      && hostShellWithOneAccount.programs.nushell.enable
+      && hostShellWithOneAccount.users.users.fixture.shell == hostShellWithOneAccount.programs.fish.package
+      && (hostShellWithOneAccount.users.users.unrelated.shell or null) != hostShellWithOneAccount.programs.fish.package
+      && (hostShellWithOneAccount.users.users.unrelated.shell or null) != hostShellWithOneAccount.programs.nushell.package;
+    shellHomeProfileAndUxRemainIndependent =
+      shellHomeProfileOnly.home-manager.users.fixture.programs.fish.enable
+      && shellHomeProfileOnly.home-manager.users.fixture.programs.nushell.enable
+      && !(shellHomeProfileOnly.home-manager.users.fixture.programs.atuin.enable or false)
+      && !(shellHomeProfileOnly.home-manager.users.fixture.programs.carapace.enable or false)
+      && !(shellHomeProfileOnly.home-manager.users.fixture.programs.starship.enable or false)
+      && !(shellHomeProfileOnly.home-manager.users.fixture.programs.fzf.enable or false)
+      && !(shellHomeProfileOnly.home-manager.users.fixture.programs.skim.enable or false)
+      && !(shellHomeProfileOnly.home-manager.users.fixture.programs.zoxide.enable or false)
+      && !(shellHomeProfileOnly.home-manager.users.fixture.programs.tmux.enable or false)
+      && !(shellHomeProfileOnly.home-manager.users.fixture.programs.herdr.enable or false)
+      && !(shellHomeProfileOnly ? age)
+      && !(shellHomeProfileOnly.home-manager.users.fixture ? age)
+      && terminalShellAndUx.home-manager.users.fixture.programs.fish.enable
+      && terminalShellAndUx.home-manager.users.fixture.programs.nushell.enable
+      && terminalShellAndUx.home-manager.users.fixture.programs.atuin.enable
+      && terminalShellAndUx.home-manager.users.fixture.programs.carapace.enable
+      && terminalShellAndUx.home-manager.users.fixture.programs.starship.enable
+      && terminalShellAndUx.home-manager.users.fixture.programs.fzf.enable
+      && terminalShellAndUx.home-manager.users.fixture.programs.skim.enable
+      && terminalShellAndUx.home-manager.users.fixture.programs.zoxide.enable
+      && shellUxOnly.home-manager.users.fixture.programs.atuin.enable
+      && shellUxOnly.home-manager.users.fixture.programs.carapace.enable
+      && shellUxOnly.home-manager.users.fixture.programs.starship.enable
+      && shellUxOnly.home-manager.users.fixture.programs.fzf.enable
+      && shellUxOnly.home-manager.users.fixture.programs.skim.enable
+      && shellUxOnly.home-manager.users.fixture.programs.zoxide.enable
+      && shellUxOnly.home-manager.users.fixture.programs.starship.settings.add_newline
+      && !(shellUxOnly.home-manager.users.fixture.programs.fish.enable or false)
+      && !(shellUxOnly.home-manager.users.fixture.programs.nushell.enable or false);
+    shellNativeDefaultsRemainOverridable =
+      !(shellNativeOverrides.programs.fish.enable or false)
+      && !(shellNativeOverrides.home-manager.users.fixture.programs.fish.enable or false)
+      && shellNativeOverrides.users.users.fixture.shell == (import nixpkgs { inherit system; }).bashInteractive;
     socketDoesNotSelectShellOrGreeter =
       !(socketOnly.programs.dank-material-shell.enable or false)
       && !(socketOnly.programs.dms-greeter.enable or false)
