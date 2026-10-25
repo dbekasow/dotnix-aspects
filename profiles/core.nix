@@ -16,7 +16,6 @@
       ssh
       stylix
       host.system-packages
-      users
     ];
   };
 
