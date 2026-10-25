@@ -125,11 +125,14 @@
         sessionVariables.DICPATH = lib.concatMapStringsSep ":" (d: "${d}/share/hunspell") dicts;
       };
 
+  };
+
+  dotnix.firefox.stylix.homeManager = {
     stylix.targets.firefox.profileNames = [ "default" ];
     stylix.targets.firefox.colorTheme.enable = true;
   };
 
-  dotnix.home.niri.homeManager.programs.niri.settings.window-rules = [
+  dotnix.firefox.niri.homeManager.programs.niri.settings.window-rules = [
     {
       # Firefox uses CSDs that break clip-to-geometry — disable the global rule
       matches = [{ app-id = "firefox$"; }];
