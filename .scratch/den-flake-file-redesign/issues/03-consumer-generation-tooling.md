@@ -3,7 +3,7 @@
 **What to build:** Integrate the generator and optional development tooling so consumers can reproducibly bootstrap, evaluate, and regenerate a generated flake. The explicitly selectable Direnv feature uses the library-captured `direnv-instant` dependency. Formatter, hooks, and the development shell retain clear input and implementation ownership and remain outside feature export and the normal consumer adapter.
 
 **Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria
