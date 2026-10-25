@@ -1,30 +1,21 @@
 {
-  # u2f login needs host key material — the whole aspect follows that gate.
-  dotnix.yubikey-pam = { inputs, ... }: {
-    nixos = { host, config, lib, pkgs, ... }:
-      lib.mkIf
-        (lib.pathExists "${inputs.self}/modules/hosts/${host.name}/secrets/ssh_host_ed25519_key.pub")
-        {
-          age.secrets.u2f.generator.script = _: ''
-            printf '# nix shell nixpkgs#pam_u2f -c pamu2fcfg -u $(whoami) -o pam://$(hostname) -i pam://$(hostname)'
-          '';
+  dotnix.host.yubikey-pam.nixos = { lib, pkgs, ... }: {
+    # Consumers supply an authfile through the native
+    # `security.pam.u2f.settings.authfile` option, or use its NixOS default.
+    # This feature does not require agenix-rekey or desktop support.
+    security.pam.u2f = {
+      enable = true;
 
-          # pam.u2f.enable is the global switch: it installs pam_u2f into every
-          # PAM service that doesn't opt out (login, sudo, sshd, polkit) — that
-          # fleet-wide security floor is intended, so no per-service enables.
-          security.pam.u2f = {
-            enable = true;
+      settings = {
+        interactive = lib.mkDefault true;
+        cue = lib.mkDefault true;
+        nouserok = lib.mkDefault true;
+      };
+    };
 
-            settings = {
-              authfile = config.age.secrets.u2f.path;
-              interactive = true;
-              cue = true;
-              nouserok = true;
-            };
-          };
-
-          programs.yubikey-manager.enable = true;
-          environment.systemPackages = with pkgs; [ yubioath-flutter yubikey-manager ];
-        };
+    # pam.u2f.enable installs pam_u2f into PAM services unless opted out.
+    # That host-wide authentication floor is intentional.
+    programs.yubikey-manager.enable = true;
+    environment.systemPackages = with pkgs; [ yubioath-flutter yubikey-manager ];
   };
 }

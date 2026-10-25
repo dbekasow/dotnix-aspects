@@ -128,10 +128,13 @@ let
     userIncludes = with dotnix; [ home.niri handy ];
   };
   desktopShellHome = evaluate {
-    userIncludes = with dotnix; [ desktop-shell gpg-agent rbw ];
+    userIncludes = with dotnix; [ desktop-shell home.gpg-agent-gui home.rbw-gui ];
+  };
+  desktopShellWithoutGuiPinentry = evaluate {
+    userIncludes = with dotnix; [ desktop-shell home.gpg-agent home.rbw ];
   };
   desktopShellOverrideHome = evaluate {
-    userIncludes = with dotnix; [ desktop-shell gpg-agent rbw ];
+    userIncludes = with dotnix; [ desktop-shell home.gpg-agent-gui home.rbw-gui ];
     userModule = {
       services.gpg-agent.pinentry.package = nixpkgs.legacyPackages.${system}.pinentry-curses;
       programs.rbw.settings.pinentry = nixpkgs.legacyPackages.${system}.pinentry-curses;
@@ -140,6 +143,71 @@ let
   dmsHome = evaluate {
     userIncludes = with dotnix; [ home.niri dms ];
   };
+  multiUser =
+    let
+      fixture = {
+        imports = [
+          inputs.den.flakeModule
+          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
+          ({ den, ... }: { den.default.includes = [ den.batteries.flake-scope ]; })
+        ];
+        den.hosts.${system}.fixture = {
+          users = {
+            alice.classes = [ "homeManager" ];
+            bob.classes = [ "homeManager" ];
+          };
+          instantiate = args:
+            inputs.nixpkgs.lib.nixosSystem (args // {
+              pkgs = import inputs.nixpkgs {
+                inherit system;
+                overlays = [ inputs.niri.overlays.niri ];
+              };
+            });
+        };
+        den.aspects.fixture = {
+          includes = with dotnix; [ host.niri dms ];
+          nixos = {
+            system.stateVersion = "25.11";
+            nixpkgs.hostPlatform = system;
+            nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+            home-manager.useGlobalPkgs = true;
+            users.users = {
+              alice = { isNormalUser = true; home = "/home/alice"; };
+              bob = { isNormalUser = true; home = "/home/bob"; };
+            };
+          };
+          provides = {
+            alice = {
+              includes = with dotnix; [ home.niri dms ];
+              homeManager = {
+                home.username = "alice";
+                home.homeDirectory = "/home/alice";
+                home.stateVersion = "25.11";
+              };
+            };
+            bob = {
+              includes = with dotnix; [ home.niri noctalia ];
+              homeManager = {
+                home.username = "bob";
+                home.homeDirectory = "/home/bob";
+                home.stateVersion = "25.11";
+              };
+            };
+          };
+        };
+      };
+      flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } fixture;
+      config = flake.nixosConfigurations.fixture.config;
+    in
+    {
+      inherit config;
+      alice = config.home-manager.users.alice;
+      bob = config.home-manager.users.bob;
+    };
+  bothShells = evaluate {
+    userIncludes = with dotnix; [ home.niri dms noctalia ];
+  };
+  conflictOnly = builtins.getEnv "NIRI_DMS_CONFLICT_ONLY" == "1";
 
   assertions = {
     integratedNiriFinalConfig = niriOnly.home.programs.niri.finalConfig != null;
@@ -154,14 +222,39 @@ let
     disabledProviderActivationPackage = niriDisabled.home.home.activationPackage.drvPath != "";
     standaloneNiriFinalConfig = niriOnlyHome.home.programs.niri.finalConfig != null;
     standaloneNiriActivationPackage = niriOnlyHome.home.home.activationPackage.drvPath != "";
-    niriOnlyPolkitAgent = niriOnly.config.systemd.user.services.niri-flake-polkit.enable;
+    niriHostDoesNotEnableGlobalPolkitAgent = !niriOnly.config.systemd.user.services.niri-flake-polkit.enable;
+    niriHomeSelectsPolkitAgent =
+      builtins.elem "niri.service" niriOnly.home.systemd.user.services.niri-flake-polkit.Install.WantedBy;
+    dmsOwnsPolkitAgent =
+      !niriDms.config.systemd.user.services.niri-flake-polkit.enable
+      && !(builtins.elem "niri.service" (niriDms.home.systemd.user.services.niri-flake-polkit.Install.WantedBy or [ ]));
+    noctaliaLeavesPolkitToNiri =
+      !niriNoctalia.config.systemd.user.services.niri-flake-polkit.enable
+      && builtins.elem "niri.service" niriNoctalia.home.systemd.user.services.niri-flake-polkit.Install.WantedBy;
+    dmsHostRuntimeIsDisabled = !(multiUser.config.systemd.user.services.dms.enable or false);
+    aliceDmsServiceExists = multiUser.alice.systemd.user.services ? dms;
+    bobDmsServiceIsAbsent = !(multiUser.bob.systemd.user.services ? dms);
+    aliceDoesNotGetNoctaliaRuntime = !(multiUser.alice.programs.noctalia.enable or false);
+    bobNoctaliaServiceEnabled = multiUser.bob.programs.noctalia.systemd.enable;
+    dmsUserDoesNotRunNiriPolkitAgent =
+      !(builtins.elem "niri.service" (multiUser.alice.systemd.user.services.niri-flake-polkit.Install.WantedBy or [ ]));
+    noctaliaUserGetsAuthentication =
+      multiUser.config.security.polkit.enable
+      && (multiUser.bob.systemd.user.services ? niri-flake-polkit)
+      && builtins.elem "niri.service" multiUser.bob.systemd.user.services.niri-flake-polkit.Install.WantedBy;
+    noctaliaUserGetsNoDmsRuntime =
+      multiUser.bob.programs.noctalia.enable
+      && !(multiUser.bob.systemd.user.services ? dms);
+    sameTargetShellConflictHasDiagnostic = builtins.any
+      (assertion:
+        !assertion.assertion
+        && assertion.message == "DMS and Noctalia cannot both be selected for the same Home Manager target.")
+      bothShells.home.assertions;
     userNiriSelectionDoesNotEnableHost = !(userNiriOnly.config.programs.niri.enable or false);
     homeNiriWorksWithoutHostOverlay =
       !(overlayFreeHomeNiri.config.programs.niri.enable or false)
       && overlayFreeHomeNiri.home.programs.niri.finalConfig != null
       && builtins.hasAttr "Mod+Q" overlayFreeHomeNiri.home.programs.niri.settings.binds;
-    dmsDoesNotDisablePolkitForAllUsers = niriDms.config.systemd.user.services.niri-flake-polkit.enable;
-    noctaliaLeavesPolkitToNiri = niriNoctalia.config.systemd.user.services.niri-flake-polkit.enable;
     niriOnlyHasGeneralBinding = builtins.hasAttr "Mod+Q" niriOnlyHome.home.programs.niri.settings.binds;
     niriOnlyHasNoDmsBinding = !(builtins.hasAttr "Mod+Space" niriOnlyHome.home.programs.niri.settings.binds);
     niriOnlyHasNoHandyBindings =
@@ -177,10 +270,14 @@ let
         "handy"
         "--cancel"
       ];
-    desktopShellUsesGuiPinentry =
+    featureOwnedGuiPinentrySelection =
       desktopShellHome.home.services.gpg-agent.pinentry.package.pname == "pinentry-gnome3"
       && desktopShellHome.home.programs.rbw.settings.pinentry
       == lib.getExe nixpkgs.legacyPackages.${system}.pinentry-gnome3;
+    desktopShellDoesNotForceGuiPinentry =
+      desktopShellWithoutGuiPinentry.home.services.gpg-agent.pinentry.package.pname == "pinentry-curses"
+      && desktopShellWithoutGuiPinentry.home.programs.rbw.settings.pinentry
+      == lib.getExe nixpkgs.legacyPackages.${system}.pinentry-curses;
     desktopShellPreservesConsumerPinentry =
       desktopShellOverrideHome.home.services.gpg-agent.pinentry.package.pname == "pinentry-curses"
       && desktopShellOverrideHome.home.programs.rbw.settings.pinentry
@@ -242,7 +339,9 @@ let
   };
   failed = builtins.attrNames (lib.filterAttrs (_: passed: !passed) assertions);
 in
-if failed == [ ] then
+if conflictOnly then
+  bothShells.config.system.build.toplevel.drvPath
+else if failed == [ ] then
   assertions
 else
   throw "Niri/DMS fixture failed: ${lib.concatStringsSep ", " failed}"
