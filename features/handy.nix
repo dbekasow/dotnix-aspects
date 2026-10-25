@@ -1,3 +1,4 @@
+{ inputs, ... }:
 {
   dotnix.handy.homeManager =
     { config
@@ -6,47 +7,16 @@
     , pkgs
     , ...
     }:
+    let
+      packages = pkgs.llm-agents or inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+    in
     {
       config = lib.mkMerge [
         {
-          home.packages = with pkgs; [
-            llm-agents.handy
-            wtype
+          home.packages = [
+            packages.handy
+            pkgs.wtype
           ];
-
-          # Handy needs to be running so the compositor keybind below can reach
-          # the instance via Handy's single-instance plugin.
-          systemd.user.services.handy = {
-            Unit = {
-              Description = "Handy speech-to-text";
-              PartOf = [ "graphical-session.target" ];
-              After = [ "graphical-session.target" ];
-              # Without a start limit, a crash loop restarts every RestartSec forever.
-              StartLimitIntervalSec = 60;
-              StartLimitBurst = 5;
-            };
-            Service = {
-              # nixpkgs' handy drifts against llm-agents; the single-instance
-              # socket requires one binary.
-              ExecStart = "${lib.getExe pkgs.llm-agents.handy} --start-hidden";
-              # Handy shells out to wtype/wl-copy for pasting — pin the path here
-              # instead of relying on the imported session PATH.
-              Environment = [
-                "PATH=${
-                  lib.makeBinPath (
-                    with pkgs;
-                    [
-                      wtype
-                      wl-clipboard
-                    ]
-                  )
-                }"
-              ];
-              Restart = "on-failure";
-              RestartSec = 5;
-            };
-            Install.WantedBy = [ "graphical-session.target" ];
-          };
         }
         (lib.optionalAttrs (options.programs ? niri) {
           # Wayland doesn't let apps grab global keys, so the binding belongs to niri.
@@ -56,6 +26,46 @@
           };
         })
       ];
+    };
+
+  # Opt-in backend process; selecting the Handy desktop integration alone does not start it.
+  dotnix.handy-service.homeManager =
+    { lib, pkgs, ... }:
+    let
+      packages = pkgs.llm-agents or inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+    in
+    {
+      systemd.user.services.handy = {
+        Unit = {
+          Description = "Handy speech-to-text";
+          PartOf = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
+          # Without a start limit, a crash loop restarts every RestartSec forever.
+          StartLimitIntervalSec = 60;
+          StartLimitBurst = 5;
+        };
+        Service = {
+          # nixpkgs' handy drifts against llm-agents; the single-instance
+          # socket requires one binary.
+          ExecStart = "${lib.getExe packages.handy} --start-hidden";
+          # Handy shells out to wtype/wl-copy for pasting — pin the path here
+          # instead of relying on the imported session PATH.
+          Environment = [
+            "PATH=${
+              lib.makeBinPath (
+                with pkgs;
+                [
+                  wtype
+                  wl-clipboard
+                ]
+              )
+            }"
+          ];
+          Restart = "on-failure";
+          RestartSec = 5;
+        };
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
     };
 
   # Impermanence contribution for handy.
