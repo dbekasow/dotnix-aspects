@@ -1,10 +1,98 @@
 #!/usr/bin/env bash
+# Usage: bash tests/consumer-generation.sh /path/to/existing-empty-directory
 set -euo pipefail
 
-repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-tmp="$(mktemp -d "${TMPDIR:-/tmp}/dotnix-consumer-generation.XXXXXX")"
+usage() {
+  printf 'Usage: %s EXISTING_EMPTY_DIRECTORY\n' "${0##*/}" >&2
+}
+
+if [[ $# -ne 1 ]]; then
+  usage
+  exit 2
+fi
+if [[ -z $1 ]]; then
+  usage
+  exit 2
+fi
+
+normalize_path() {
+  local path="$1"
+  local component
+  local -a components=() stack=()
+  [[ $path == /* ]] || path="$PWD/$path"
+  IFS=/ read -r -a components <<<"$path"
+  for component in "${components[@]}"; do
+    case "$component" in
+    "" | .) ;;
+    ..)
+      if ((${#stack[@]} > 0)); then
+        unset "stack[$((${#stack[@]} - 1))]"
+      fi
+      ;;
+    *) stack+=("$component") ;;
+    esac
+  done
+
+  local normalized="/"
+  for component in "${stack[@]}"; do
+    if [[ $normalized == / ]]; then
+      normalized+="$component"
+    else
+      normalized+="/$component"
+    fi
+  done
+  printf '%s\n' "$normalized"
+}
+
+within_or_equal() {
+  [[ $1 == "$2" || $1 == "$2/"* ]]
+}
+
+refuse() {
+  printf 'Refusing consumer generation destination: %s\n' "$1" >&2
+  exit 1
+}
+
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+destination="$(normalize_path "$1")"
+home="$(normalize_path "${HOME:?HOME must be set}")"
+original="/home/denis/projects/dotnix-aspects"
+private="/home/denis/projects/dotnix"
+
+[[ $destination != / ]] || refuse 'filesystem root is not a suitable destination'
+for protected in "$repo" "$home" "$original" "$private"; do
+  if within_or_equal "$destination" "$protected" || within_or_equal "$protected" "$destination"; then
+    refuse "destination overlaps protected path '$protected'"
+  fi
+done
+
+current="/"
+IFS=/ read -r -a components <<<"$destination"
+for component in "${components[@]}"; do
+  [[ -n $component ]] || continue
+  if [[ $current == / ]]; then
+    current+="$component"
+  else
+    current+="/$component"
+  fi
+  [[ ! -L $current ]] || refuse "destination path contains symlink '$current'"
+done
+[[ -d $destination ]] || refuse "destination must be an existing directory: $destination"
+destination="$(cd "$destination" && pwd -P)"
+for protected in "$repo" "$home" "$original" "$private"; do
+  if within_or_equal "$destination" "$protected" || within_or_equal "$protected" "$destination"; then
+    refuse "destination overlaps protected path '$protected'"
+  fi
+done
+
+shopt -s dotglob nullglob
+contents=("$destination"/*)
+shopt -u dotglob nullglob
+((${#contents[@]} == 0)) || refuse "destination must be empty: $destination"
+
+tmp="$(mktemp -d "$destination/.dotnix-consumer-generation.XXXXXX")"
 consumer="$tmp/consumer"
-trap 'rm -rf "$tmp"' EXIT
+trap 'rm -rf -- "$tmp"' EXIT
 
 cd "$repo"
 nix flake new "$consumer" --template "path:$repo#default"
