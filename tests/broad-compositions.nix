@@ -103,13 +103,13 @@ let
 
   populatedResources = evaluate {
     consumerSelf = populatedSelf;
-    hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms host.stylix certificates ];
+    hostIncludes = with dotnix; [ age age-rekey yubikey-pam host.niri desktop-shell dms host.stylix certificates ];
     userClasses = [ "user" "homeManager" ];
     userIncludes = with dotnix; [ account.passwords age-rekey dotnix.home.stylix ];
     hostModule.users.users.fixture.home = "/home/fixture";
   };
   emptyResources = evaluate {
-    hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms host.stylix certificates ];
+    hostIncludes = with dotnix; [ age age-rekey yubikey-pam host.niri desktop-shell dms host.stylix certificates ];
     userIncludes = with dotnix; [ age-rekey dotnix.home.stylix ];
     hostModule.users.users.fixture.home = "/home/fixture";
   };
@@ -163,6 +163,7 @@ let
   workstation = evaluate {
     hostIncludes = with dotnix; [
       core
+      host.niri
       base
       host.boot-systemd
       host.performance
@@ -182,7 +183,7 @@ let
       desktop
       development
     ];
-    userIncludes = with dotnix; [ desktop development noctalia ];
+    userIncludes = with dotnix; [ dotnix.home.niri desktop development noctalia ];
     hostModule = { disko.devices.disk.main.device = "/dev/vda"; };
   };
   fishHomeOnly = evaluate {
@@ -269,15 +270,29 @@ let
     hostIncludes = with dotnix; [ desktop-shell ];
     withUser = false;
   };
+  niriHostOnly = evaluate {
+    hostIncludes = [ dotnix.host.niri ];
+    withUser = false;
+    otherHost = true;
+  };
+  niriHomeOnly = evaluate {
+    userIncludes = [ dotnix.home.niri ];
+    otherHost = true;
+    extraUsers.unrelated.classes = [ "homeManager" ];
+  };
+  graphicalBaseWithoutShell = evaluate {
+    hostIncludes = with dotnix; [ fonts gnome-services thunar xdg-portals ];
+    userIncludes = with dotnix; [ xdg clipboard ];
+  };
   dmsSelected = evaluate {
-    hostIncludes = with dotnix; [ desktop-shell dms dms-greeter ];
-    userIncludes = with dotnix; [ dms ];
+    hostIncludes = with dotnix; [ host.niri desktop-shell dms dms-greeter ];
+    userIncludes = with dotnix; [ dotnix.home.niri dms ];
     hostModule = {
       users.users.fixture.home = "/home/fixture";
     };
   };
   noctaliaSelected = evaluate {
-    hostIncludes = with dotnix; [ desktop-shell noctalia-greeter ];
+    hostIncludes = with dotnix; [ host.niri desktop-shell noctalia-greeter ];
     withUser = false;
   };
   home = evaluate {
@@ -287,7 +302,7 @@ let
   };
   homeWithNiri = evaluate {
     hostIncludes = with dotnix; [ host.persistence ];
-    userIncludes = with dotnix; [ dotnix.home.persistence desktop-shell noctalia ];
+    userIncludes = with dotnix; [ dotnix.home.persistence dotnix.home.niri desktop-shell noctalia ];
     withUser = true;
   };
   persistenceOnly = evaluate {
@@ -698,11 +713,32 @@ let
       && hostGitOnly.programs.git.enable
       && hostGitOnly.programs.git.lfs.enable;
     socketDoesNotSelectShellOrGreeter =
-      !(socketOnly.programs.dank-material-shell.enable or false)
+      !(socketOnly.programs.niri.enable or false)
+      && !(socketOnly.programs.dank-material-shell.enable or false)
       && !(socketOnly.programs.dms-greeter.enable or false)
       && !(socketOnly.services.displayManager.noctalia-greeter.enable or false)
       && !(socketOnly.stylix.enable or false)
       && !(socketOnly.home-manager.users.fixture.stylix.enable or false);
+    niriHostSelectionWorksWithoutHomeManager =
+      niriHostOnly.selected.programs.niri.enable
+      && !(builtins.hasAttr "home-manager" niriHostOnly.selected)
+      && !(niriHostOnly.unselected.programs.niri.enable or false);
+    niriHomeSelectionStaysOnSelectedUser =
+      builtins.hasAttr "Mod+Q" niriHomeOnly.selected.home-manager.users.fixture.programs.niri.settings.binds
+      && !(niriHomeOnly.selected.programs.niri.enable or false)
+      && !(niriHomeOnly.selected.home-manager.users.unrelated.programs ? niri)
+      && !(niriHomeOnly.unselected.programs.niri.enable or false);
+    graphicalBaseIsAvailableWithoutShell =
+      graphicalBaseWithoutShell.fonts.fontconfig.enable
+      && builtins.elem nixpkgs.legacyPackages.${system}.material-symbols graphicalBaseWithoutShell.fonts.packages
+      && graphicalBaseWithoutShell.services.gnome.gnome-keyring.enable
+      && graphicalBaseWithoutShell.xdg.portal.enable
+      && graphicalBaseWithoutShell.programs.thunar.enable
+      && !(graphicalBaseWithoutShell.programs.niri.enable or false)
+      && !(graphicalBaseWithoutShell.programs.dank-material-shell.enable or false)
+      && !(graphicalBaseWithoutShell.home-manager.users.fixture.programs.noctalia.enable or false)
+      && graphicalBaseWithoutShell.home-manager.users.fixture.xdg.userDirs.enable
+      && builtins.elem nixpkgs.legacyPackages.${system}.wl-clipboard graphicalBaseWithoutShell.home-manager.users.fixture.home.packages;
     dmsShellAndGreeterExplicitlySelected =
       dmsSelected.programs.dank-material-shell.enable
       && dmsSelected.programs.dms-greeter.enable

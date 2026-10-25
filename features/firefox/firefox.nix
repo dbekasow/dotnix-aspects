@@ -137,7 +137,7 @@
       })
     ];
 
-  dotnix.niri.homeManager.programs.niri.settings.window-rules = [
+  dotnix.home.niri.homeManager.programs.niri.settings.window-rules = [
     {
       # Firefox uses CSDs that break clip-to-geometry — disable the global rule
       matches = [{ app-id = "firefox$"; }];
