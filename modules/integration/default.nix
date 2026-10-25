@@ -1,6 +1,7 @@
+library:
 { den, inputs, ... }:
 let
-  namespace = inputs.den.namespace "dotnix" [ inputs.dotnix true ];
+  namespace = inputs.den.namespace "dotnix" [ library true ];
 in
 {
   imports = [

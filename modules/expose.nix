@@ -8,7 +8,7 @@ let
     (i: i.files)
   ];
 
-  consumerAdapter = ./integration/default.nix;
+  consumerAdapter = (import ./integration/default.nix) inputs.self;
 
   devParts = map (name: "${modules}/parts/${name}") [
     "flake-parts.nix"

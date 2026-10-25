@@ -27,3 +27,9 @@
 - `nix flake check --no-build --no-write-lock-file` passed in assigned worktree; this evaluated checks but did not build.
 - `nix fmt -- --ci <changed Nix paths>` passed. `flake.lock` hash remains `6f9c06db3f8a4211e10a99998c20c27c3307d8a4eedd9a69d3fed9b0af2f0e47`.
 - No build/runtime/activation or disk-operation evidence. Coordinator reported integration-worktree baseline `path 'a3xx41wf72v2d0y2qcsgnszgh52zji1v-modules' is not valid`; same check passed in this assigned worktree, so issue was not reproduced or worked around here. Ticket remains claimed pending review/integration.
+
+### Follow-up: capture library provider
+
+- RED: supplied minimal consumer with `library = source` and no consumer `dotnix` failed with `attribute 'dotnix' missing` at `modules/integration/default.nix:3`; same expression with `dotnix = source` returned PipeWire/Home Manager false.
+- GREEN: captured provider factory now returns the adapter with library source bound by producer `inputs.self`; same consumer-key fixture returns `{"homeManager":false,"pipewire":false}`. Existing `adapterOnly` regression removes `dotnix`, adds `library = source`, and broad-compositions assertions all pass.
+- `nix eval --impure --file tests/headless-composition.nix`, `nix flake check --no-build --no-write-lock-file`, and `nix fmt -- --ci` on changed Nix files passed. No input or lock changes. Ticket stays claimed pending focused review/integration.

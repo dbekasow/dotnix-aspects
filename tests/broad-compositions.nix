@@ -131,6 +131,7 @@ let
   };
   adapterOnly = evaluate {
     withUser = false;
+    consumerInputs = (lib.removeAttrs inputs [ "dotnix" ]) // { library = source; };
   };
   socketOnly = evaluate {
     hostIncludes = with dotnix; [ desktop-shell ];
