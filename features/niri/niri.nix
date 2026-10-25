@@ -26,6 +26,9 @@
     , ...
     }:
     {
+      # Host Niri exposes its Home Manager options to every user; mark explicit home selection.
+      _module.args.dotnixHomeNiriSelected = true;
+
       imports = lib.optional (!((specialArgs.osConfig or { }) ? niri-flake)) inputs.niri.homeModules.niri;
 
       programs.niri.settings = {

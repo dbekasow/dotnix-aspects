@@ -1,6 +1,11 @@
+{ inputs, ... }:
 {
   dotnix.firefox.homeManager =
-    { lib, options, pkgs, ... }:
+    { lib, pkgs, ... }:
+    let
+      addons = pkgs.nur.repos.rycee.firefox-addons
+        or inputs.nur.legacyPackages.${pkgs.stdenv.hostPlatform.system}.repos.rycee.firefox-addons;
+    in
     lib.mkMerge [
       {
         programs.firefox = {
@@ -98,7 +103,7 @@
               "intl.accept_languages" = "de-DE, de, en-US, en";
             };
 
-            extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
+            extensions.packages = with addons; [
               bitwarden
               i-dont-care-about-cookies
               localcdn
@@ -129,13 +134,12 @@
           };
 
       }
-      (lib.optionalAttrs (lib.hasAttrByPath [ "stylix" "targets" "firefox" ] options) {
-        stylix.targets.firefox = {
-          profileNames = [ "default" ];
-          colorTheme.enable = true;
-        };
-      })
-      (lib.optionalAttrs (lib.hasAttrByPath [ "programs" "niri" ] options) {
+    ];
+
+  dotnix.firefox.niri.homeManager =
+    { config, lib, ... }:
+    {
+      config = lib.mkIf (config._module.args.dotnixHomeNiriSelected or false) {
         programs.niri.settings.window-rules = [
           {
             # Firefox uses CSDs that break clip-to-geometry — disable the global rule
@@ -158,8 +162,15 @@
             };
           }
         ];
-      })
-    ];
+      };
+    };
+
+  dotnix.firefox.stylix.homeManager = {
+    stylix.targets.firefox = {
+      profileNames = [ "default" ];
+      colorTheme.enable = true;
+    };
+  };
 
   dotnix.firefox.homePersistence = { lib, config, ... }: {
     # Firefox profiles live in ~/.mozilla/firefox for stateVersion < 26.05
