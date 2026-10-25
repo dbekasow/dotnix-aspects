@@ -3,7 +3,7 @@
 **What to build:** Keep existing small terminal-oriented capabilities individually consumable without creating a new theme or role tree. This includes file, data, search, monitoring, and Nix tools as well as Aerc and Maildir; their existing state contributions remain with their respective owners.
 
 **Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria
