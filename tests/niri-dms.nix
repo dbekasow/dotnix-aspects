@@ -204,7 +204,7 @@ let
   bothShells = evaluate {
     userIncludes = with dotnix; [ home.niri dms noctalia ];
   };
-  sameTargetConflict = builtins.tryEval bothShells.home.home.activationPackage.drvPath;
+  conflictOnly = builtins.getEnv "NIRI_DMS_CONFLICT_ONLY" == "1";
 
   assertions = {
     integratedNiriFinalConfig = niriOnly.home.programs.niri.finalConfig != null;
@@ -242,7 +242,6 @@ let
     noctaliaUserGetsNoDmsRuntime =
       multiUser.bob.programs.noctalia.enable
       && !(multiUser.bob.systemd.user.services ? dms);
-    sameTargetShellConflictRejected = !sameTargetConflict.success;
     sameTargetShellConflictHasDiagnostic = builtins.any
       (assertion:
         !assertion.assertion
@@ -333,7 +332,9 @@ let
   };
   failed = builtins.attrNames (lib.filterAttrs (_: passed: !passed) assertions);
 in
-if failed == [ ] then
+if conflictOnly then
+  bothShells.config.system.build.toplevel.drvPath
+else if failed == [ ] then
   assertions
 else
   throw "Niri/DMS fixture failed: ${lib.concatStringsSep ", " failed}"
