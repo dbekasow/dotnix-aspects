@@ -127,6 +127,8 @@ Evaluating without these files is fine — the vault only gets declared once the
 
 DMS/matugen is the single source of truth for the shell and its ~20 matugen template targets (bar, niri, GTK, Firefox, Qt5ct/Qt6ct, terminals …), recolored from the wallpaper palette. Stylix covers the targets matugen does not (GTK apps, Firefox, icons, cursors, fonts) and owns all NixOS `qt.*` options — its plain assignments always override `mkDefault`, which is why the former `qt-theme` aspect was removed as redundant. `dms-settings.nix` holds only real deltas against the pinned DMS rev; DMS itself manages schema defaults and `configVersion`. Keep per-app theme overrides out of aspects unless matugen/stylix provably cannot cover them.
 
+Select `dotnix.host.stylix` on each host and `dotnix.home.stylix` in each home that needs it. Set consumer wallpapers through native NixOS or Home Manager `stylix.image` options; the feature does not infer an image from consumer repository paths. Theme and font defaults remain overridable through native Stylix options.
+
 **Noctalia** is a second palette authority: it generates its own wallpaper-based palettes and must not double-theme apps — keep its built-in app templates off and let stylix own app themes. When the matugen bridge is wanted, feed matugen's output through `programs.noctalia.customPalettes` (`theme.source = "custom"`).
 
 ## Key Design Decisions

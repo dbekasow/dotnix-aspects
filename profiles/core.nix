@@ -15,7 +15,7 @@
       host.nur
       host.security
       ssh
-      stylix
+      host.stylix
       host.system-packages
     ];
   };
@@ -27,7 +27,7 @@
     git-alias
     gpg-agent
     ssh
-    stylix
+    dotnix.home.stylix
   ];
 
 }

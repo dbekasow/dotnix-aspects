@@ -3,7 +3,7 @@
 **What to build:** Offer Stylix host and home selections with explicit consumer resources and native options. Styling remains individually selectable without a profile, but may be part of an explicitly selected role-pure profile; do not guess consumer layouts or image paths.
 
 **Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria

@@ -15,6 +15,7 @@ let
     printf 'certificate presence marker\\n' > $out/modules/hosts/fixture/certificates/fixture.crt
     printf 'ignored presence marker\\n' > $out/modules/hosts/fixture/certificates/ignored.txt
     printf 'wallpaper presence marker\\n' > $out/modules/users/fixture/assets/wallpaper.png
+    printf 'explicit wallpaper marker\\n' > $out/explicit-wallpaper.png
   '';
   populatedSelf = source // { outPath = resourceTree; };
 
@@ -102,15 +103,36 @@ let
 
   populatedResources = evaluate {
     consumerSelf = populatedSelf;
-    hostIncludes = with dotnix; [ age age-rekey yubikey-pam dotnix.host.niri desktop-shell dms stylix certificates ];
+    hostIncludes = with dotnix; [ age age-rekey yubikey-pam host.niri desktop-shell dms host.stylix certificates ];
     userClasses = [ "user" "homeManager" ];
-    userIncludes = with dotnix; [ account.passwords age-rekey stylix ];
+    userIncludes = with dotnix; [ account.passwords age-rekey dotnix.home.stylix ];
     hostModule.users.users.fixture.home = "/home/fixture";
   };
   emptyResources = evaluate {
-    hostIncludes = with dotnix; [ age age-rekey yubikey-pam dotnix.host.niri desktop-shell dms stylix certificates ];
-    userIncludes = with dotnix; [ age-rekey stylix ];
+    hostIncludes = with dotnix; [ age age-rekey yubikey-pam host.niri desktop-shell dms host.stylix certificates ];
+    userIncludes = with dotnix; [ age-rekey dotnix.home.stylix ];
     hostModule.users.users.fixture.home = "/home/fixture";
+  };
+  explicitWallpaper = evaluate {
+    consumerSelf = source;
+    hostIncludes = [ dotnix.host.stylix ];
+    userIncludes = [ dotnix.home.stylix ];
+    hostModule.stylix.polarity = "light";
+    userModule = {
+      stylix.image = "${resourceTree}/explicit-wallpaper.png";
+      stylix.polarity = "light";
+      stylix.fonts.sizes.terminal = 13;
+    };
+  };
+  explicitWallpaperOverridesConsumerConvention = evaluate {
+    consumerSelf = populatedSelf;
+    hostIncludes = [ dotnix.host.stylix ];
+    userIncludes = [ dotnix.home.stylix ];
+    userModule.stylix.image = "${resourceTree}/explicit-wallpaper.png";
+  };
+  hostStyling = evaluate {
+    hostIncludes = [ dotnix.host.stylix ];
+    otherHost = true;
   };
   passwordsWithoutVault = evaluate {
     hostIncludes = with dotnix; [ age age-rekey ];
@@ -310,7 +332,7 @@ let
   };
   home = evaluate {
     hostIncludes = with dotnix; [ host.persistence ];
-    userIncludes = with dotnix; [ dotnix.home.persistence stylix desktop noctalia ];
+    userIncludes = with dotnix; [ dotnix.home.persistence dotnix.home.stylix desktop noctalia ];
     withUser = true;
   };
   homeWithNiri = evaluate {
@@ -567,7 +589,8 @@ let
       && populatedResources.security.pam.u2f.settings.authfile == populatedResources.age.secrets.u2f.path
       && populatedResources.programs.dank-material-shell.lockscreen.securityKey.enable
       && lib.elem "authfile=${populatedResources.age.secrets.u2f.path}" populatedResources.programs.dank-material-shell.lockscreen.securityKey.moduleArgs;
-    populatedWallpaperPath = toString populatedResources.home-manager.users.fixture.stylix.image == "${resourceTree}/modules/users/fixture/assets/wallpaper.png";
+    populatedWallpaperIsNotInferred =
+      toString (populatedResources.home-manager.users.fixture.stylix.image or null) != "${resourceTree}/modules/users/fixture/assets/wallpaper.png";
     populatedCertificateFiles = lib.unique populatedResources.security.pki.certificateFiles == [ "${resourceTree}/modules/hosts/fixture/certificates/fixture.crt" ];
     emptyResourceGates =
       emptyResources.age.secrets == { }
@@ -578,7 +601,24 @@ let
       && !(emptyResources.programs.dank-material-shell.lockscreen.securityKey.enable or false)
       && emptyResources.age.rekey.hostPubkey == ""
       && emptyResources.home-manager.users.fixture.age.rekey.hostPubkey == ""
-      && emptyResources.security.pki.certificateFiles == [ ];
+      && emptyResources.security.pki.certificateFiles == [ ]
+      && !(builtins.pathExists "${source.outPath}/modules/users/fixture/assets/wallpaper.png")
+      && toString (emptyResources.home-manager.users.fixture.stylix.image or null) != "${source.outPath}/modules/users/fixture/assets/wallpaper.png";
+    explicitWallpaperUsesNativeOption =
+      toString explicitWallpaper.home-manager.users.fixture.stylix.image == "${resourceTree}/explicit-wallpaper.png"
+      && explicitWallpaper.home-manager.users.fixture.stylix.polarity == "light"
+      && explicitWallpaper.home-manager.users.fixture.stylix.fonts.sizes.terminal == 13
+      && explicitWallpaper.stylix.polarity == "light"
+      && toString explicitWallpaperOverridesConsumerConvention.home-manager.users.fixture.stylix.image == "${resourceTree}/explicit-wallpaper.png";
+    hostStylingIsTargeted =
+      hostStyling.selected.stylix.enable
+      && !(hostStyling.selected.home-manager.users.fixture.stylix.enable or false)
+      && !(hostStyling.selected.home-manager.users.unrelated.stylix.enable or false)
+      && !(hostStyling.unselected.stylix.enable or false);
+    homeStylingIsTargeted =
+      home.home-manager.users.fixture.stylix.enable
+      && !(home.home-manager.users.unrelated.stylix.enable or false)
+      && !(home.stylix.enable or false);
     accountSelectionIsExplicitAndHomeIndependent =
       accountOnly.users.users.fixture.isNormalUser
       && !(accountOnly.users.users.unrelated.isNormalUser or false)
@@ -666,12 +706,15 @@ let
     workstationHasSelectedRootAndBootloader =
       workstation.fileSystems."/".fsType == "btrfs" && workstation.boot.loader.systemd-boot.enable;
     workstationHasCoreSystemDesktopDevelopment =
-      workstation.programs.fish.enable
+      workstation.stylix.enable
+      && !(workstation.home-manager.users.fixture.stylix.enable or false)
+      && workstation.programs.fish.enable
       && workstation.zramSwap.enable
       && workstation.programs.niri.enable
       && !(workstation.virtualisation.docker.enable or false)
       && !(workstation.programs.nix-ld.enable or false)
-      && workstation.home-manager.users.fixture.programs.helix.enable;
+      && workstation.home-manager.users.fixture.programs.helix.enable
+      && workstation.home-manager.users.fixture.programs.firefox.enable;
     dockerDevelopmentDoesNotSelectDocker =
       !(workstation.virtualisation.docker.enable or false)
       && !(workstation.home-manager.users.fixture.programs.lazydocker.enable or false)
@@ -770,7 +813,9 @@ let
       !(socketOnly.programs.niri.enable or false)
       && !(socketOnly.programs.dank-material-shell.enable or false)
       && !(socketOnly.programs.dms-greeter.enable or false)
-      && !(socketOnly.services.displayManager.noctalia-greeter.enable or false);
+      && !(socketOnly.services.displayManager.noctalia-greeter.enable or false)
+      && !(socketOnly.stylix.enable or false)
+      && !(socketOnly.home-manager.users.fixture.stylix.enable or false);
     niriHostSelectionWorksWithoutHomeManager =
       niriHostOnly.selected.programs.niri.enable
       && !(builtins.hasAttr "home-manager" niriHostOnly.selected)
@@ -792,13 +837,18 @@ let
       && graphicalBaseWithoutShell.home-manager.users.fixture.xdg.userDirs.enable
       && builtins.elem nixpkgs.legacyPackages.${system}.wl-clipboard graphicalBaseWithoutShell.home-manager.users.fixture.home.packages;
     dmsShellAndGreeterExplicitlySelected =
-      dmsSelected.programs.dank-material-shell.enable && dmsSelected.programs.dms-greeter.enable;
+      dmsSelected.programs.dank-material-shell.enable
+      && dmsSelected.programs.dms-greeter.enable
+      && !(dmsSelected.stylix.enable or false)
+      && !(dmsSelected.home-manager.users.fixture.stylix.enable or false);
     noctaliaGreeterExplicitlySelected =
       noctaliaSelected.services.displayManager.noctalia-greeter.enable;
     noctaliaHomeShellExplicitlySelected = home.home-manager.users.fixture.programs.noctalia.enable;
     noctaliaNiriContextHasBinds =
       homeWithNiri.home-manager.users.fixture.programs.noctalia.enable
-      && builtins.hasAttr "Mod+Space" homeWithNiri.home-manager.users.fixture.programs.niri.settings.binds;
+      && builtins.hasAttr "Mod+Space" homeWithNiri.home-manager.users.fixture.programs.niri.settings.binds
+      && !(homeWithNiri.stylix.enable or false)
+      && !(homeWithNiri.home-manager.users.fixture.stylix.enable or false);
     developmentOptional = !socketOnly.programs.nix-ld.enable;
     selectedSystemPersistence =
       lib.any (directory: directory.directory == "/var/lib/bluetooth") workstation.environment.persistence."/persist".directories
@@ -825,6 +875,7 @@ let
     adapterRegistrationIsInert =
       !(adapterOnly.services.pipewire.enable or false)
       && !(adapterOnly.programs.fish.enable or false)
+      && !(adapterOnly.stylix.enable or false)
       && !(builtins.hasAttr "home-manager" adapterOnly)
       && !(adapterOnly.environment ? persistence)
       && !(adapterOnly.boot.initrd.systemd.services ? rollback-root)
