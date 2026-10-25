@@ -22,7 +22,7 @@
       desktop-shell # graphical foundation
       host.niri # NixOS Niri support, separate from per-user configuration
       dms # host shell — use noctalia instead for that host
-      dms-greeter # greeter — swap for `noctalia-greeter`
+      host.dms-greeter # greeter — swap for `host.noctalia-greeter`
       base # shared boot behavior
       host.boot-systemd # systemd-boot loader
       host.performance # workstation tuning
@@ -41,6 +41,7 @@
     ];
 
     nixos = {
+      programs.dms-greeter.configHome = builtins.toString ./greeter/home; # DMS-only; remove when switching to Noctalia
       disko.devices.disk.main.device = "/dev/nvme0n1"; # replace with this host's boot disk
       system.stateVersion = "26.11";
       age.rekey = {
