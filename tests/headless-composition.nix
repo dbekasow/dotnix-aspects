@@ -44,7 +44,8 @@ let
       performance
       bluetooth
       disko
-      impermanence
+      host.persistence
+      host.btrfs-root-reset
       geolocation
       network
       network-wifi
