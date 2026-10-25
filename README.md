@@ -85,10 +85,11 @@ Profiles are optional named include bundles, not a base-to-workstation inheritan
 
 Compose host system functions and personal Home Manager choices independently:
 
-| Selection scope | Typical includes                                                | Ownership                                                                                                       |
-| --------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Host entity     | `boot`, `network`, `disko`, `desktop-shell`, `noctalia-greeter` | Consumer chooses system behavior and hardware; disk path, secrets, and `system.stateVersion` remain host-owned. |
-| User entity     | `desktop-shell`, `desktop-apps`, `development`, `terminal`      | Consumer chooses personal Home Manager features and `home.stateVersion`.                                        |
+| Selection scope   | Typical includes                                                | Ownership                                                                                                       |
+| ----------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Host entity       | `boot`, `network`, `disko`, `desktop-shell`, `noctalia-greeter` | Consumer chooses system behavior and hardware; disk path, secrets, and `system.stateVersion` remain host-owned. |
+| Account selection | `account.users`                                                 | Consumer selects account foundation per named user; `account.passwords` is separate and opt-in.                 |
+| Home selection    | `desktop-shell`, `desktop-apps`, `development`, `terminal`      | Consumer chooses personal Home Manager features and `home.stateVersion`; integrated Home Manager is optional.   |
 
 `core` is an optional host feature bundle, not a prerequisite for other profiles. Its matching Home Manager feature bundle, `core-home`, reaches users only through the explicitly activated `den.policies.core-home-to-users` policy. This keeps shared host-to-home routing visible and reusable. `workstation` remains a convenience bundle; hosts can select its individual features instead. `server` provides only its intentionally small reusable behavior. `disko` supplies reusable geometry but no device default: every host importing it must set native `disko.devices.disk.main.device` to its own disk path. Run `nix eval --impure --file tests/headless-composition.nix` to verify the server remains independent of workstation tuning and disk configuration.
 
@@ -131,7 +132,7 @@ Select `dotnix.host.stylix` on each host and `dotnix.home.stylix` in each home t
 
 **Dendritic pattern** — Each file owns its feature across all configuration classes. Values are shared via `let`-bindings or flake-parts options, not `specialArgs`.
 
-**Secrets with agenix-rekey** — Host and user secrets are managed through `age.rekey` with local storage mode and a master identity. Password generation is handled declaratively.
+**Secrets with agenix-rekey** — Host and user secrets are managed through `age.rekey` with local storage mode and a master identity. `dotnix.account.passwords` is a separate per-user opt-in that restores declarative password generation; it reads native `age.rekey.secretsDir` (defaulting to `modules/hosts/<host>/secrets`) and requires host `age` and `age-rekey` selections. Ticket 06 owns the broader explicit-resource redesign.
 
 **Den-native outputs** — the consumer evaluates Den host and user entities and imports `denful.dotnix` through `den.namespace`. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
 

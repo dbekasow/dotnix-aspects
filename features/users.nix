@@ -1,42 +1,48 @@
+_:
 {
-  dotnix.users = { inputs, ... }: {
-    nixos = { config, host, lib, pkgs, ... }:
+  dotnix.account.users.user = { lib, ... }: {
+    isNormalUser = lib.mkDefault true;
+  };
+
+  dotnix.account.passwords = { host, inputs, user, ... }:
+    if (host.class or null) != "nixos" then
+      { }
+    else
       let
-        users = builtins.attrNames host.users;
-        secretsDir = "${inputs.self}/modules/hosts/${host.name}/secrets";
-        vaultReady = lib.pathExists "${secretsDir}/ssh_host_ed25519_key.pub";
-        vault = lib.optionalAttrs vaultReady;
+        passwordSecret = "password-${user.userName}";
+        hashedPasswordSecret = "${passwordSecret}-hashed";
+        defaultSecretsDir = "${inputs.self}/modules/hosts/${host.name}/secrets";
       in
       {
-        users.defaultUserShell = pkgs.fish;
-        # Declarative lock only with vault material; a fresh clone (no vault
-        # yet) stays mutable so the console can bootstrap passwords.
-        users.mutableUsers = !vaultReady;
-
-        users.users = lib.genAttrs users (name: {
-          hashedPasswordFile = lib.mkIf vaultReady
-            config.age.secrets."password-${name}-hashed".path;
-          isNormalUser = lib.mkDefault true;
-        });
-
-        age.secrets = vault (lib.mergeAttrsList (map
-          (name: {
-            "password-${name}" = {
-              generator.script = "alnum";
-              intermediary = true;
+        user = { host, lib, osConfig ? { }, ... }:
+          let
+            secrets = osConfig.age.secrets or { };
+          in
+          lib.optionalAttrs
+            ((host.class or null) == "nixos" && builtins.hasAttr hashedPasswordSecret secrets)
+            {
+              hashedPasswordFile = secrets.${hashedPasswordSecret}.path;
             };
-            "password-${name}-hashed" = {
-              generator = {
-                dependencies = [ config.age.secrets."password-${name}" ];
+
+        provides.${host.name}.nixos = { config, lib, ... }:
+          let
+            secretsDir = lib.attrByPath [ "age" "rekey" "secretsDir" ] defaultSecretsDir config;
+            vaultReady = lib.pathExists "${secretsDir}/ssh_host_ed25519_key.pub";
+          in
+          {
+            users.mutableUsers = lib.mkDefault (!vaultReady);
+            age.secrets = lib.mkIf vaultReady {
+              ${passwordSecret} = {
+                generator.script = "alnum";
+                intermediary = true;
+              };
+              ${hashedPasswordSecret}.generator = {
+                dependencies = [ config.age.secrets.${passwordSecret} ];
                 script = { pkgs, decrypt, deps, ... }: ''
-                  ${decrypt} ${lib.escapeShellArg (lib.head deps).file} | \
-                  ${pkgs.openssl}/bin/openssl passwd -6 -stdin
+                  ${decrypt} ${lib.escapeShellArg (lib.head deps).file} | ${pkgs.openssl}/bin/openssl passwd -6 -stdin
                 '';
               };
             };
-
-          })
-          users));
+          };
       };
-  };
 }
