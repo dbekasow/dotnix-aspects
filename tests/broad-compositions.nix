@@ -35,58 +35,64 @@ let
     , withUser ? true
     , extraUsers ? { }
     , disablePersistenceRouting ? false
+    , otherHost ? false
+    , consumerInputs ? inputs
     , consumerSelf ? source
     ,
     }:
     let
+      instantiate = args:
+        inputs.nixpkgs.lib.nixosSystem (args // {
+          pkgs = import inputs.nixpkgs {
+            inherit system;
+            overlays = [ inputs.nur.overlays.default inputs.llm-agents.overlays.shared-nixpkgs inputs.niri.overlays.niri ];
+          };
+        });
       fixture = {
-        imports = [
-          inputs.den.flakeModule
-          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
-          ({ den, ... }: {
-            den.default.includes = [ den.batteries.flake-scope ];
-            den.quirks.popup-launcher = {
-              description = "Enabled popup launcher records shared by selected user-scope aspects";
-            };
-          })
-        ];
-        den.hosts.${system}.fixture = {
-          users = (lib.optionalAttrs withUser {
-            fixture.classes = [ "homeManager" ];
-          }) // extraUsers;
-          instantiate = args:
-            inputs.nixpkgs.lib.nixosSystem (args // {
-              pkgs = import inputs.nixpkgs {
-                inherit system;
-                overlays = [ inputs.nur.overlays.default inputs.llm-agents.overlays.shared-nixpkgs inputs.niri.overlays.niri ];
-              };
-            });
+        imports = [ source.flakeModules.default ];
+        den.hosts.${system} = {
+          fixture = {
+            users = (lib.optionalAttrs withUser {
+              fixture.classes = [ "homeManager" ];
+            }) // extraUsers;
+            inherit instantiate;
+          };
+        } // lib.optionalAttrs otherHost {
+          unselected = { inherit instantiate; };
         };
-        den.aspects.fixture = {
-          includes = hostIncludes;
-          excludes = lib.optionals disablePersistenceRouting dotnix.impermanence.includes;
-          nixos = bootstrap // hostModule;
-          provides = {
-            fixture = {
-              includes = userIncludes;
-              homeManager = {
-                home.username = "fixture";
-                home.homeDirectory = "/home/fixture";
+        den.aspects = {
+          fixture = {
+            includes = hostIncludes;
+            excludes = lib.optionals disablePersistenceRouting dotnix.impermanence.includes;
+            nixos = bootstrap // hostModule;
+            provides = {
+              fixture = {
+                includes = userIncludes;
+                homeManager = {
+                  home.username = "fixture";
+                  home.homeDirectory = "/home/fixture";
+                  home.stateVersion = "25.11";
+                } // userModule;
+              };
+              unrelated.homeManager = {
+                home.username = "unrelated";
+                home.homeDirectory = "/home/unrelated";
                 home.stateVersion = "25.11";
-              } // userModule;
-            };
-            unrelated.homeManager = {
-              home.username = "unrelated";
-              home.homeDirectory = "/home/unrelated";
-              home.stateVersion = "25.11";
+              };
             };
           };
+        } // lib.optionalAttrs otherHost {
+          unselected.nixos = bootstrap;
         };
       };
-      consumerInputs = inputs // { self = consumerSelf; };
-      flake = inputs.flake-parts.lib.mkFlake { inputs = consumerInputs; } fixture;
+      flakeInputs = consumerInputs // { self = consumerSelf; };
+      flake = inputs.flake-parts.lib.mkFlake { inputs = flakeInputs; } fixture;
     in
-    flake.nixosConfigurations.fixture.config;
+    if otherHost then {
+      selected = flake.nixosConfigurations.fixture.config;
+      unselected = flake.nixosConfigurations.unselected.config;
+    } else
+      flake.nixosConfigurations.fixture.config;
 
   populatedResources = evaluate {
     consumerSelf = populatedSelf;
@@ -111,7 +117,7 @@ let
       geolocation
       network
       network-wifi
-      pipewire
+      host.pipewire
       power
       age
       age-rekey
@@ -122,6 +128,10 @@ let
     ];
     userIncludes = with dotnix; [ desktop development noctalia ];
     hostModule = { disko.devices.disk.main.device = "/dev/vda"; };
+  };
+  adapterOnly = evaluate {
+    withUser = false;
+    consumerInputs = (lib.removeAttrs inputs [ "dotnix" ]) // { library = source; };
   };
   socketOnly = evaluate {
     hostIncludes = with dotnix; [ desktop-shell ];
@@ -148,14 +158,29 @@ let
     userIncludes = with dotnix; [ desktop-shell noctalia ];
     withUser = true;
   };
+  pipewireUserOnly = evaluate {
+    hostIncludes = with dotnix; [ impermanence host.home-manager ];
+    userIncludes = [ dotnix.home.pipewire ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+    extraUsers.unrelated.classes = [ "homeManager" ];
+    consumerInputs = lib.removeAttrs inputs [ "impermanence" ];
+  };
   pipewireSelected = evaluate {
-    hostIncludes = with dotnix; [ impermanence pipewire bluetooth ];
-    userIncludes = with dotnix; [ pipewire ];
+    hostIncludes = with dotnix; [ impermanence host.home-manager host.pipewire bluetooth ];
+    otherHost = true;
+    hostModule = {
+      users.users.fixture.home = "/home/fixture";
+      services.pipewire.pulse.enable = lib.mkForce false;
+    };
     extraUsers.unrelated.classes = [ "homeManager" ];
   };
+  pipewireHostOnly = evaluate {
+    hostIncludes = [ dotnix.host.pipewire ];
+    withUser = false;
+  };
   pipewireWithoutPersistenceRouting = evaluate {
-    hostIncludes = with dotnix; [ impermanence pipewire bluetooth ];
-    userIncludes = with dotnix; [ pipewire ];
+    hostIncludes = with dotnix; [ impermanence host.home-manager host.pipewire bluetooth ];
+    userIncludes = [ dotnix.home.pipewire ];
     disablePersistenceRouting = true;
   };
   broadNativeCompositions = evaluate {
@@ -203,16 +228,7 @@ let
   standaloneHerdr =
     let
       fixture = {
-        imports = [
-          inputs.den.flakeModule
-          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
-          ({ den, ... }: {
-            den.default.includes = [ den.batteries.flake-scope ];
-            den.quirks.popup-launcher = {
-              description = "Enabled popup launcher records shared by selected user-scope aspects";
-            };
-          })
-        ];
+        imports = [ source.flakeModules.default ];
         den.homes.${system}.fixture.pkgs = import nixpkgs { inherit system; };
         den.aspects.fixture.includes = [ dotnix.herdr ];
         den.aspects.fixture.homeManager = { specialArgs, ... }: {
@@ -313,12 +329,27 @@ let
       lib.any (directory: directory.directory == ".cache/mesa_shader_cache") homeWithNiri.home-manager.users.fixture.home.persistence."/persist".directories
       && !(lib.any (directory: directory.directory == ".mozilla") homeWithNiri.home-manager.users.fixture.home.persistence."/persist".directories)
       && lib.any (directory: directory.directory == ".mozilla") home.home-manager.users.fixture.home.persistence."/persist".directories;
+    adapterRegistrationIsInert =
+      !(adapterOnly.services.pipewire.enable or false)
+      && !(adapterOnly.programs.fish.enable or false)
+      && !(builtins.hasAttr "home-manager" adapterOnly)
+      && !(adapterOnly.environment ? persistence);
+    pipewireUserOnlySelectionDoesNotEnableHost = !(pipewireUserOnly.services.pipewire.enable or false);
+    unselectedHostHasNoPipewire = !(pipewireSelected.unselected.services.pipewire.enable or false);
+    pipewireHostSelectionWorksWithoutHomeManager =
+      pipewireHostOnly.services.pipewire.enable
+      && !(builtins.hasAttr "home-manager" pipewireHostOnly)
+      && !(pipewireHostOnly.environment ? persistence);
     selectedPipewireHomePersistence =
-      lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireSelected.home-manager.users.fixture.home.persistence."/persist".directories;
+      lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireUserOnly.home-manager.users.fixture.home.persistence."/persist".directories;
     selectedBluetoothSystemPersistence =
-      lib.any (directory: directory.directory == "/var/lib/bluetooth") pipewireSelected.environment.persistence."/persist".directories;
+      lib.any (directory: directory.directory == "/var/lib/bluetooth") pipewireSelected.selected.environment.persistence."/persist".directories;
+    pipewireHostSelectionAndOverrideWork =
+      pipewireSelected.selected.services.pipewire.enable && !pipewireSelected.selected.services.pipewire.pulse.enable;
+    pipewireHostSelectionDoesNotRouteHome =
+      !(lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireSelected.selected.home-manager.users.fixture.home.persistence."/persist".directories);
     unrelatedUserHasNoPipewireHomePersistence =
-      !(lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireSelected.home-manager.users.unrelated.home.persistence."/persist".directories);
+      !(lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireUserOnly.home-manager.users.unrelated.home.persistence."/persist".directories);
     persistenceRoutingCanBeExcluded =
       !(lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireWithoutPersistenceRouting.home-manager.users.fixture.home.persistence."/persist".directories)
       && !(lib.any (directory: directory.directory == "/var/lib/bluetooth") pipewireWithoutPersistenceRouting.environment.persistence."/persist".directories)

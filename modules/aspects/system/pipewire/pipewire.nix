@@ -1,5 +1,5 @@
 {
-  dotnix.pipewire.nixos = { pkgs, ... }: {
+  dotnix.host.pipewire.nixos = { pkgs, ... }: {
     environment.systemPackages = [ pkgs.pavucontrol ];
     services.pipewire = {
       enable = true;
@@ -39,7 +39,7 @@
   # back to auto-priority — which ranks the internal speaker (~9900) above
   # the monitor (~5900), so the DP/HDMI sink silently loses "default".
   # PipeWire itself keeps no persistent state; one directory covers it all.
-  dotnix.pipewire.homePersistence = {
+  dotnix.home.pipewire.homePersistence = {
     home.persistence."/persist".directories = [ ".local/state/wireplumber" ];
   };
 }

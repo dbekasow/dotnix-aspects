@@ -5,7 +5,7 @@
   };
   # Neutral wiring only — the core→HM-core sharedModules coupling lives in
   # the core tier now (aspects/core.nix), not hidden in this aspect.
-  dotnix.home-manager.nixos = {
+  dotnix.host.home-manager.nixos = {
     imports = [ inputs.home-manager.nixosModules.home-manager ];
 
     home-manager = {

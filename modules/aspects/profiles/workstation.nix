@@ -11,7 +11,7 @@
     geolocation
     network
     network-wifi
-    pipewire
+    host.pipewire
     power
     yubikey
     yubikey-pam
