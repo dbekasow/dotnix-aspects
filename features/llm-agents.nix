@@ -3,7 +3,7 @@
     url = "github:numtide/llm-agents.nix";
     inputs.nixpkgs.follows = "nixpkgs";
   };
-  dotnix.llm-agents.nixos = {
+  dotnix.host.llm-agents.nixos = {
     nixpkgs.overlays = [ inputs.llm-agents.overlays.shared-nixpkgs ];
     nix.settings = {
       substituters = [ "https://cache.numtide.com" ];

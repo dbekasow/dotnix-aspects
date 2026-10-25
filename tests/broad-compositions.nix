@@ -130,6 +130,7 @@ let
     userIncludes = with dotnix; [ desktop development noctalia ];
     hostModule = { disko.devices.disk.main.device = "/dev/vda"; };
   };
+  developmentHomeBaseline = evaluate { };
   developmentHome = evaluate {
     userIncludes = [ dotnix.development ];
   };
@@ -415,7 +416,15 @@ let
     developmentHomeKeepsHostPrerequisitesExplicit =
       developmentHome.home-manager.users.fixture.programs.helix.enable
       && !(developmentHome.virtualisation.docker.enable or false)
-      && !(developmentHome.programs.nix-ld.enable or false);
+      && !(developmentHome.programs.nix-ld.enable or false)
+      && (developmentHome.nix.settings.substituters or [ ]) == (adapterOnly.nix.settings.substituters or [ ])
+      && (developmentHome.nix.settings.extra-substituters or [ ]) == (adapterOnly.nix.settings.extra-substituters or [ ])
+      && (developmentHome.nix.settings.trusted-public-keys or [ ]) == (adapterOnly.nix.settings.trusted-public-keys or [ ])
+      && (developmentHome.nix.settings.extra-trusted-public-keys or [ ]) == (adapterOnly.nix.settings.extra-trusted-public-keys or [ ])
+      && map (package: package.drvPath) developmentHome.environment.systemPackages
+      == map (package: package.drvPath) developmentHomeBaseline.environment.systemPackages
+      && builtins.attrNames developmentHome.systemd.services
+      == builtins.attrNames developmentHomeBaseline.systemd.services;
     standaloneDevelopmentToolNeedsNoProfile =
       lib.any (package: package.pname == "just") standaloneJust.home-manager.users.fixture.home.packages
       && !(standaloneJust.virtualisation.docker.enable or false)
