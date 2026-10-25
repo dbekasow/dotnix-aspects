@@ -4,9 +4,6 @@
       # Coreutils but in rust
       uutils-coreutils-noprefix
 
-      # Editor
-      helix
-
       # Hardware inspection
       pciutils
       usbutils

@@ -3,7 +3,7 @@
 **What to build:** Make development capabilities individually consumable without unwanted host activation. Git/VCS tools, Helix and its language configuration, automation, Kubernetes, and other existing development tools remain with their respective feature owners.
 
 **Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria

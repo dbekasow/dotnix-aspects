@@ -8,6 +8,7 @@
       git
       gnupg
       host.home-manager
+      host.git
       host.locale
       host.nh
       host.nix
