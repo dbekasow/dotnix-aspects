@@ -9,7 +9,7 @@
 ## Acceptance criteria
 
 - [ ] The consumer owns the account inventory and account selections; a selection affects only the explicitly named account.
-- [ ] Account foundations set neither blanket `host.users` permissions nor a default shell, vault convention, or password generator.
+- [ ] Account foundations require neither blanket `host.users` privileges nor a default shell, vault conventions, or a password generator as prerequisites.
 - [ ] Account selection works regardless of whether Home Manager is selected for that account; integrated Home Manager use remains explicit and optional.
 - [ ] Native options remain overridable, and an unrelated person on the same host remains unchanged.
 - [ ] Password recipes and Secrets/Auth belong to ticket 06; the Fish login shell belongs to ticket 09. Neither is activated implicitly by account foundations.
