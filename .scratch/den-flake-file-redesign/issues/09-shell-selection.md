@@ -3,7 +3,7 @@
 **What to build:** Separate Fish and Nushell so host prerequisites, account login shells, and home configuration remain independently selectable. Related shell UX such as Atuin, Carapace, Starship, FZF, Skim, and Zoxide remains independently combinable.
 
 **Blocked by:** [05: Configure accounts without hidden shell or vault choices](05-account-selection.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria

@@ -4,7 +4,7 @@
       age
       age-rekey
       certificates
-      fish
+      host.fish
       git
       gnupg
       host.home-manager
