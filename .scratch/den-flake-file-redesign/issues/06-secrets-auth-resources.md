@@ -3,7 +3,7 @@
 **What to build:** Make existing secrets and authentication capabilities individually consumable with clear role and resource ownership. This includes Age/Age-Rekey, optional password generation, certificates, SSH, GnuPG/GPG Agent, rbw, and YubiKey and YubiKey-PAM support.
 
 **Blocked by:** [05: Configure accounts without hidden shell or vault choices](05-account-selection.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria

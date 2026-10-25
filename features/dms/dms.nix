@@ -10,10 +10,9 @@ in
     url = "github:AvengeMedia/DankMaterialShell";
     inputs.nixpkgs.follows = "nixpkgs";
   };
-  dotnix.dms = { inputs, ... }: {
+  dotnix.dms = _: {
     nixos =
-      { host
-      , config
+      { config
       , lib
       , pkgs
       , ...
@@ -32,18 +31,17 @@ in
           systemd.enable = true;
           systemd.restartIfChanged = true;
 
-          # U2F needs vault material like yubikey-pam: the u2f authfile secret
-          # only exists once the vault is ready.
-          lockscreen.securityKey =
-            lib.mkIf
-              (lib.pathExists "${inputs.self}/modules/hosts/${host.name}/secrets/ssh_host_ed25519_key.pub")
-              {
-                enable = true;
-                moduleArgs = [
-                  "cue"
-                  "authfile=${config.age.secrets.u2f.path}"
-                ];
-              };
+          # DMS follows the native host U2F configuration when selected; it
+          # does not infer an authfile path or require secret tooling.
+          lockscreen.securityKey = lib.mkIf
+            (config.security.pam.u2f.enable && config.security.pam.u2f.settings.authfile != null)
+            {
+              enable = true;
+              moduleArgs = [
+                "cue"
+                "authfile=${config.security.pam.u2f.settings.authfile}"
+              ];
+            };
         };
 
         programs.dsearch.enable = true;
