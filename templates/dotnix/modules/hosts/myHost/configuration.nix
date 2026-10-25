@@ -40,7 +40,7 @@
     ];
 
     nixos = {
-      programs.dms-greeter.configHome = builtins.toString ./greeter/home;
+      programs.dms-greeter.configHome = builtins.toString ./greeter/home; # DMS-only; remove when switching to Noctalia
       disko.devices.disk.main.device = "/dev/nvme0n1"; # replace with this host's boot disk
       system.stateVersion = "26.11";
       # Throwaway master identity so a fresh clone evaluates and `agenix`

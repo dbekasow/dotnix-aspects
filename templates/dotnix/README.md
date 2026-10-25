@@ -28,7 +28,7 @@ flake.nix
 
 ## Greeter resources
 
-Greeters are host-wide capabilities. They do not infer a user's home or require a matching user shell. The sample host supplies DMS's native `programs.dms-greeter.configHome` from its consumer-owned `greeter/home` directory. Set any extra DMS files through native `programs.dms-greeter.configFiles`. If switching to Noctalia, replace the host feature and set its native settings to consumer-owned assets:
+Greeters are host-wide capabilities. They do not infer a user's home or require a matching user shell. The sample host supplies DMS's native `programs.dms-greeter.configHome` from its consumer-owned `greeter/home` directory. Set any extra DMS files through native `programs.dms-greeter.configFiles`. When switching to Noctalia, replace `host.dms-greeter` with `host.noctalia-greeter` and remove DMS-only `programs.dms-greeter.*` assignments from the host's `nixos` settings, including the sample `configHome` assignment in `configuration.nix`; these options are undeclared without the DMS greeter. Then set Noctalia's native settings to consumer-owned assets:
 
 ```nix
 services.displayManager.noctalia-greeter.settings.appearance.wallpaper = {
