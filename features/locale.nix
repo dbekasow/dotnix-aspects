@@ -1,5 +1,5 @@
 {
-  dotnix.locale.nixos = { lib, ... }: {
+  dotnix.host.locale.nixos = { lib, ... }: {
     time.timeZone = "Europe/Berlin";
 
     # No extraLocaleSettings: unset LC_* falls back to LANG anyway, so

@@ -21,16 +21,17 @@
       dms # host shell — use noctalia instead for that host
       dms-greeter # greeter — swap for `noctalia-greeter`
       base # shared boot behavior
-      boot-systemd # systemd-boot loader
-      performance # workstation tuning
-      bluetooth # laptop radio
-      disko # starter Btrfs/LUKS layout; replace device below for this host
-      impermanence # persistent state on the Btrfs layout
-      geolocation # location service
-      network # NetworkManager and Avahi
-      network-wifi # Wi-Fi configuration
+      host.boot-systemd # systemd-boot loader
+      host.performance # workstation tuning
+      host.bluetooth # laptop radio
+      host.disko # starter Btrfs/LUKS layout; replace device below for this host
+      host.persistence # selected persistence classes and /persist defaults
+      host.btrfs-root-reset # reset @root from @root-blank on this Btrfs layout
+      host.geolocation # location service
+      host.network # NetworkManager and Avahi
+      host.network-wifi # Wi-Fi configuration
       host.pipewire # audio
-      power # workstation power management and resume defaults
+      host.power # workstation power management and resume defaults
       yubikey # hardware-backed login tools
       yubikey-pam # PAM integration for YubiKey
       development

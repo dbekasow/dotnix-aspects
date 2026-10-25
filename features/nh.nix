@@ -1,5 +1,5 @@
 {
-  dotnix.nh.nixos = { config, host, lib, ... }: {
+  dotnix.host.nh.nixos = { config, host, lib, ... }: {
     programs.nh = {
       enable = true;
       clean = {

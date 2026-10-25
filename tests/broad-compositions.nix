@@ -63,7 +63,7 @@ let
         den.aspects = {
           fixture = {
             includes = hostIncludes;
-            excludes = lib.optionals disablePersistenceRouting dotnix.impermanence.includes;
+            excludes = lib.optionals disablePersistenceRouting dotnix.host.persistence.includes;
             nixos = bootstrap // hostModule;
             provides = {
               fixture = {
@@ -109,16 +109,17 @@ let
     hostIncludes = with dotnix; [
       core
       base
-      boot-systemd
-      performance
-      bluetooth
-      disko
-      impermanence
-      geolocation
-      network
-      network-wifi
+      host.boot-systemd
+      host.performance
+      host.bluetooth
+      host.disko
+      host.persistence
+      host.btrfs-root-reset
+      host.geolocation
+      host.network
+      host.network-wifi
       host.pipewire
-      power
+      host.power
       age
       age-rekey
       yubikey
@@ -149,24 +150,35 @@ let
     withUser = false;
   };
   home = evaluate {
-    hostIncludes = with dotnix; [ impermanence ];
-    userIncludes = with dotnix; [ stylix desktop noctalia ];
+    hostIncludes = with dotnix; [ host.persistence ];
+    userIncludes = with dotnix; [ dotnix.home.persistence stylix desktop noctalia ];
     withUser = true;
   };
   homeWithNiri = evaluate {
-    hostIncludes = with dotnix; [ impermanence ];
-    userIncludes = with dotnix; [ desktop-shell noctalia ];
+    hostIncludes = with dotnix; [ host.persistence ];
+    userIncludes = with dotnix; [ dotnix.home.persistence desktop-shell noctalia ];
     withUser = true;
   };
+  persistenceOnly = evaluate {
+    hostIncludes = [ dotnix.host.persistence ];
+    withUser = false;
+    otherHost = true;
+  };
+  rootResetOnly = evaluate {
+    hostIncludes = [ dotnix.host.btrfs-root-reset ];
+    withUser = false;
+    otherHost = true;
+  };
   pipewireUserOnly = evaluate {
-    hostIncludes = with dotnix; [ impermanence host.home-manager ];
-    userIncludes = [ dotnix.home.pipewire ];
+    hostIncludes = with dotnix; [ host.persistence host.home-manager ];
+    userIncludes = [ dotnix.home.persistence dotnix.home.pipewire ];
     hostModule.users.users.fixture.home = "/home/fixture";
     extraUsers.unrelated.classes = [ "homeManager" ];
     consumerInputs = lib.removeAttrs inputs [ "impermanence" ];
   };
   pipewireSelected = evaluate {
-    hostIncludes = with dotnix; [ impermanence host.home-manager host.pipewire bluetooth ];
+    hostIncludes = with dotnix; [ host.persistence host.home-manager host.pipewire host.bluetooth ];
+    userIncludes = [ dotnix.home.persistence ];
     otherHost = true;
     hostModule = {
       users.users.fixture.home = "/home/fixture";
@@ -178,9 +190,53 @@ let
     hostIncludes = [ dotnix.host.pipewire ];
     withUser = false;
   };
+  hostFoundation = evaluate {
+    hostIncludes = with dotnix.host; [
+      boot
+      boot-systemd
+      disko
+      network
+      network-wifi
+      bluetooth
+      power
+      performance
+      geolocation
+      journald
+      locale
+      security
+      system-packages
+      nix
+      nur
+      nh
+      nix-ld
+    ];
+    withUser = false;
+    otherHost = true;
+    hostModule = {
+      boot.loader.timeout = 17;
+      disko.devices.disk.main.device = "/dev/vda";
+      fileSystems."/".device = lib.mkForce "/dev/mapper/cryptroot";
+    };
+  };
+  hostNixDefault = evaluate {
+    hostIncludes = [ dotnix.host.nix ];
+    withUser = false;
+  };
+  hostNixCommunityCache = evaluate {
+    hostIncludes = [ dotnix.host.nix dotnix.host.nix-community-cache ];
+    withUser = false;
+  };
+  nixCacheOverride = evaluate {
+    hostIncludes = [ dotnix.host.nix ];
+    withUser = false;
+    hostModule.nix.settings = {
+      substituters = [ "https://example.invalid" ];
+      trusted-public-keys = [ ];
+    };
+  };
   pipewireWithoutPersistenceRouting = evaluate {
-    hostIncludes = with dotnix; [ impermanence host.home-manager host.pipewire bluetooth ];
-    userIncludes = [ dotnix.home.pipewire ];
+    hostIncludes = with dotnix; [ host.persistence host.home-manager host.pipewire host.bluetooth ];
+    userIncludes = [ dotnix.home.persistence dotnix.home.pipewire ];
     disablePersistenceRouting = true;
   };
   broadNativeCompositions = evaluate {
@@ -358,7 +414,21 @@ let
     selectedSystemPersistence =
       lib.any (directory: directory.directory == "/var/lib/bluetooth") workstation.environment.persistence."/persist".directories
       && !(lib.any (directory: directory.directory == "/var/lib/dms-greeter") workstation.environment.persistence."/persist".directories);
-    persistenceNeedsImpermanence = !(socketOnly.environment ? persistence);
+    selectedPersistenceWithoutHomeManagerIsGeneric =
+      persistenceOnly.selected.environment.persistence."/persist".hideMounts
+      && persistenceOnly.selected.fileSystems."/".fsType == "ext4"
+      && !(persistenceOnly.selected.boot.initrd.systemd.services ? rollback-root)
+      && !(persistenceOnly.selected.boot.initrd.supportedFilesystems.btrfs or false)
+      && !(persistenceOnly.selected ? disko)
+      && !(builtins.hasAttr "home-manager" persistenceOnly.selected)
+      && !(persistenceOnly.unselected.environment ? persistence);
+    selectedRootResetIsIndependent =
+      rootResetOnly.selected.boot.initrd.systemd.services ? rollback-root
+      && !(rootResetOnly.selected.environment ? persistence)
+      && !(rootResetOnly.selected ? disko)
+      && !(builtins.hasAttr "home-manager" rootResetOnly.selected)
+      && !(rootResetOnly.unselected.boot.initrd.systemd.services ? rollback-root);
+    persistenceNeedsSelection = !(socketOnly.environment ? persistence);
     selectedHomePersistence =
       lib.any (directory: directory.directory == ".cache/mesa_shader_cache") homeWithNiri.home-manager.users.fixture.home.persistence."/persist".directories
       && !(lib.any (directory: directory.directory == ".mozilla") homeWithNiri.home-manager.users.fixture.home.persistence."/persist".directories)
@@ -367,13 +437,57 @@ let
       !(adapterOnly.services.pipewire.enable or false)
       && !(adapterOnly.programs.fish.enable or false)
       && !(builtins.hasAttr "home-manager" adapterOnly)
-      && !(adapterOnly.environment ? persistence);
+      && !(adapterOnly.environment ? persistence)
+      && !(adapterOnly.boot.initrd.systemd.services ? rollback-root)
+      && !(adapterOnly.boot.initrd.supportedFilesystems.btrfs or false);
     pipewireUserOnlySelectionDoesNotEnableHost = !(pipewireUserOnly.services.pipewire.enable or false);
     unselectedHostHasNoPipewire = !(pipewireSelected.unselected.services.pipewire.enable or false);
     pipewireHostSelectionWorksWithoutHomeManager =
       pipewireHostOnly.services.pipewire.enable
       && !(builtins.hasAttr "home-manager" pipewireHostOnly)
       && !(pipewireHostOnly.environment ? persistence);
+    hostCapabilitiesAreSelectableWithoutHomeManager =
+      let
+        inherit (hostFoundation) selected;
+        inherit (hostFoundation) unselected;
+      in
+      selected.boot.loader.timeout == 17
+      && selected.boot.loader.systemd-boot.enable
+      && selected.disko.devices.disk.main.type == "disk"
+      && selected.networking.networkmanager.enable
+      && selected.hardware.bluetooth.enable
+      && selected.zramSwap.enable
+      && selected.location.provider == "geoclue2"
+      && selected.services.journald.settings.Journal.Storage == "persistent"
+      && selected.time.timeZone == "Europe/Berlin"
+      && selected.security.polkit.enable
+      && lib.any (package: package.pname == "helix") selected.environment.systemPackages
+      && selected.programs.nh.enable
+      && selected.programs.nix-ld.enable
+      && !(builtins.hasAttr "home-manager" selected)
+      && !(selected.environment ? persistence)
+      && !(unselected.networking.networkmanager.enable or false)
+      && !(unselected.programs.nh.enable or false);
+    hostNixCommunityCacheRequiresOptIn =
+      let
+        defaults = hostNixDefault.nix.settings;
+        selected = hostNixCommunityCache.nix.settings;
+      in
+      !(lib.elem "https://nix-community.cachix.org" (defaults.substituters or [ ]))
+      && (defaults.extra-substituters or [ ]) == [ ]
+      && !(lib.elem "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" (defaults.trusted-public-keys or [ ]))
+      && (defaults.extra-trusted-public-keys or [ ]) == [ ]
+      && (selected.extra-substituters or [ ]) == [ "https://nix-community.cachix.org" ]
+      && (selected.extra-trusted-public-keys or [ ]) == [
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      ];
+    hostNixCanonicalOverridesLeaveNoCommunityCache =
+      let settings = nixCacheOverride.nix.settings; in
+      lib.elem "https://example.invalid" settings.substituters
+      && !(lib.elem "https://nix-community.cachix.org" settings.substituters)
+      && (settings.extra-substituters or [ ]) == [ ]
+      && !(lib.elem "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" settings.trusted-public-keys)
+      && (settings.extra-trusted-public-keys or [ ]) == [ ];
     selectedPipewireHomePersistence =
       lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireUserOnly.home-manager.users.fixture.home.persistence."/persist".directories;
     selectedBluetoothSystemPersistence =
@@ -381,9 +495,16 @@ let
     pipewireHostSelectionAndOverrideWork =
       pipewireSelected.selected.services.pipewire.enable && !pipewireSelected.selected.services.pipewire.pulse.enable;
     pipewireHostSelectionDoesNotRouteHome =
-      !(lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireSelected.selected.home-manager.users.fixture.home.persistence."/persist".directories);
+      !(pipewireSelected.selected.home-manager.users.fixture.home ? persistence)
+      || !(pipewireSelected.selected.home-manager.users.fixture.home.persistence ? "/persist")
+      || !(lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireSelected.selected.home-manager.users.fixture.home.persistence."/persist".directories);
     unrelatedUserHasNoPipewireHomePersistence =
-      !(lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireUserOnly.home-manager.users.unrelated.home.persistence."/persist".directories);
+      !(pipewireUserOnly.home-manager.users.unrelated.home ? persistence)
+      || !(pipewireUserOnly.home-manager.users.unrelated.home.persistence ? "/persist")
+      || !(lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireUserOnly.home-manager.users.unrelated.home.persistence."/persist".directories);
+    homePersistenceBaselineIsTargeted =
+      pipewireUserOnly.home-manager.users.fixture.home.persistence."/persist".hideMounts
+      && !(pipewireUserOnly.home-manager.users.unrelated.home.persistence."/persist".hideMounts or false);
     persistenceRoutingCanBeExcluded =
       !(lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireWithoutPersistenceRouting.home-manager.users.fixture.home.persistence."/persist".directories)
       && !(lib.any (directory: directory.directory == "/var/lib/bluetooth") pipewireWithoutPersistenceRouting.environment.persistence."/persist".directories)
