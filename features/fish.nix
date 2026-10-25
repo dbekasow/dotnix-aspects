@@ -5,17 +5,16 @@ let
   });
 in
 {
-
-  dotnix.fish.nixos = {
-    programs.fish.enable = true;
-    programs.fish.useBabelfish = true;
+  dotnix.host.fish.nixos = { lib, ... }: {
+    programs.fish.enable = lib.mkDefault true;
+    programs.fish.useBabelfish = lib.mkDefault true;
   };
 
-  dotnix.fish.homeManager = { pkgs, ... }: {
-    home.shell.enableFishIntegration = true;
+  dotnix.home.fish.homeManager = { lib, pkgs, ... }: {
+    home.shell.enableFishIntegration = lib.mkDefault true;
 
     programs.fish = {
-      enable = true;
+      enable = lib.mkDefault true;
 
       plugins =
         with pkgs.fishPlugins;
@@ -26,8 +25,11 @@ in
     };
   };
 
-  # Impermanence contribution for fish.
-  dotnix.fish.homePersistence = {
+  dotnix.home.fish.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/fish" ];
+  };
+
+  dotnix.account.fish.user = { lib, pkgs, ... }: {
+    shell = lib.mkDefault pkgs.fish;
   };
 }
