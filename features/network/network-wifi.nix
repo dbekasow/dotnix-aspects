@@ -1,5 +1,5 @@
 {
-  dotnix.network-wifi.nixos = { pkgs, ... }: {
+  dotnix.host.network-wifi.nixos = { pkgs, ... }: {
     networking = {
       networkmanager.wifi = {
         backend = "iwd";
@@ -32,7 +32,7 @@
   };
 
   # Impermanence contribution for network-wifi.
-  dotnix.network-wifi.systemPersistence = {
+  dotnix.host.network-wifi.systemPersistence = {
     environment.persistence."/persist".directories = [ "/var/lib/iwd" ];
   };
 }

@@ -44,7 +44,7 @@ in
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  dotnix.disko.nixos = { lib, ... }:
+  dotnix.host.disko.nixos = { lib, ... }:
     let mkDefaultLeaves = lib.mapAttrsRecursive (_: lib.mkDefault); in
     {
       imports = [ inputs.disko.nixosModules.disko ];
