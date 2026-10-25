@@ -3,7 +3,7 @@
 **What to build:** Make existing desktop applications consumable as individually usable features with explicitly selected optional integrations. Firefox, Anki, Alacritty, Ghostty, OnlyOffice, Thunderbird, and other existing applications work without implicit desktop backend selection.
 
 **Blocked by:** [14: Separate Niri support from user configuration](14-niri-scope-separation.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria

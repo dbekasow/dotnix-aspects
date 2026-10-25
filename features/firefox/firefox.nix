@@ -1,6 +1,11 @@
+{ inputs, ... }:
 {
   dotnix.firefox.homeManager =
-    { lib, options, pkgs, ... }:
+    { lib, pkgs, ... }:
+    let
+      addons = pkgs.nur.repos.rycee.firefox-addons
+        or inputs.nur.legacyPackages.${pkgs.stdenv.hostPlatform.system}.repos.rycee.firefox-addons;
+    in
     lib.mkMerge [
       {
         programs.firefox = {
@@ -98,7 +103,7 @@
               "intl.accept_languages" = "de-DE, de, en-US, en";
             };
 
-            extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
+            extensions.packages = with addons; [
               bitwarden
               i-dont-care-about-cookies
               localcdn
@@ -129,36 +134,43 @@
           };
 
       }
-      (lib.optionalAttrs (lib.hasAttrByPath [ "stylix" "targets" "firefox" ] options) {
-        stylix.targets.firefox = {
-          profileNames = [ "default" ];
-          colorTheme.enable = true;
-        };
-      })
     ];
 
-  dotnix.home.niri.homeManager.programs.niri.settings.window-rules = [
+  dotnix.firefox.niri.homeManager =
+    { config, lib, ... }:
     {
-      # Firefox uses CSDs that break clip-to-geometry — disable the global rule
-      matches = [{ app-id = "firefox$"; }];
-      clip-to-geometry = false;
-    }
-    {
-      # PiP window: floating, pinned to top-right corner
-      matches = [
-        {
-          app-id = "firefox$";
-          title = "^Picture-in-Picture$";
-        }
-      ];
-      open-floating = true;
-      default-floating-position = {
-        x = 32;
-        y = 32;
-        relative-to = "top-right";
+      config = lib.mkIf (config._module.args.dotnixHomeNiriSelected or false) {
+        programs.niri.settings.window-rules = [
+          {
+            # Firefox uses CSDs that break clip-to-geometry — disable the global rule
+            matches = [{ app-id = "firefox$"; }];
+            clip-to-geometry = false;
+          }
+          {
+            # PiP window: floating, pinned to top-right corner
+            matches = [
+              {
+                app-id = "firefox$";
+                title = "^Picture-in-Picture$";
+              }
+            ];
+            open-floating = true;
+            default-floating-position = {
+              x = 32;
+              y = 32;
+              relative-to = "top-right";
+            };
+          }
+        ];
       };
-    }
-  ];
+    };
+
+  dotnix.firefox.stylix.homeManager = {
+    stylix.targets.firefox = {
+      profileNames = [ "default" ];
+      colorTheme.enable = true;
+    };
+  };
 
   dotnix.firefox.homePersistence = { lib, config, ... }: {
     # Firefox profiles live in ~/.mozilla/firefox for stateVersion < 26.05

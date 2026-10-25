@@ -719,6 +719,49 @@ let
     userIncludes = [ dotnix.handy-service ];
     hostModule.users.users.fixture.home = "/home/fixture";
   };
+  firefoxOnly = evaluate {
+    userIncludes = [ dotnix.firefox ];
+    otherHost = true;
+    extraUsers.unrelated.classes = [ "homeManager" ];
+  };
+  firefoxWithNiri = evaluate {
+    userIncludes = [ dotnix.firefox dotnix.home.niri dotnix.firefox.niri ];
+    extraUsers.unrelated.classes = [ "homeManager" ];
+  };
+  firefoxWithHomeNiriWithoutIntegration = evaluate {
+    userIncludes = [ dotnix.firefox dotnix.home.niri ];
+  };
+  firefoxWithHostNiriOnly = evaluate {
+    hostIncludes = [ dotnix.host.niri ];
+    userIncludes = [ dotnix.firefox ];
+    otherHost = true;
+    extraUsers.unrelated.classes = [ "homeManager" ];
+  };
+  firefoxWithHostNiriAndIntegration = evaluate {
+    hostIncludes = [ dotnix.host.niri ];
+    userIncludes = [ dotnix.firefox dotnix.firefox.niri ];
+  };
+  firefoxWithStylix = evaluate {
+    userIncludes = [ dotnix.firefox dotnix.home.stylix dotnix.firefox.stylix ];
+    extraUsers.unrelated.classes = [ "homeManager" ];
+  };
+  firefoxWithHomeStylixWithoutIntegration = evaluate {
+    userIncludes = [ dotnix.firefox dotnix.home.stylix ];
+  };
+  firefoxWithHostStylix = evaluate {
+    hostIncludes = [ dotnix.host.stylix ];
+    userIncludes = [ dotnix.firefox ];
+  };
+  ankiOnly = evaluate {
+    userIncludes = [ dotnix.anki ];
+    otherHost = true;
+    extraUsers.unrelated.classes = [ "homeManager" ];
+  };
+  firefoxWithoutNurOverlay = evaluate {
+    overlays = [ ];
+    userIncludes = [ dotnix.firefox ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+  };
   checks = {
     popupTmuxWorksWithoutWorkmux =
       let tmux = popupTmuxOnly.home-manager.users.fixture.programs.tmux;
@@ -771,6 +814,114 @@ let
     handyServiceRequiresExplicitSelection =
       handyServiceSelected.home-manager.users.fixture.systemd.user.services.handy.Install.WantedBy
       == [ "graphical-session.target" ];
+    firefoxCanBeSelectedWithoutNiriOrStyling =
+      let
+        inherit (firefoxOnly) selected;
+        home = selected.home-manager.users.fixture;
+        unrelated = selected.home-manager.users.unrelated;
+      in
+      home.programs.firefox.enable
+      && !(selected.programs.niri.enable or false)
+      && !(home.stylix.enable or false)
+      && !(unrelated.programs.firefox.enable or false)
+      && !(unrelated.programs.niri.enable or false)
+      && !(unrelated.stylix.enable or false)
+      && !(firefoxOnly.unselected.programs.niri.enable or false);
+    ankiCanBeSelectedWithoutNiriOrStyling =
+      let
+        inherit (ankiOnly) selected;
+        home = selected.home-manager.users.fixture;
+        unrelated = selected.home-manager.users.unrelated;
+      in
+      home.programs.anki.enable
+      && !(selected.programs.niri.enable or false)
+      && !(home.stylix.enable or false)
+      && !(unrelated.programs.anki.enable or false)
+      && !(unrelated.programs.niri.enable or false)
+      && !(unrelated.stylix.enable or false)
+      && !(ankiOnly.unselected.programs.niri.enable or false);
+    firefoxWithoutNurOverlayBuildsExtensions =
+      let
+        home = firefoxWithoutNurOverlay.home-manager.users.fixture;
+        extensionDrvs = map (package: package.drvPath) home.programs.firefox.profiles.default.extensions.packages;
+      in
+      home.programs.firefox.enable
+      && builtins.length extensionDrvs == 6
+      && builtins.all (drvPath: drvPath != "") extensionDrvs
+      && home.home.activationPackage.drvPath != "";
+    niriHomeSelectionDoesNotConfigureFirefox =
+      !(lib.any
+        (rule: lib.any (match: (match.app-id or "") == "firefox$") (rule.matches or [ ]))
+        niriHomeOnly.selected.home-manager.users.fixture.programs.niri.settings.window-rules);
+    selectedFirefoxNiriIntegrationAddsRulesForSelectedUser =
+      let
+        home = firefoxWithNiri.home-manager.users.fixture;
+        rules = home.programs.niri.settings.window-rules;
+        unrelated = firefoxWithNiri.home-manager.users.unrelated;
+      in
+      home.programs.firefox.enable
+      && !(firefoxWithNiri.programs.niri.enable or false)
+      && lib.any
+        (rule: lib.any (match: (match.app-id or "") == "firefox$") (rule.matches or [ ]))
+        rules
+      && !(unrelated.programs.firefox.enable or false)
+      && !(unrelated.programs.niri.enable or false);
+    firefoxWithHomeNiriNeedsItsOwnedIntegration =
+      let
+        home = firefoxWithHomeNiriWithoutIntegration.home-manager.users.fixture;
+        rules = home.programs.niri.settings.window-rules;
+      in
+      home.xdg.configFile.niri-config.enable
+      && !(lib.any
+        (rule: lib.any (match: (match.app-id or "") == "firefox$") (rule.matches or [ ]))
+        rules);
+    hostNiriWithoutFirefoxIntegrationDoesNotGenerateHomeNiriConfig =
+      let
+        inherit (firefoxWithHostNiriOnly) selected;
+        home = selected.home-manager.users.fixture;
+        unrelated = selected.home-manager.users.unrelated;
+      in
+      selected.programs.niri.enable
+      && home.programs.firefox.enable
+      && !(home.xdg.configFile.niri-config.enable or false)
+      && !(unrelated.programs.firefox.enable or false)
+      && !(unrelated.xdg.configFile.niri-config.enable or false)
+      && !(firefoxWithHostNiriOnly.unselected.programs.niri.enable or false);
+    firefoxNiriIntegrationDoesNotReplaceHomeNiriSelection =
+      let
+        selected = firefoxWithHostNiriAndIntegration;
+        home = selected.home-manager.users.fixture;
+      in
+      selected.programs.niri.enable
+      && home.programs.firefox.enable
+      && !(home.xdg.configFile.niri-config.enable or false);
+    selectedFirefoxStylixTargetsFollowHomeSelection =
+      let
+        home = firefoxWithStylix.home-manager.users.fixture;
+        unrelated = firefoxWithStylix.home-manager.users.unrelated;
+      in
+      home.programs.firefox.enable
+      && home.stylix.enable
+      && home.stylix.targets.firefox.profileNames == [ "default" ]
+      && home.stylix.targets.firefox.colorTheme.enable
+      && !(firefoxWithStylix.stylix.enable or false)
+      && !(unrelated.stylix.enable or false)
+      && !(unrelated.programs.firefox.enable or false);
+    homeStylixDoesNotOptIntoFirefoxIntegration =
+      let
+        home = firefoxWithHomeStylixWithoutIntegration.home-manager.users.fixture;
+      in
+      home.programs.firefox.enable
+      && home.stylix.enable
+      && home.stylix.targets.firefox.profileNames == [ ]
+      && !(home.stylix.targets.firefox.colorTheme.enable or false);
+    hostStylixDoesNotProvideFirefoxHomeTargets =
+      firefoxWithHostStylix.stylix.enable
+      && !(firefoxWithHostStylix.home-manager.users.fixture.stylix.enable or false)
+      && !(firefoxWithHostStylix.home-manager.users.fixture.stylix.targets.firefox.colorTheme.enable or false);
+    firefoxExposesOwnedIntegrationSelectors =
+      dotnix.firefox ? niri
+      && dotnix.firefox ? stylix;
     populatedResourcesUseConsumerTree =
       populatedSelf.inputs == source.inputs
       && toString populatedSelf.outPath == toString resourceTree;
