@@ -14,7 +14,6 @@
     host.network-wifi
     host.pipewire
     host.power
-    yubikey
-    yubikey-pam
+    host.yubikey
   ];
 }

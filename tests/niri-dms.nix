@@ -128,10 +128,13 @@ let
     userIncludes = with dotnix; [ home.niri handy ];
   };
   desktopShellHome = evaluate {
-    userIncludes = with dotnix; [ desktop-shell gpg-agent rbw ];
+    userIncludes = with dotnix; [ desktop-shell home.gpg-agent-gui home.rbw-gui ];
+  };
+  desktopShellWithoutGuiPinentry = evaluate {
+    userIncludes = with dotnix; [ desktop-shell home.gpg-agent home.rbw ];
   };
   desktopShellOverrideHome = evaluate {
-    userIncludes = with dotnix; [ desktop-shell gpg-agent rbw ];
+    userIncludes = with dotnix; [ desktop-shell home.gpg-agent-gui home.rbw-gui ];
     userModule = {
       services.gpg-agent.pinentry.package = nixpkgs.legacyPackages.${system}.pinentry-curses;
       programs.rbw.settings.pinentry = nixpkgs.legacyPackages.${system}.pinentry-curses;
@@ -177,10 +180,14 @@ let
         "handy"
         "--cancel"
       ];
-    desktopShellUsesGuiPinentry =
+    featureOwnedGuiPinentrySelection =
       desktopShellHome.home.services.gpg-agent.pinentry.package.pname == "pinentry-gnome3"
       && desktopShellHome.home.programs.rbw.settings.pinentry
       == lib.getExe nixpkgs.legacyPackages.${system}.pinentry-gnome3;
+    desktopShellDoesNotForceGuiPinentry =
+      desktopShellWithoutGuiPinentry.home.services.gpg-agent.pinentry.package.pname == "pinentry-curses"
+      && desktopShellWithoutGuiPinentry.home.programs.rbw.settings.pinentry
+      == lib.getExe nixpkgs.legacyPackages.${system}.pinentry-curses;
     desktopShellPreservesConsumerPinentry =
       desktopShellOverrideHome.home.services.gpg-agent.pinentry.package.pname == "pinentry-curses"
       && desktopShellOverrideHome.home.programs.rbw.settings.pinentry
