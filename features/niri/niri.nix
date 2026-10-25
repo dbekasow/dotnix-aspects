@@ -5,7 +5,7 @@
     # Only niri-unstable is used, so the stable lane shares unstable pin.
     inputs.nixpkgs-stable.follows = "nixpkgs";
   };
-  dotnix.niri.nixos = { pkgs, ... }: {
+  dotnix.niri.nixos = { lib, pkgs, ... }: {
     imports = [ inputs.niri.nixosModules.niri ];
 
     nix.settings = {
@@ -17,6 +17,10 @@
 
     programs.niri.enable = true;
     programs.niri.package = pkgs.niri-unstable;
+
+    # Polkit authentication agents are selected by each user's Home Manager
+    # configuration, not enabled for every account on this host.
+    systemd.user.services.niri-flake-polkit.enable = lib.mkDefault false;
   };
 
   dotnix.niri.homeManager =
@@ -27,6 +31,22 @@
     }:
     {
       imports = lib.optional (!((specialArgs.osConfig or { }) ? niri-flake)) inputs.niri.homeModules.niri;
+
+      systemd.user.services.niri-flake-polkit = {
+        Unit = {
+          Description = "PolicyKit Authentication Agent provided by niri-flake";
+          After = [ "graphical-session.target" ];
+          PartOf = [ "graphical-session.target" ];
+        };
+        Service = {
+          Type = "simple";
+          ExecStart = "${pkgs.kdePackages.polkit-kde-agent-1}/libexec/polkit-kde-authentication-agent-1";
+          Restart = "on-failure";
+          RestartSec = 1;
+          TimeoutStopSec = 10;
+        };
+        Install.WantedBy = [ "niri.service" ];
+      };
 
       programs.niri.settings = {
         xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite-unstable;

@@ -105,7 +105,13 @@ let
     hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms stylix certificates ];
     userClasses = [ "user" "homeManager" ];
     userIncludes = with dotnix; [ account.passwords age-rekey stylix ];
-    hostModule.users.users.fixture.home = "/home/fixture";
+    hostModule = {
+      users.users.fixture.home = "/home/fixture";
+      programs.dank-material-shell.lockscreen.securityKey = {
+        enable = true;
+        moduleArgs = [ "cue" "authfile=/run/fixture/u2f-authfile" ];
+      };
+    };
   };
   emptyResources = evaluate {
     hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms stylix certificates ];
@@ -516,7 +522,8 @@ let
       && populatedResources.security.pam.u2f.enable
       && populatedResources.security.pam.u2f.settings.authfile == populatedResources.age.secrets.u2f.path
       && populatedResources.programs.dank-material-shell.lockscreen.securityKey.enable
-      && lib.elem "authfile=${populatedResources.age.secrets.u2f.path}" populatedResources.programs.dank-material-shell.lockscreen.securityKey.moduleArgs;
+      && populatedResources.programs.dank-material-shell.lockscreen.securityKey.moduleArgs
+      == [ "cue" "authfile=/run/fixture/u2f-authfile" ];
     populatedWallpaperPath = toString populatedResources.home-manager.users.fixture.stylix.image == "${resourceTree}/modules/users/fixture/assets/wallpaper.png";
     populatedCertificateFiles = lib.unique populatedResources.security.pki.certificateFiles == [ "${resourceTree}/modules/hosts/fixture/certificates/fixture.crt" ];
     emptyResourceGates =
@@ -659,7 +666,10 @@ let
       && !(socketOnly.programs.dms-greeter.enable or false)
       && !(socketOnly.services.displayManager.noctalia-greeter.enable or false);
     dmsShellAndGreeterExplicitlySelected =
-      dmsSelected.programs.dank-material-shell.enable && dmsSelected.programs.dms-greeter.enable;
+      dmsSelected.programs.dank-material-shell.enable
+      && dmsSelected.programs.dms-greeter.enable
+      && !dmsSelected.programs.dank-material-shell.systemd.enable
+      && !(dmsSelected.programs.dank-material-shell.lockscreen.securityKey.enable or false);
     noctaliaGreeterExplicitlySelected =
       noctaliaSelected.services.displayManager.noctalia-greeter.enable;
     noctaliaHomeShellExplicitlySelected = home.home-manager.users.fixture.programs.noctalia.enable;

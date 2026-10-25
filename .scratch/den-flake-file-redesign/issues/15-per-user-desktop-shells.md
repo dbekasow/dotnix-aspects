@@ -3,7 +3,7 @@
 **What to build:** Make DMS and Noctalia runtimes, their integrations, and per-user Polkit agents selectable per Home target. One machine can run different user runtimes; real exclusivity applies only to incompatible selections for the same target.
 
 **Blocked by:** [14: Separate Niri support from user configuration](14-niri-scope-separation.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria

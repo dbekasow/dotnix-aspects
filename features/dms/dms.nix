@@ -1,8 +1,7 @@
 { inputs, ... }:
 let
   # Library dependency inputs (the DMS modules) stay closed over the library
-  # flake; the vault path resolves from the aspect `inputs` argument (consumer
-  # flake) exposed by den.batteries.flake-scope.
+  # flake.
   libraryInputs = inputs;
 in
 {
@@ -10,11 +9,9 @@ in
     url = "github:AvengeMedia/DankMaterialShell";
     inputs.nixpkgs.follows = "nixpkgs";
   };
-  dotnix.dms = { inputs, ... }: {
+  dotnix.dms = { ... }: {
     nixos =
-      { host
-      , config
-      , lib
+      { lib
       , pkgs
       , ...
       }:
@@ -29,21 +26,8 @@ in
         programs.dank-material-shell = {
           enable = true;
 
-          systemd.enable = true;
-          systemd.restartIfChanged = true;
-
-          # U2F needs vault material like yubikey-pam: the u2f authfile secret
-          # only exists once the vault is ready.
-          lockscreen.securityKey =
-            lib.mkIf
-              (lib.pathExists "${inputs.self}/modules/hosts/${host.name}/secrets/ssh_host_ed25519_key.pub")
-              {
-                enable = true;
-                moduleArgs = [
-                  "cue"
-                  "authfile=${config.age.secrets.u2f.path}"
-                ];
-              };
+          # Runtime selection belongs to individual Home Manager targets.
+          systemd.enable = lib.mkDefault false;
         };
 
         programs.dsearch.enable = true;
@@ -57,7 +41,14 @@ in
         ];
       };
 
-    homeManager = { ... }: {
+    homeManager = { config, lib, ... }: {
+      assertions = [
+        {
+          assertion = !(config.programs.noctalia.enable or false);
+          message = "DMS and Noctalia cannot both be selected for the same Home Manager target.";
+        }
+      ];
+
       imports = with libraryInputs; [
         dms.homeModules.dank-material-shell
         dms.homeModules.niri
@@ -65,6 +56,7 @@ in
 
       programs.dank-material-shell = {
         enable = true;
+        systemd.enable = lib.mkDefault true;
 
         enableAudioWavelength = true;
         enableCalendarEvents = true;
