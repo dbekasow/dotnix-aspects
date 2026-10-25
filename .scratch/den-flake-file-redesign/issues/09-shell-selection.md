@@ -1,15 +1,15 @@
-# 09: Shell und Login-Shell unabhängig auswählen
+# 09: Select shells and login shells independently
 
-**What to build:** Fish und Nushell so aufteilen, dass Host-Voraussetzung, Account-Login-Shell und Home-Konfiguration unabhängig wählbar bleiben. Zugehörige Shell-UX wie Atuin, Carapace, Starship, FZF, Skim und Zoxide bleibt eigenständig kombinierbar.
+**What to build:** Separate Fish and Nushell so host prerequisites, account login shells, and home configuration remain independently selectable. Related shell UX such as Atuin, Carapace, Starship, FZF, Skim, and Zoxide remains independently combinable.
 
-**Blocked by:** [05: Accounts ohne versteckte Shell- oder Vault-Entscheidungen konfigurieren](05-account-selection.md).
+**Blocked by:** [05: Configure accounts without hidden shell or vault choices](05-account-selection.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] Fish- und Nushell-Home-Konfigurationen lassen sich ohne automatische Account-Login-Shell-Auswahl aktivieren; die Login-Shell wird nur für ausgewählte Accounts gesetzt.
-- [ ] Erforderliche Host-Pakete/Voraussetzungen sind separat von User- und Home-Auswahl; hostseitige Aktivierung trifft keine unbeteiligten Accounts.
-- [ ] Atuin, Carapace, Starship, FZF, Skim und Zoxide behalten ihre vorhandenen auswählbaren Fähigkeiten und werden nicht pauschal durch die Basisshell aktiviert.
-- [ ] Completions, Prompt- und Navigationsverhalten bleiben für vorhandene Shell-Kombinationen nutzbar; native Optionen überschreiben Defaults.
-- [ ] Shell-Auswahl braucht weder Popup-/Multiplexer-Auswahl noch Secrets/Vault-Konventionen.
+- [ ] Fish and Nushell home configurations can be activated without automatically selecting them as account login shells; set a login shell only for selected accounts.
+- [ ] Required host packages/prerequisites are separate from user and home selections; host-side activation does not affect unrelated accounts.
+- [ ] Atuin, Carapace, Starship, FZF, Skim, and Zoxide retain their existing selectable capabilities and are not activated wholesale by the base shell.
+- [ ] Completions, prompt, and navigation behavior remain usable for existing shell combinations; native options override defaults.
+- [ ] Shell selection requires neither popup/multiplexer selection nor Secrets/vault conventions.

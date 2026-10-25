@@ -1,5 +1,7 @@
 # Agent skills
 
+Write specs, tickets, and documentation in English only.
+
 ## Issue tracker
 
 For specs, tickets, triage, and issue updates, use local Markdown only.

@@ -1,15 +1,15 @@
-# 12: Git, Helix und Entwicklungswerkzeuge ohne Host-Nebenwirkungen verwenden
+# 12: Use Git, Helix, and development tools without host side effects
 
-**What to build:** Entwicklungsfähigkeiten einzeln und ohne unerwünschte Host-Aktivierung konsumierbar machen. Git-/VCS-Werkzeuge, Helix samt Sprachkonfiguration sowie Automation, Kubernetes und übrige vorhandene Entwicklungswerkzeuge bleiben beim jeweiligen Feature-Eigentümer.
+**What to build:** Make development capabilities individually consumable without unwanted host activation. Git/VCS tools, Helix and its language configuration, automation, Kubernetes, and other existing development tools remain with their respective feature owners.
 
-**Blocked by:** [02: Feature-Discovery und Ablage nach bestätigtem Ordnungskriterium umstellen](02-feature-ownership-discovery.md).
+**Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] Git, Git-Aliases, GitHub CLI, Lazygit, Delta und Difftastic behalten eigenständige Auswahlen; ein bereits vorhandener Host-Git-Anteil bleibt ausdrücklich wählbar.
-- [ ] Helix, Helix-Keys und vorhandene Bash/Fish/JSON/Just/Markdown/Nix/Python/Text/TOML/YAML-LSP-Konfigurationen bleiben nutzbar, ohne eine verpflichtende Sprach-Matrix.
-- [ ] Bacon, Just, Watchexec, Kubernetes und übrige vorhandene DevOps-/Automation-Fähigkeiten bleiben konsumierbar.
-- [ ] Eine Home-Auswahl aktiviert weder Docker noch Nix-LD als versteckte Host-Voraussetzung; Host-Facetten bleiben explizite Host-Auswahlen.
-- [ ] Native Optionen bleiben überschreibbar; kein Development-Profil ist für ein einzelnes Werkzeug erforderlich und keine per-Sprache-Testmatrix wird eingeführt.
+- [ ] Git, Git aliases, GitHub CLI, Lazygit, Delta, and Difftastic retain separate selections; an existing host Git contribution remains explicitly selectable.
+- [ ] Helix, Helix keys, and existing Bash/Fish/JSON/Just/Markdown/Nix/Python/Text/TOML/YAML LSP configurations remain usable without a mandatory language matrix.
+- [ ] Bacon, Just, Watchexec, Kubernetes, and other existing DevOps/automation capabilities remain consumable.
+- [ ] A home selection activates neither Docker nor Nix-LD as a hidden host prerequisite; host facets remain explicit host selections.
+- [ ] Native options remain overridable; no Development profile is required for an individual tool, and no per-language test matrix is introduced.

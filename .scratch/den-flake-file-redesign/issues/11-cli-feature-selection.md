@@ -1,15 +1,15 @@
-# 11: Kleine CLI-Fähigkeiten unabhängig kombinieren
+# 11: Combine small CLI capabilities independently
 
-**What to build:** Vorhandene kleine terminalnahe Fähigkeiten einzeln konsumierbar halten, ohne sie zu einem neuen Themen- oder Rollenbaum zu machen. Dazu gehören Datei-, Daten-, Such-, Monitoring- und Nix-Werkzeuge sowie Aerc und Maildir; ihre bestehenden State-Beiträge bleiben beim jeweiligen Eigentümer.
+**What to build:** Keep existing small terminal-oriented capabilities individually consumable without creating a new theme or role tree. This includes file, data, search, monitoring, and Nix tools as well as Aerc and Maildir; their existing state contributions remain with their respective owners.
 
-**Blocked by:** [02: Feature-Discovery und Ablage nach bestätigtem Ordnungskriterium umstellen](02-feature-ownership-discovery.md).
+**Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] `bat`, `dua`, `dust`, `eza`, `fd`, `ouch`, `ripgrep`, `ripgrep-all`, `sd`, `fx`, `jq`, `mdcat` und `xh` bleiben unabhängig wählbar.
-- [ ] Monitoring-Werkzeuge einschließlich Bandwhich, Bottom, Fastfetch, Hyperfine, Procs, Rustscan, Tealdeer, Television und Tokei bleiben als eigene Fähigkeiten verfügbar.
-- [ ] Nix-Werkzeuge wie Nix Index Database, Nix Search TV und Nix Tools sowie Aerc und Maildir bleiben explizit auswählbar, ohne einen neuen Mail- oder Container-Verzeichnisbaum einzuführen.
-- [ ] Bestehende Persistence-/State-Beiträge bleiben featurelokal; einzelne kleine Features brauchen keine eigenen Tests oder verpflichtende Verzeichnisse.
-- [ ] Shell-UX und Login-Shell gehören zu Ticket 09, Multiplexer/Popup zu Ticket 10, Secrets zu Ticket 06, Direnv zu Ticket 03 und Entwicklungswerkzeuge zu Ticket 12.
+- [ ] `bat`, `dua`, `dust`, `eza`, `fd`, `ouch`, `ripgrep`, `ripgrep-all`, `sd`, `fx`, `jq`, `mdcat`, and `xh` remain independently selectable.
+- [ ] Monitoring tools including Bandwhich, Bottom, Fastfetch, Hyperfine, Procs, Rustscan, Tealdeer, Television, and Tokei remain available as separate capabilities.
+- [ ] Nix tools such as Nix Index Database, Nix Search TV, and Nix Tools, along with Aerc and Maildir, remain explicitly selectable without introducing a new mail or container directory tree.
+- [ ] Existing Persistence/state contributions remain local to each feature; small individual features require neither their own tests nor mandatory directories.
+- [ ] Shell UX and login shells belong to ticket 09, multiplexers/popups to ticket 10, Secrets to ticket 06, Direnv to ticket 03, and development tools to ticket 12.
