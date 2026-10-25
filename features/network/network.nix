@@ -1,5 +1,5 @@
 {
-  dotnix.network.nixos = { lib, pkgs, ... }: {
+  dotnix.host.network.nixos = { lib, pkgs, ... }: {
     networking = {
       networkmanager = {
         enable = true;
@@ -83,7 +83,7 @@
     ];
   };
 
-  dotnix.network.systemPersistence = {
+  dotnix.host.network.systemPersistence = {
     environment.persistence."/persist".directories = [
       "/var/lib/NetworkManager"
       "/etc/NetworkManager/system-connections"

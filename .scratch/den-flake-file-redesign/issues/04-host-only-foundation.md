@@ -3,7 +3,7 @@
 **What to build:** Provide host-side system capabilities as individually selectable consumer choices, including boot, Disko, networking, Bluetooth, power, performance, geolocation, journald, locale, security, system packages, and the existing Nix-LD host capability. Host-only configuration must remain valid without Home Manager; existing home-side facets of shared Nix tools remain explicitly available.
 
 **Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria

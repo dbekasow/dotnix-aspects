@@ -16,7 +16,7 @@
           den.hosts.x86_64-linux.fixture-hardware-gated = { };
 
           den.aspects.fixture-server = {
-            includes = [ dotnix.server dotnix.security ];
+            includes = [ dotnix.server dotnix.host.security ];
             nixos = {
               boot.loader.grub = {
                 enable = true;
@@ -31,7 +31,7 @@
           };
 
           den.aspects.fixture-hardware-gated = {
-            includes = [ dotnix.server dotnix.security ];
+            includes = [ dotnix.server dotnix.host.security ];
             nixos = { config, lib, ... }: {
               options.fixture.hardwareAuthenticationGate = lib.mkOption {
                 type = lib.types.bool;

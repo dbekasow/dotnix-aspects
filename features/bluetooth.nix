@@ -1,5 +1,5 @@
 {
-  dotnix.bluetooth.nixos = { pkgs, ... }: {
+  dotnix.host.bluetooth.nixos = { pkgs, ... }: {
     hardware.bluetooth = {
       enable = true;
       powerOnBoot = true;
@@ -16,7 +16,7 @@
   };
 
   # Impermanence contribution for bluetooth.
-  dotnix.bluetooth.systemPersistence = {
+  dotnix.host.bluetooth.systemPersistence = {
     environment.persistence."/persist".directories = [ "/var/lib/bluetooth" ];
   };
 }

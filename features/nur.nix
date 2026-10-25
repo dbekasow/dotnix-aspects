@@ -3,7 +3,7 @@
     url = "github:nix-community/NUR";
     inputs.nixpkgs.follows = "nixpkgs";
   };
-  dotnix.nur.nixos = {
+  dotnix.host.nur.nixos = {
     imports = [ inputs.nur.modules.nixos.default ];
   };
 }
