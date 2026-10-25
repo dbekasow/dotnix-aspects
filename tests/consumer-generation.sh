@@ -48,10 +48,28 @@ within_or_equal() {
   [[ $1 == "$2" || $1 == "$2/"* ]]
 }
 
+validate_destination_location() {
+  if [[ $destination == "$repo" ]] || within_or_equal "$repo" "$destination"; then
+    refuse "destination overlaps protected path '$repo'"
+  fi
+  for protected in "$home" "$original" "$private"; do
+    if within_or_equal "$destination" "$protected" || within_or_equal "$protected" "$destination"; then
+      refuse "destination overlaps protected path '$protected'"
+    fi
+  done
+  if within_or_equal "$destination" "$repo" && ! git -C "$repo" check-ignore -q -- "$destination"; then
+    refuse "destination inside repository must be git-ignored: $destination"
+  fi
+}
+
 refuse() {
   printf 'Refusing consumer generation destination: %s\n' "$1" >&2
   exit 1
 }
+
+case "/$1/" in
+*"/../"*) refuse "destination path must not contain '..' components" ;;
+esac
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 destination="$(normalize_path "$1")"
@@ -60,11 +78,7 @@ original="/home/denis/projects/dotnix-aspects"
 private="/home/denis/projects/dotnix"
 
 [[ $destination != / ]] || refuse 'filesystem root is not a suitable destination'
-for protected in "$repo" "$home" "$original" "$private"; do
-  if within_or_equal "$destination" "$protected" || within_or_equal "$protected" "$destination"; then
-    refuse "destination overlaps protected path '$protected'"
-  fi
-done
+validate_destination_location
 
 current="/"
 IFS=/ read -r -a components <<<"$destination"
@@ -79,11 +93,7 @@ for component in "${components[@]}"; do
 done
 [[ -d $destination ]] || refuse "destination must be an existing directory: $destination"
 destination="$(cd "$destination" && pwd -P)"
-for protected in "$repo" "$home" "$original" "$private"; do
-  if within_or_equal "$destination" "$protected" || within_or_equal "$protected" "$destination"; then
-    refuse "destination overlaps protected path '$protected'"
-  fi
-done
+validate_destination_location
 
 shopt -s dotglob nullglob
 contents=("$destination"/*)
