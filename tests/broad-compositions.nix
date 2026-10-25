@@ -225,6 +225,31 @@ let
     hostModule.users.users.fixture.home = "/home/fixture";
     userModule.programs.k9s.enable = false;
   };
+  popupMissingBackendBinding = evaluate {
+    userIncludes = with dotnix; [
+      tmux
+      herdr
+      {
+        popup-launcher = [
+          {
+            name = "tmux-only";
+            command = "/bin/true";
+            width = "20%";
+            height = "20%";
+            keys.tmux = "z";
+          }
+          {
+            name = "herdr-only";
+            command = "/bin/true";
+            width = "20%";
+            height = "20%";
+            keys.herdr = "prefix+alt+q";
+          }
+        ];
+      }
+    ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+  };
   standaloneHerdr =
     let
       fixture = {
@@ -259,6 +284,15 @@ let
     popupQuirkExcludesDisabledLauncher =
       !(lib.any (entry: entry.description == "k9s") popupDisabled.home-manager.users.fixture.programs.herdr.settings.keys.command)
       && !(lib.hasInfix "k9s" popupDisabled.home-manager.users.fixture.programs.tmux.extraConfig);
+    popupMissingBackendBindingIsOmitted =
+      let
+        tmux = popupMissingBackendBinding.home-manager.users.fixture.programs.tmux.extraConfig;
+        herdr = popupMissingBackendBinding.home-manager.users.fixture.programs.herdr.settings.keys.command;
+      in
+      lib.hasInfix "tmux-only" tmux
+      && !(lib.hasInfix "herdr-only" tmux)
+      && lib.any (entry: entry.description == "herdr-only") herdr
+      && !(lib.any (entry: entry.description == "tmux-only") herdr);
     popupMenuCoexistsWithWorkmux =
       let
         enabled = popupEnabled.home-manager.users.fixture.programs.tmux.extraConfig;

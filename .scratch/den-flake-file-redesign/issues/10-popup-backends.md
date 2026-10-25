@@ -3,7 +3,7 @@
 **What to build:** Make the popup launcher usable with one authoritative library-owned data source and explicit backend selection. Tmux and Herdr renderers use the same launcher data without taking Zellij/Sesh capabilities from their owners.
 
 **Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria
