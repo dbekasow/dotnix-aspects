@@ -1,11 +1,33 @@
 { inputs, lib, ... }:
 let
   modules = ./.;
+  featureRoot = ../features;
 
-  aspects = lib.pipe inputs.import-tree [
-    (i: i.addPath "${modules}/aspects")
+  featureModules = lib.pipe inputs.import-tree [
+    # Use pinned import-tree defaults for feature entry-point discovery.
+    (i: i.addPath "${featureRoot}")
     (i: i.withLib lib)
     (i: i.files)
+  ];
+
+  profileModules = [
+    ../profiles/base.nix
+    ../profiles/core.nix
+    ../profiles/desktop-apps.nix
+    ../profiles/desktop-shell.nix
+    ../profiles/desktop.nix
+    ../profiles/development.nix
+    ../profiles/mail.nix
+    ../profiles/server.nix
+    ../profiles/term-cli.nix
+    ../profiles/term-monitoring.nix
+    ../profiles/term-nix.nix
+    ../profiles/term-secrets.nix
+    ../profiles/term-shell.nix
+    ../profiles/term-ux.nix
+    ../profiles/terminal-herdr.nix
+    ../profiles/terminal.nix
+    ../profiles/workstation.nix
   ];
 
   consumerAdapter = (import ./integration/default.nix) inputs.self;
@@ -19,7 +41,7 @@ let
   ];
 in
 {
-  imports = aspects ++ devParts;
+  imports = featureModules ++ profileModules ++ devParts;
 
   config = {
     flake-file.outputs = ''

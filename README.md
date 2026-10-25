@@ -1,18 +1,12 @@
 # Dotnix-Aspects
 
-A reusable library of [dendritic](https://github.com/mightyiam/dendritic) NixOS and Home Manager aspects built on Den. Consumers import its native Den namespace and activate features by including aspects in host and user compositions. Optional bundles under `modules/aspects/profiles/` are conveniences, not mandatory tiers.
+A reusable library of [dendritic](https://github.com/mightyiam/dendritic) NixOS and Home Manager aspects built on Den. Consumers import its native Den namespace and activate features by including aspects in host and user compositions. Optional bundles under root `profiles/` are conveniences, not mandatory tiers.
 
-## Aspects
+## Feature catalog and discovery
 
-All aspects live under `modules/aspects/`. Each file contributes Den aspects for NixOS, Home Manager, or both. Adding or removing a file changes only the capabilities it provides.
+Feature sources live under root `features/`. Small features can stay in one file; multi-part owners such as Helix, DMS, Niri, Firefox, and Tmux keep related parts and integrations local. Each module declares its public `dotnix.*` aspect names explicitly; filesystem names do not define public namespace paths. Optional profile modules live separately under root `profiles/` and are assembled explicitly.
 
-| Category       | Classes   | Description                                                    |
-| -------------- | --------- | -------------------------------------------------------------- |
-| `core/`        | NixOS, HM | Nix, users, secrets, theming, SSH, security, locale, fonts     |
-| `system/`      | NixOS     | Boot, disk layout, networking, audio, bluetooth, power         |
-| `desktop/`     | NixOS, HM | Compositor, shell, greeter, portals, apps, terminals           |
-| `development/` | NixOS, HM | Editor, LSPs, Git, containers, Kubernetes, AI, automation      |
-| `term/`        | HM        | Shells, prompt, multiplexer, file tools, monitoring, Nix tools |
+`modules/expose.nix` discovers feature modules only by scanning `features/` with the pinned import-tree default: directory scans select `.nix` files and exclude paths containing relative `/_`. `default.nix` does not stop recursive scanning. This is a filename filter, not module-shape validation or a security boundary: explicitly supplied files bypass the filter, changing scan roots changes which paths are relative, and `initFilter` replaces the default predicate. Keep helpers outside discovery or under an owner-local `_private/` path and import them explicitly.
 
 ## Usage
 
