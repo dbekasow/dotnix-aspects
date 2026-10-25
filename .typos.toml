@@ -2,9 +2,11 @@
 extend-exclude = [
   "certificates/",
   "secrets/",
-  "docs/recherche-*/" # German research archive — typos churns it forever
+  "docs/recherche-*/", # German research archive — typos churns it forever
+  ".scratch/den-flake-file-redesign/issues/" # German ticket backlog
 ]
 
 [default.extend-words]
 ba = "ba" # git alias: branch --all
 thm = "thm" # tmux theme variable prefix
+ful = "ful" # Legitimate identifier fragment in denful and config.den.ful

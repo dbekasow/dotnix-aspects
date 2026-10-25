@@ -75,7 +75,7 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 - Registering an aspect does not activate it. Import `development` only for the chosen toolchain; Workmux/Tuicr Tmux bindings require both their tool aspect and enabled Tmux. Prefix `o` opens TUI popups; Prefix `w` opens Workmux's agents menu. The K9s popup follows `programs.k9s.enable`.
 - Herdr is an explicit Tmux alternative: import `terminal-herdr` instead of `terminal` for a user who wants Herdr. Existing `terminal` and `term-ux` imports keep Tmux, Sesh, and Zellij; selecting Herdr does not change any consumer composition automatically.
 - The `impermanence` aspects assume the btrfs-on-LUKS layout provided by the `disko` aspect; their `/persist` fragments only activate when the `impermanence` aspect is imported.
-- Impermanence audit one-liner: `grep -rn 'home.persistence' modules/`
+- Impermanence audit one-liner: `grep -rn 'home.persistence' features/`
 
 ## Reusable profiles
 

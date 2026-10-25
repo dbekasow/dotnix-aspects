@@ -14,3 +14,4 @@
 - [ ] Discovery dokumentiert die tatsächlich gepinnte import-tree-Regel: Verzeichnisscans schließen relative `/_`-Pfade standardmäßig aus; explizite Dateien und Wurzeln sowie ersetzende `initFilter`-Konfigurationen können diese Vorgabe umgehen. `default.nix` kapselt keinen rekursiven Scan.
 - [ ] Öffentliche Namespace-Namen werden explizit festgelegt und nicht aus Dateinamen oder Verzeichnispfaden abgeleitet. Es entsteht kein neues Registry- oder Taxonomie-DSL.
 - [ ] Reine Ablageänderungen erhalten vorhandene Selektionen ohne Alias- oder Kompatibilitätsversprechen und erzwingen weder neue Tests noch eine Feature-Matrix.
+- Evidence: Formatter gate passed after excluding German tickets and allowing legitimate `ful` in `denful` / `config.den.ful`.
