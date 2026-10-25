@@ -23,7 +23,7 @@ modules/
 flake.nix
 ```
 
-`modules/parts.nix` is the Den entry point. It imports Den's flake module and the library namespace, declares the user-scope `popup-launcher` Quirk for Tmux/Herdr, then enables the `flake-scope` and `hostname` batteries. The host configuration registers `myHost` and its `myuser` Home Manager class; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that user entity. Desktop shell selection is explicit at both scopes: `desktop-shell` and `dms` are provided to `myuser` for Home Manager configuration and included by the host for NixOS configuration. To select Noctalia, replace `dms` with `noctalia` in both `provides.myuser.includes` and host `includes`; greeter remains host-only.
+`modules/parts.nix` is the Den entry point. It imports Den's flake module and the library namespace, declares the user-scope `popup-launcher` Quirk for Tmux/Herdr, then enables the `flake-scope` and `hostname` batteries. The host configuration registers `myHost` and gives `myuser` the `user` and `homeManager` classes; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that account. The user aspect explicitly selects `account.users`; integrated Home Manager remains optional through its separate class. Add `account.passwords` only to users who need generated passwords, and select host `age` and `age-rekey`; the recipe reads native `age.rekey.secretsDir`, whose default is `modules/hosts/<host>/secrets` and can be overridden. Desktop shell selection is explicit at both scopes: `desktop-shell` and `dms` are provided to `myuser` for Home Manager configuration and included by the host for NixOS configuration. To select Noctalia, replace `dms` with `noctalia` in both `provides.myuser.includes` and host `includes`; greeter remains host-only.
 
 ## Usage
 
@@ -56,7 +56,9 @@ The committed master identity is a public placeholder for demonstration only. Re
 
 1. Copy `modules/users/myUser/` and rename it.
 2. Rename the `dotnix.myuser` aspect key in `default.nix` to match `provides.<name>` in the host aspect.
-3. Set the user's native Home Manager identity options and existing `home.stateVersion`.
+3. Select `account.users` in that aspect and add the `user` class to the account; add `homeManager` only when integrated Home Manager is wanted.
+4. Add `account.passwords` to that named user's includes only when generated passwords are wanted; select host `age` and `age-rekey`.
+5. Set the user's native Home Manager identity options and existing `home.stateVersion`.
 
 ## License
 

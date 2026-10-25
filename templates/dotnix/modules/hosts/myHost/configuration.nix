@@ -1,9 +1,9 @@
 # Native Den entity: the host and its user are registered here, their behavior
 # is composed from the dotnix namespace aspects below.
 { dotnix, ... }: {
-  # Register this host and its members. `homeManager` selects the HM class for
-  # the user; the host aspect below provides the user aspect to it.
-  den.hosts.x86_64-linux.myHost.users.myuser.classes = [ "homeManager" ];
+  # Register this host and its account. `user` enables account-class settings;
+  # `homeManager` opts into integrated Home Manager independently.
+  den.hosts.x86_64-linux.myHost.users.myuser.classes = [ "user" "homeManager" ];
 
   den.aspects.myHost = {
     # must match the user aspect name in modules/users/<user>/default.nix
