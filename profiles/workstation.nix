@@ -7,7 +7,8 @@
     host.performance
     host.bluetooth
     host.disko
-    impermanence
+    host.persistence
+    host.btrfs-root-reset
     host.geolocation
     host.network
     host.network-wifi
