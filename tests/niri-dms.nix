@@ -128,13 +128,13 @@ let
     userIncludes = with dotnix; [ home.niri handy ];
   };
   desktopShellHome = evaluate {
-    userIncludes = with dotnix; [ desktop-shell home.gpg-agent-gui home.rbw-gui ];
+    userIncludes = with dotnix; [ home.desktop-shell home.gpg-agent-gui home.rbw-gui ];
   };
   desktopShellWithoutGuiPinentry = evaluate {
-    userIncludes = with dotnix; [ desktop-shell home.gpg-agent home.rbw ];
+    userIncludes = with dotnix; [ home.desktop-shell home.gpg-agent home.rbw ];
   };
   desktopShellOverrideHome = evaluate {
-    userIncludes = with dotnix; [ desktop-shell home.gpg-agent-gui home.rbw-gui ];
+    userIncludes = with dotnix; [ home.desktop-shell home.gpg-agent-gui home.rbw-gui ];
     userModule = {
       services.gpg-agent.pinentry.package = nixpkgs.legacyPackages.${system}.pinentry-curses;
       programs.rbw.settings.pinentry = nixpkgs.legacyPackages.${system}.pinentry-curses;

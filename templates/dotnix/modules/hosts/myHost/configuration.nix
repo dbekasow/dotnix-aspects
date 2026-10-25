@@ -9,7 +9,7 @@
     # must match the user aspect name in modules/users/<user>/default.nix
     provides.myuser.includes = with dotnix; [
       myuser
-      desktop-shell # graphical foundation for this user's home
+      home.desktop-shell # graphical foundation for this user's home
       home.niri # per-user Niri configuration and bindings
       dms # Home Manager DMS launcher and settings; use noctalia here too to select it instead
       home.gpg-agent-gui # explicit graphical pinentry integration for this user
@@ -18,12 +18,12 @@
 
     includes = with dotnix; [
       dell-precision-5570 # from ./hardware.nix
-      core # Home Manager NixOS integration is explicitly selected
-      desktop-shell # graphical foundation
+      host.core # Home Manager NixOS integration is explicitly selected
+      host.desktop-shell # graphical foundation
       host.niri # NixOS Niri support, separate from per-user configuration
       dms # host shell — use noctalia instead for that host
       host.dms-greeter # greeter — swap for `host.noctalia-greeter`
-      base # shared boot behavior
+      host.base # shared boot behavior
       host.boot-systemd # systemd-boot loader
       host.performance # workstation tuning
       host.bluetooth # laptop radio
@@ -37,7 +37,6 @@
       host.power # workstation power management and resume defaults
       host.yubikey # hardware-backed login tools
       # Select host.yubikey-pam separately after providing its native authfile.
-      development
     ];
 
     nixos = {

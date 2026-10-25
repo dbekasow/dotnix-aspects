@@ -1,6 +1,6 @@
 # Terminal profile with Herdr instead of Tmux/Sesh/Zellij.
 { dotnix, ... }: {
-  dotnix.terminal-herdr.includes = with dotnix; [
+  dotnix.home.terminal-herdr.includes = with dotnix.home; [
     term-shell
     term-ux-herdr
     term-cli

@@ -1,6 +1,6 @@
 # System monitoring tools.
 { dotnix, ... }: {
-  dotnix.term-monitoring.includes = with dotnix; [
+  dotnix.home.term-monitoring.includes = with dotnix; [
     bandwhich
     bottom
     fastfetch

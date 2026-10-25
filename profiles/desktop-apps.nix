@@ -1,6 +1,6 @@
 # GUI applications, separable from the graphical socket (desktop-shell).
 { dotnix, ... }: {
-  dotnix.desktop-apps.includes = with dotnix; [
+  dotnix.home.desktop-apps.includes = with dotnix; [
     alacritty
     anki
     firefox
