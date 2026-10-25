@@ -1,15 +1,15 @@
-# 15: DMS und Noctalia für unterschiedliche Benutzer betreiben
+# 15: Run DMS and Noctalia for different users
 
-**What to build:** DMS- und Noctalia-Runtimes samt zugehörigen Integrationen und per-User-Polkit-Agenten gezielt pro Home auswählen. Eine gemeinsame Maschine kann unterschiedliche Benutzerruntimes nutzen; echte Exklusivität gilt nur für tatsächlich inkompatible Auswahlen desselben Ziels.
+**What to build:** Make DMS and Noctalia runtimes, their integrations, and per-user Polkit agents selectable per Home target. One machine can run different user runtimes; real exclusivity applies only to incompatible selections for the same target.
 
-**Blocked by:** [14: Niri-Unterstützung und Benutzerkonfiguration trennen](14-niri-scope-separation.md).
+**Blocked by:** [14: Separate Niri support from user configuration](14-niri-scope-separation.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] Alice kann DMS und Bob Noctalia auf demselben Host auswählen, ohne dass eine globale Desktop- oder Home-Auswahl Dienste für den jeweils anderen User umschaltet.
-- [ ] DMS, Plugins, Settings, Noctalia-Runtime und ihre Integrationen bleiben ihren jeweiligen Features zugeordnet; per-User-Polkit wird nicht global für alle Accounts aktiviert.
-- [ ] Ein echter Konflikt auf demselben Ziel schlägt mit klarer Diagnose fehl; unterschiedliche kompatible Ziele werden nicht durch globale Desktop-Exklusivität blockiert.
-- [ ] Vorhandene Desktop-Fixture wird gezielt zur Prüfung der Zwei-User-Komposition verwendet; statische Fundstellen werden nicht als Laufzeitbeweis ausgegeben. Keine Kombinationsmatrix.
-- [ ] U2F-Ressourcen werden über native Optionen und nicht geheime Fixture-Werte bereitgestellt; kein geratenes Consumer-Pfadformat und keine zwingende Abhängigkeit von Ticket 06 für nicht sicherheitsgebundene Grundfälle.
+- [ ] Alice can select DMS and Bob Noctalia on the same host without a global desktop or home selection switching services for the other user.
+- [ ] DMS, plugins, settings, Noctalia runtime, and their integrations remain assigned to their respective features; per-user Polkit is not enabled globally for all accounts.
+- [ ] A real conflict on the same target fails with a clear diagnostic; different compatible targets are not blocked by global desktop exclusivity.
+- [ ] Use the existing desktop fixture specifically to check the two-user composition; do not present static search results as runtime evidence. No combination matrix.
+- [ ] Provide U2F resources through native options and non-secret fixture values; assume no consumer path format, and require no ticket 06 dependency for non-security-sensitive base cases.

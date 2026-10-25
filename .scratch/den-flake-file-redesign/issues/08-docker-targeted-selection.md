@@ -1,15 +1,15 @@
-# 08: Docker gezielt für Host, Account und Home auswählen
+# 08: Select Docker separately for host, account, and home
 
-**What to build:** Docker-Host-Daemon, Account-Einstellungen und User-Werkzeuge als getrennte Consumer-Auswahlen anbieten, sodass Rootful- und Rootless-Nutzung erhalten bleiben. Vorhandene Subuid/Subgid- und Linger-Beiträge dürfen nicht länger ungefragt auf alle Host-Accounts verteilt werden.
+**What to build:** Offer the Docker host daemon, account settings, and user tools as separate consumer selections while preserving rootful and rootless use. Existing subuid/subgid and linger contributions must no longer be applied indiscriminately to every host account.
 
-**Blocked by:** [05: Accounts ohne versteckte Shell- oder Vault-Entscheidungen konfigurieren](05-account-selection.md), [07: Persistence unabhängig vom Btrfs-Root-Reset wählen](07-persistence-root-reset.md).
+**Blocked by:** [05: Configure accounts without hidden shell or vault choices](05-account-selection.md), [07: Select Persistence independently from the Btrfs root reset](07-persistence-root-reset.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] Host-Daemon, gezielt ausgewählter Account und Home-seitige Docker-Werkzeuge können unabhängig ausgewählt werden.
-- [ ] Subuid/Subgid und Linger betreffen nur den ausdrücklich ausgewählten Account statt pauschal alle Host-Accounts.
-- [ ] Die tatsächlichen Fähigkeiten werden korrekt beschrieben: keine Docker-Gruppenmitgliedschaft oder behaupteten Root-Rechte, sofern sie nicht ausdrücklich separat konfiguriert sind.
-- [ ] Rootful- und Rootless-Fähigkeiten bleiben verfügbar; Rootless-State/Persistence wird gezielt gewählt, nicht vom Daemon oder einer Developer-Auswahl stillschweigend aktiviert.
-- [ ] Bestehendes Runtime-Verhalten wird nicht neu entworfen; ein Docker-Feature erzwingt kein Development-Profil.
+- [ ] The host daemon, a specifically selected account, and home-side Docker tools can be selected independently.
+- [ ] Subuid/subgid and linger affect only the explicitly selected account rather than every host account indiscriminately.
+- [ ] Describe actual capabilities accurately: do not claim Docker group membership or root privileges unless they are explicitly configured separately.
+- [ ] Rootful and rootless capabilities remain available; rootless state/Persistence is selected deliberately, not silently activated by the daemon or a developer selection.
+- [ ] Do not redesign existing runtime behavior; a Docker feature does not force a Development profile.

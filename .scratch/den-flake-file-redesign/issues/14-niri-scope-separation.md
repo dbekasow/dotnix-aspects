@@ -1,15 +1,15 @@
-# 14: Niri-Unterstützung und Benutzerkonfiguration trennen
+# 14: Separate Niri support from user configuration
 
-**What to build:** Niri-Hostunterstützung von pro-User-Niri-Auswahl trennen und gemeinsam benötigte graphische Basisfähigkeiten explizit konsumierbar machen. Das umfasst Niri-Bindings, Fonts, GNOME-Dienste, XDG und Portals, Thunar sowie Clipboard-Unterstützung, ohne DMS oder Noctalia zur Voraussetzung zu machen.
+**What to build:** Separate Niri host support from per-user Niri selection and make shared graphical foundation capabilities explicitly consumable. This includes Niri bindings, fonts, GNOME services, XDG and portals, Thunar, and clipboard support, without requiring DMS or Noctalia.
 
-**Blocked by:** [05: Accounts ohne versteckte Shell- oder Vault-Entscheidungen konfigurieren](05-account-selection.md).
+**Blocked by:** [05: Configure accounts without hidden shell or vault choices](05-account-selection.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] Niri-Hostvoraussetzungen und pro-User-Niri-Konfiguration samt zugehörigen Bindings sind getrennt auswählbar; User-Auswahl aktiviert nicht unbemerkt Hostverhalten.
-- [ ] Graphische Basisfähigkeiten wie Fonts, GNOME-Dienste, XDG, XDG-Portals, Thunar und Clipboard bleiben verfügbar, ohne eine Desktop-Shell auszuwählen.
-- [ ] Upstream-Abhängigkeiten bleiben durch das zuständige Feature erfasst; echte Hostvoraussetzungen sind explizit statt durch die Home-Auswahl eingeschaltet.
-- [ ] Keine globale per-User-Polkit-Laufzeitentscheidung für alle User und keine verpflichtende DMS-/Noctalia-Auswahl.
-- [ ] Native Optionen bleiben überschreibbar; Styling bleibt optional bei Ticket 17. Desktop-Shell-Runtime und Greeter-Ressourcen gehören zu Tickets 15 und 16.
+- [ ] Niri host prerequisites and per-user Niri configuration with its bindings are separately selectable; user selection does not silently activate host behavior.
+- [ ] Graphical foundation capabilities such as fonts, GNOME services, XDG, XDG portals, Thunar, and clipboard support remain available without selecting a desktop shell.
+- [ ] Upstream dependencies remain captured by the responsible feature; actual host prerequisites are explicit rather than activated by home selection.
+- [ ] Add no global per-user Polkit runtime choice and require no DMS/Noctalia selection.
+- [ ] Native options remain overridable; styling remains optional under ticket 17. Desktop shell runtime and greeter resources belong to tickets 15 and 16.

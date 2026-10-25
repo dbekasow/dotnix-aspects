@@ -1,15 +1,15 @@
-# 05: Accounts ohne versteckte Shell- oder Vault-Entscheidungen konfigurieren
+# 05: Configure accounts without hidden shell or vault choices
 
-**What to build:** Consumer-eigene Account-Auswahl so bereitstellen, dass nur ausdrücklich ausgewählte Accounts betroffen sind und Account-Grundlagen unabhängig von deren Home-Auswahl bleiben. Normale native Account-Optionen und eine optionale integrierte Home-Manager-Nutzung bleiben möglich; Host-only-Accounts bleiben gültig.
+**What to build:** Provide consumer-owned account selections so only explicitly selected accounts are affected and account foundations remain independent of home selections. Ordinary native account options and optional integrated Home Manager use remain possible; host-only accounts remain valid.
 
-**Blocked by:** [02: Feature-Discovery und Ablage nach bestätigtem Ordnungskriterium umstellen](02-feature-ownership-discovery.md).
+**Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] Der Consumer besitzt Account-Inventar und Account-Auswahlen; eine Auswahl wirkt nur auf den ausdrücklich benannten Account.
-- [ ] Account-Grundlagen setzen weder blanket `host.users`-Rechte noch Default-Shell, Vault-Konventionen oder Passwortgenerator voraus.
-- [ ] Account-Auswahl funktioniert unabhängig davon, ob für diesen Account Home Manager ausgewählt wird; integrierte Home-Manager-Nutzung bleibt explizit und optional.
-- [ ] Native Optionen bleiben überschreibbar und eine unbeteiligte Person am selben Host bleibt unverändert.
-- [ ] Passwortrezepte und Secrets/Auth liegen bei Ticket 06; Fish-Login-Shell bleibt bei Ticket 09. Keine davon wird durch Account-Grundlagen implizit aktiviert.
+- [ ] The consumer owns the account inventory and account selections; a selection affects only the explicitly named account.
+- [ ] Account foundations require neither blanket `host.users` privileges nor a default shell, vault conventions, or a password generator as prerequisites.
+- [ ] Account selection works regardless of whether Home Manager is selected for that account; integrated Home Manager use remains explicit and optional.
+- [ ] Native options remain overridable, and an unrelated person on the same host remains unchanged.
+- [ ] Password recipes and Secrets/Auth belong to ticket 06; the Fish login shell belongs to ticket 09. Neither is activated implicitly by account foundations.

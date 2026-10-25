@@ -1,16 +1,18 @@
-# 02: Feature-Discovery und Ablage nach bestätigtem Ordnungskriterium umstellen
+# 02: Reorganize feature ownership and discovery around the confirmed criterion
 
-**What to build:** Den bestehenden Fähigkeitenbestand mechanisch nach bestätigter Feature-Eigentümerschaft ordnen und Discovery so begrenzen, dass Feature-Einstiege von Producer-, Adapter- und Tooling-Code unterscheidbar bleiben. Gate G ist geschlossen: direkter Feature-Katalog, kleine Fähigkeiten dürfen Einzeldateien bleiben, komplexe Fähigkeiten halten Varianten, Integrationen und Hilfen lokal. Keine neuen thematischen Kategorien und keine Spiegelung von Host-, Home- oder Account-Auswahlen in der Ablage.
+**What to build:** Mechanically organize the existing capability set by confirmed feature ownership and constrain discovery so feature entry points remain distinguishable from producer, adapter, and tooling code. Gate G is closed: use a direct feature catalog; small capabilities may remain single files; complex capabilities keep variants, integrations, and helpers local. Add no thematic categories and do not mirror host, home, or account selections in the source layout.
 
-**Blocked by:** [01: PipeWire als vollständige Referenz über den neuen Bibliotheks-Einstieg](01-pipewire-reference-adapter.md).
-**Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Blocked by:** [01: Use PipeWire as the complete reference through the new library entry point](01-pipewire-reference-adapter.md).
+**Status:** claimed
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] Die vorhandenen Features bleiben als öffentlicher Fähigkeitenbestand semantisch erhalten; Zuordnung folgt konkreter Feature-Eigentümerschaft, nicht einer erfundenen Mail-, Container-, Audio- oder Web-Themenhierarchie.
-- [ ] Kleine Features bleiben jeweils in einer Datei möglich. Mehrteilige Features halten Varianten, optionale Integrationen und Helfer bei ihrem Eigentümer; keine erzwungene Datei-pro-Rolle-Aufteilung.
-- [ ] Source-Discovery, Adapter/Producer-Zusammenbau und optionales Tooling bleiben getrennte Verantwortungen. Consumer-Code importiert nicht pauschal den Producer-Wald.
-- [ ] Discovery dokumentiert die tatsächlich gepinnte import-tree-Regel: Verzeichnisscans schließen relative `/_`-Pfade standardmäßig aus; explizite Dateien und Wurzeln sowie ersetzende `initFilter`-Konfigurationen können diese Vorgabe umgehen. `default.nix` kapselt keinen rekursiven Scan.
-- [ ] Öffentliche Namespace-Namen werden explizit festgelegt und nicht aus Dateinamen oder Verzeichnispfaden abgeleitet. Es entsteht kein neues Registry- oder Taxonomie-DSL.
-- [ ] Reine Ablageänderungen erhalten vorhandene Selektionen ohne Alias- oder Kompatibilitätsversprechen und erzwingen weder neue Tests noch eine Feature-Matrix.
+- [ ] Preserve the existing feature set semantically as the public capability catalog; organize it by concrete feature ownership, not an invented mail, container, audio, or web theme hierarchy.
+- [ ] Small features may remain one file each. Multi-part features keep variants, optional integrations, and helpers with their owner; do not force one file per role.
+- [ ] Keep source discovery, adapter/producer assembly, and optional tooling as separate responsibilities. Consumer code does not import the producer tree wholesale.
+- [ ] Document the actual pinned import-tree rule: directory scans exclude relative `/_` paths by default; explicitly supplied files and roots, as well as a replacing `initFilter` configuration, can bypass this rule. `default.nix` does not stop recursive scanning.
+- [ ] Set public namespace names explicitly; do not derive them from filenames or directory paths. Add no registry or taxonomy DSL.
+- [ ] Pure storage moves preserve existing selections without alias or compatibility promises and require neither new tests nor a feature matrix.
+- Evidence: Formatter gate passed after excluding German tickets and allowing legitimate `ful` in `denful` / `config.den.ful`.
+- Evidence: Specs, tickets, and documentation are English-only; translating all tickets lets the typo gate check them without exclusions.

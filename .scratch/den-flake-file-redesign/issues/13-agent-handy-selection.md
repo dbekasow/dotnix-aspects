@@ -1,15 +1,15 @@
-# 13: Agentenwerkzeuge und Handy eigenständig auswählen
+# 13: Select agent tools and Handy independently
 
-**What to build:** Agentenwerkzeuge und Handy als eigenständige Feature-Auswahlen konsumierbar machen. Library-eigene Inputs sowie nötige Unfree-/Overlay-Voraussetzungen bleiben explizit dem verantwortlichen Feature und Consumer zugeordnet.
+**What to build:** Make agent tools and Handy consumable as independent feature selections. Library-owned inputs and required unfree/overlay prerequisites remain explicitly assigned to the responsible feature and consumer.
 
-**Blocked by:** [02: Feature-Discovery und Ablage nach bestätigtem Ordnungskriterium umstellen](02-feature-ownership-discovery.md).
+**Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] LLM-Agents, AI-Tools, Workmux, Repomix, Tuicr und Handy behalten einzeln auswählbare vorhandene Fähigkeiten.
-- [ ] Erforderliche Inputs werden vom Feature erfasst; Unfree- und Overlay-Voraussetzungen sind ausdrücklich sichtbar und werden nicht durch ein globales Fixture-Overlay verschleiert.
-- [ ] Handy bleibt nicht-doppelt-eigentümig zu Desktop-Anwendungsintegrationen aus Ticket 18; seine Desktop-Integration bleibt lokal wählbar und löst keinen Backend-Dienst automatisch aus.
-- [ ] Eine Standalone-Auswahl erfordert keine implizite Host-Zugriffserweiterung. Statische Risikohinweise werden nicht als bereits verifizierter Laufzeitfehler oder als neue Freigabebehauptung ausgegeben.
-- [ ] Vorhandene native Optionen und Feature-Grenzen bleiben erhalten; fehlende breite Agentenmatrix wird nicht durch pauschale Einzeltests ersetzt.
+- [ ] LLM agents, AI tools, Workmux, Repomix, Tuicr, and Handy retain their existing individually selectable capabilities.
+- [ ] Required inputs are captured by the feature; unfree and overlay prerequisites are explicit and are not hidden by a global fixture overlay.
+- [ ] Handy remains exclusively owned by this ticket, not duplicated as a desktop application integration from ticket 18; its desktop integration remains locally selectable and does not automatically start a backend service.
+- [ ] A standalone selection requires no implicit host-access expansion. Static risk notes are not presented as verified runtime failures or as new permission claims.
+- [ ] Preserve existing native options and feature boundaries; do not replace the absence of a broad agent matrix with blanket individual tests.

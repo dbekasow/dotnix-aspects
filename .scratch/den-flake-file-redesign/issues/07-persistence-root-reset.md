@@ -1,15 +1,15 @@
-# 07: Persistence unabhängig vom Btrfs-Root-Reset wählen
+# 07: Select Persistence independently from the Btrfs root reset
 
-**What to build:** Generische Persistence-Klassen und -Weiterleitung getrennt von der expliziten Btrfs-Root-Reset-Maschinenpolitik konsumierbar machen. Beide Fähigkeiten und ihre bestehenden Beiträge bleiben verfügbar, aber keine wird durch die andere oder durch reine Vertragsregistrierung aktiviert.
+**What to build:** Make generic Persistence classes and routing consumable separately from the explicit Btrfs root-reset machine policy. Both capabilities and their existing contributions remain available, but neither is activated by the other or by contract registration alone.
 
-**Blocked by:** [02: Feature-Discovery und Ablage nach bestätigtem Ordnungskriterium umstellen](02-feature-ownership-discovery.md).
+**Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] Generische Persistence ist für ausdrücklich ausgewählte Ziele ohne Home Manager und ohne angenommene Disk- oder Boot-Topologie nutzbar.
-- [ ] Btrfs-Root-Reset bleibt separat wählbare Maschinenpolitik; keine generische Persistence-Auswahl aktiviert Reset, Disko, Boot- oder Rollback-Verhalten.
-- [ ] Ein opt-in auf einem Ziel verändert weder nicht ausgewählte Ziele noch andere User; vorhandene Klassen-/Policy-Beiträge bleiben wirksam.
-- [ ] Globale Klassenmetadaten dürfen durch den Adapter registriert werden, bleiben aber inert, bis Consumer Persistence ausdrücklich wählen.
-- [ ] Bestehende Klassen-, Policy- und VM-Evidenz wird zielgerichtet wiederverwendet. Die eigenständige Btrfs-VM wird nicht als Teil des Root-`flake check` ausgegeben.
+- [ ] Generic Persistence is usable for explicitly selected targets without Home Manager and without an assumed disk or boot topology.
+- [ ] Btrfs root reset remains a separately selectable machine policy; no generic Persistence selection activates reset, Disko, boot, or rollback behavior.
+- [ ] Opting in on one target changes neither unselected targets nor other users; existing class and policy contributions remain effective.
+- [ ] The adapter may register global class metadata, but it remains inert until the consumer explicitly selects Persistence.
+- [ ] Reuse existing class, policy, and VM evidence in a targeted way. Do not represent the standalone Btrfs VM as part of root `flake check`.

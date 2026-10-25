@@ -1,15 +1,15 @@
-# 10: Popup-Katalog mit beiden Backends verwenden
+# 10: Use the popup catalog with both backends
 
-**What to build:** Popup-Launcher mit einer autoritativen, bibliothekseigenen Datenquelle und expliziter Backend-Auswahl nutzbar machen. Tmux- und Herdr-Renderer erhalten dieselben Launcher-Daten, ohne Zellij/Sesh-Fähigkeiten aus deren Eigentümerschaft zu ziehen.
+**What to build:** Make the popup launcher usable with one authoritative library-owned data source and explicit backend selection. Tmux and Herdr renderers use the same launcher data without taking Zellij/Sesh capabilities from their owners.
 
-**Blocked by:** [02: Feature-Discovery und Ablage nach bestätigtem Ordnungskriterium umstellen](02-feature-ownership-discovery.md).
+**Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
 **Status:** ready-for-agent
-**Spec/Autorisierung:** [Kanonische Spec](../spec.md); Veröffentlichung ist freigegeben, Umsetzung braucht separate Freigabe.
+**Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
-## Akzeptanzkriterien
+## Acceptance criteria
 
-- [ ] Launcher-Datensätze halten Befehl, Größe und nötige Backend-Schlüssel einmalig; Tmux- und Herdr-Renderer übersetzen diese Quelle statt parallele vollständige Pflicht-Mappings zu pflegen.
-- [ ] Durch native Home-Manager-Optionen aktivierte Programme bleiben auffindbar, auch wenn kein gleichnamiges Aspect ausgewählt wurde.
-- [ ] Fehlt ein Backend-Schlüssel, lässt der Renderer den Kandidaten aus und gibt eine handlungsfähige Diagnose aus; kein ungeprüfter Lookup und kein erzwungenes Feature.
-- [ ] Bestehendes Scratch-, Directory- und Menüverhalten sowie gewöhnliche native Overrides bleiben erhalten.
-- [ ] Zellij und Sesh behalten ihre bestehende Eigentümerschaft; die Backend-Auswahl setzt keine Fish-Auswahl voraus, wenn absolute Programmdateien verfügbar sind.
+- [ ] Launcher records define the command, size, and required backend keys once; Tmux and Herdr renderers translate this source instead of maintaining parallel complete required mappings.
+- [ ] Programs enabled through native Home Manager options remain discoverable, even when no same-named Aspect is selected.
+- [ ] If a backend key is missing, the renderer omits the candidate and provides an actionable diagnostic; do not perform an unchecked lookup or force a feature.
+- [ ] Preserve existing scratch, directory, and menu behavior and ordinary native overrides.
+- [ ] Zellij and Sesh retain their existing ownership; backend selection does not require Fish selection when absolute program files are available.
