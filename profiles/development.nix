@@ -2,7 +2,7 @@
   dotnix.development = {
     includes = with dotnix; [
       docker
-      nix-ld
+      host.nix-ld
       llm-agents
       helix
       helix-keys
