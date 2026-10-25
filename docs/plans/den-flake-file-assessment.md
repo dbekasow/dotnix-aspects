@@ -114,8 +114,8 @@ Keep input ownership precise: [direnv.nix](../../modules/aspects/term/shell-ux/d
 
 ## Existing verification and blind spots
 
-- Parent ran `nix eval --impure --json --file tests/broad-compositions.nix` from the target repository: exit 0, 30 checks, none false. This is a runtime baseline, not proof of host/user isolation.
-- The broad fixture globally injects NUR, llm-agents, and Niri overlays, which can hide missing prerequisites. The Handy concern remains static until independently reproduced.
+- Parent ran `nix eval --impure --json --file tests/broad-compositions.nix` from the target repository: exit 0, 30 checks, none false. This is evaluation evidence, not proof of host/user isolation.
+- The broad fixture globally injects NUR, llm-agents, and Niri overlays, which can hide missing prerequisites. A focused overlay-free public consumer evaluation reproduced `undefined variable 'llm-agents'` while selecting Handy; this is an evaluation failure, not build or runtime evidence.
 - Existing Niri/DMS tests demonstrate compatible combinations, but DMS and Noctalia both contribute Niri keybinds. A targeted negative test should cover only the actual exclusive same-target conflict and require a useful error, not a fixed error-string snapshot.
 - CI currently runs `nix flake check` and a real template toplevel build. The latter is stronger than evaluation for the DMS family, which lacks a binary cache. No new VM build per feature.
 - No full `nix flake check`, template build, or consumer lifecycle run was performed in this planning phase.

@@ -4,8 +4,8 @@
       host.age
       host.age-rekey
       host.certificates
-      fish
-      git
+      host.fish
+      host.git
       host.gnupg
       host.home-manager
       host.locale

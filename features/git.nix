@@ -32,7 +32,7 @@
     };
   };
 
-  dotnix.git.nixos = {
+  dotnix.host.git.nixos = {
     programs.git.enable = true;
     programs.git.lfs.enable = true;
   };
