@@ -7,35 +7,29 @@
     , ...
     }:
     let
-      keys = {
-        bluetui = "prefix+shift+b";
-        bottom = "prefix+alt+b";
-        lazydocker = "prefix+d";
-        shell = "prefix+f";
-        lazygit = "prefix+alt+g";
-        k9s = "prefix+alt+k";
-        aerc = "prefix+m";
-        nix-graph = "prefix+alt+n";
-        gh-dash = "prefix+alt+p";
-        dua = "prefix+u";
-        wifitui = "prefix+alt+w";
-        yazi = "prefix+y";
-        tv = "prefix+t";
-        scratch = "prefix+shift+s";
-      };
-      commandBindings = map
+      commandBindings = lib.concatMap
         (launcher:
-          let popup = lib.recursiveUpdate launcher { key = keys.${launcher.name}; };
-          in {
-            inherit (popup)
-              key
-              command
-              width
-              height
-              ;
-            type = "popup";
-            description = popup.name;
-          })
+          let
+            key = lib.attrByPath [ "keys" "herdr" ] null launcher;
+          in
+          if key == null then
+            builtins.trace
+              "dotnix.herdr: omitting popup launcher '${launcher.name}' because it has no `keys.herdr` binding; add one to its record in features/popup-launchers.nix."
+              [ ]
+          else
+            let popup = lib.recursiveUpdate launcher { inherit key; }; in
+            [
+              {
+                inherit (popup)
+                  key
+                  command
+                  width
+                  height
+                  ;
+                type = "popup";
+                description = popup.name;
+              }
+            ])
         popup-launcher;
     in
     {
