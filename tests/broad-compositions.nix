@@ -160,6 +160,41 @@ let
     userIncludes = [ dotnix.account.users ];
     accountModule.isNormalUser = false;
   };
+  dockerHostOnly = evaluate {
+    hostIncludes = with dotnix; [ host.home-manager host.persistence host.docker ];
+    userIncludes = [ dotnix.home.persistence ];
+    extraUsers.unrelated.classes = [ "user" "homeManager" ];
+    otherHost = true;
+  };
+  dockerAccountOnly = evaluate {
+    hostIncludes = [ dotnix.host.home-manager ];
+    userClasses = [ "user" "homeManager" ];
+    userIncludes = [ dotnix.account.docker ];
+    extraUsers.unrelated.classes = [ "user" "homeManager" ];
+    otherHost = true;
+  };
+  dockerAccountOverride = evaluate {
+    hostIncludes = [ dotnix.host.home-manager ];
+    userClasses = [ "user" "homeManager" ];
+    userIncludes = [ dotnix.account.docker ];
+    accountModule = {
+      autoSubUidGidRange = false;
+      linger = false;
+    };
+  };
+  dockerHomeOnly = evaluate {
+    hostIncludes = with dotnix; [ host.home-manager host.persistence ];
+    userClasses = [ "user" "homeManager" ];
+    userIncludes = [ dotnix.home.persistence dotnix.home.docker ];
+    extraUsers.unrelated.classes = [ "user" "homeManager" ];
+    otherHost = true;
+  };
+  dockerPersistenceSelected = evaluate {
+    hostIncludes = with dotnix; [ host.home-manager host.persistence host.docker ];
+    userIncludes = [ dotnix.home.persistence dotnix.home.docker-persistence ];
+    extraUsers.unrelated.classes = [ "user" "homeManager" ];
+    otherHost = true;
+  };
   workstation = evaluate {
     hostIncludes = with dotnix; [
       core
@@ -597,6 +632,62 @@ let
     accountSelectionSupportsHomeManagerAndOverrides =
       accountWithHomeManager.users.users.fixture.isNormalUser == false
       && accountWithHomeManager.home-manager.users.fixture.home.username == "fixture";
+    dockerHostSelectionDoesNotChangeAccountsOrHomes =
+      let inherit (dockerHostOnly) selected; in
+      selected.virtualisation.docker.enable
+      && selected.virtualisation.docker.rootless.enable
+      && selected.virtualisation.docker.rootless.setSocketVariable
+      && selected.virtualisation.docker.autoPrune.enable
+      && (selected.users.users.fixture.autoSubUidGidRange or false) != true
+      && (selected.users.users.fixture.linger or false) != true
+      && (selected.users.users.unrelated.autoSubUidGidRange or false) != true
+      && (selected.users.users.unrelated.linger or false) != true
+      && !(lib.elem "docker" (selected.users.users.fixture.extraGroups or [ ]))
+      && !(selected.home-manager.users.fixture.programs.lazydocker.enable or false)
+      && !(lib.elem "dive" (map lib.getName selected.home-manager.users.fixture.home.packages))
+      && !(lib.any (directory: directory.directory == ".local/share/docker") (selected.home-manager.users.fixture.home.persistence."/persist".directories or [ ]))
+      && !(selected.programs.nix-ld.enable or false)
+      && !(dockerHostOnly.unselected.virtualisation.docker.enable or false);
+    dockerAccountSelectionIsScoped =
+      let inherit (dockerAccountOnly) selected; in
+      selected.users.users.fixture.autoSubUidGidRange
+      && selected.users.users.fixture.linger
+      && (selected.users.users.unrelated.autoSubUidGidRange or false) != true
+      && (selected.users.users.unrelated.linger or false) != true
+      && !(lib.elem "docker" (selected.users.users.fixture.extraGroups or [ ]))
+      && !(selected.virtualisation.docker.enable or false)
+      && !(selected.home-manager.users.fixture.programs.lazydocker.enable or false)
+      && (dockerAccountOnly.unselected.users.users.fixture.autoSubUidGidRange or false) != true
+      && (dockerAccountOnly.unselected.users.users.fixture.linger or false) != true;
+    dockerAccountSettingsAreOverridable =
+      !(dockerAccountOverride.users.users.fixture.autoSubUidGidRange or false)
+      && dockerAccountOverride.users.users.fixture.linger == false;
+    dockerHomeSelectionIsScoped =
+      let
+        inherit (dockerHomeOnly) selected;
+        fixtureHome = selected.home-manager.users.fixture;
+        unrelatedHome = selected.home-manager.users.unrelated;
+      in
+      fixtureHome.programs.lazydocker.enable
+      && lib.elem "dive" (map lib.getName fixtureHome.home.packages)
+      && fixtureHome.programs.fish.shellAbbrs.lzd == "lazydocker"
+      && !(selected.virtualisation.docker.enable or false)
+      && (selected.users.users.fixture.autoSubUidGidRange or false) != true
+      && (selected.users.users.fixture.linger or false) != true
+      && !(unrelatedHome.programs.lazydocker.enable or false)
+      && !(lib.elem "dive" (map lib.getName unrelatedHome.home.packages))
+      && !(lib.any (directory: directory.directory == ".local/share/docker") (fixtureHome.home.persistence."/persist".directories or [ ]))
+      && !(dockerHomeOnly.unselected.virtualisation.docker.enable or false);
+    dockerPersistenceIsExplicitAndScoped =
+      let
+        fixtureDirectories = dockerPersistenceSelected.selected.home-manager.users.fixture.home.persistence."/persist".directories or [ ];
+        unrelatedDirectories = dockerPersistenceSelected.selected.home-manager.users.unrelated.home.persistence."/persist".directories or [ ];
+      in
+      dockerPersistenceSelected.selected.virtualisation.docker.enable
+      && lib.any (directory: directory.directory == ".local/share/docker") fixtureDirectories
+      && !(lib.any (directory: directory.directory == ".local/share/docker") unrelatedDirectories)
+      && !(dockerPersistenceSelected.selected.home-manager.users.fixture.programs.lazydocker.enable or false)
+      && !(dockerPersistenceSelected.unselected.virtualisation.docker.enable or false);
     selectedPasswordRecipeStaysMutableWithoutVault =
       passwordsWithoutVault.users.mutableUsers
       && passwordsWithoutVault.users.users.fixture.hashedPasswordFile == null
@@ -624,6 +715,12 @@ let
       && !(workstation.programs.nix-ld.enable or false)
       && workstation.home-manager.users.fixture.programs.helix.enable
       && workstation.home-manager.users.fixture.programs.firefox.enable;
+    dockerDevelopmentDoesNotSelectDocker =
+      !(workstation.virtualisation.docker.enable or false)
+      && !(workstation.home-manager.users.fixture.programs.lazydocker.enable or false)
+      && (workstation.users.users.fixture.autoSubUidGidRange or false) != true
+      && (workstation.users.users.fixture.linger or false) != true
+      && !(lib.any (directory: directory.directory == ".local/share/docker") (workstation.home-manager.users.fixture.home.persistence."/persist".directories or [ ]));
     shellHomeSelectionIsIndependent =
       fishHomeOnly.home-manager.users.fixture.programs.fish.enable
       && !(fishHomeOnly.programs.fish.enable or false)
