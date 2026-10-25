@@ -61,21 +61,24 @@ let
     };
 
   niriOnly = evaluate {
-    hostIncludes = with dotnix; [ niri ];
-    userIncludes = with dotnix; [ niri ];
+    hostIncludes = with dotnix; [ host.niri ];
+    userIncludes = with dotnix; [ home.niri ];
+  };
+  userNiriOnly = evaluate {
+    userIncludes = with dotnix; [ home.niri ];
   };
   niriDisabled = evaluate {
-    hostIncludes = with dotnix; [ niri ];
-    userIncludes = with dotnix; [ niri ];
+    hostIncludes = with dotnix; [ host.niri ];
+    userIncludes = with dotnix; [ home.niri ];
     hostModule = { programs.niri.enable = lib.mkForce false; };
   };
   niriDms = evaluate {
-    hostIncludes = with dotnix; [ niri dms ];
-    userIncludes = with dotnix; [ niri dms ];
+    hostIncludes = with dotnix; [ host.niri dms ];
+    userIncludes = with dotnix; [ home.niri dms ];
   };
   niriNoctalia = evaluate {
-    hostIncludes = with dotnix; [ niri ];
-    userIncludes = with dotnix; [ niri noctalia ];
+    hostIncludes = with dotnix; [ host.niri ];
+    userIncludes = with dotnix; [ home.niri noctalia ];
   };
   standaloneHome =
     let
@@ -89,7 +92,7 @@ let
           inherit system;
           overlays = [ inputs.niri.overlays.niri ];
         };
-        den.aspects.fixture.includes = with dotnix; [ niri ];
+        den.aspects.fixture.includes = with dotnix; [ home.niri ];
         den.aspects.fixture.homeManager = { specialArgs, ... }: {
           home.username = "fixture";
           home.homeDirectory = "/home/fixture";
@@ -108,7 +111,7 @@ let
     { home = flake.homeConfigurations.fixture.config; };
   niriOnlyHome = standaloneHome;
   niriNoctaliaHome = evaluate {
-    userIncludes = with dotnix; [ niri noctalia ];
+    userIncludes = with dotnix; [ home.niri noctalia ];
   };
   noctaliaOnlyHome = evaluate {
     userIncludes = with dotnix; [ noctalia ];
@@ -117,7 +120,7 @@ let
     userIncludes = with dotnix; [ handy ];
   };
   handyNiriHome = evaluate {
-    userIncludes = with dotnix; [ niri handy ];
+    userIncludes = with dotnix; [ home.niri handy ];
   };
   desktopShellHome = evaluate {
     userIncludes = with dotnix; [ desktop-shell gpg-agent rbw ];
@@ -130,7 +133,7 @@ let
     };
   };
   dmsHome = evaluate {
-    userIncludes = with dotnix; [ niri dms ];
+    userIncludes = with dotnix; [ home.niri dms ];
   };
 
   assertions = {
@@ -139,6 +142,7 @@ let
     integratedNiriDmsFinalConfig = niriDms.home.programs.niri.finalConfig != null;
     integratedNiriPackagePropagated =
       niriOnly.home.programs.niri.package.outPath == niriOnly.config.programs.niri.package.outPath;
+    disabledHostCanOverrideNiri = !niriDisabled.config.programs.niri.enable;
     disabledProviderFinalConfig = niriDisabled.home.programs.niri.finalConfig != null;
     disabledProviderPackagePropagated =
       niriDisabled.home.programs.niri.package.outPath == niriDisabled.config.programs.niri.package.outPath;
@@ -146,7 +150,8 @@ let
     standaloneNiriFinalConfig = niriOnlyHome.home.programs.niri.finalConfig != null;
     standaloneNiriActivationPackage = niriOnlyHome.home.home.activationPackage.drvPath != "";
     niriOnlyPolkitAgent = niriOnly.config.systemd.user.services.niri-flake-polkit.enable;
-    dmsOwnsPolkitAgent = !niriDms.config.systemd.user.services.niri-flake-polkit.enable;
+    userNiriSelectionDoesNotEnableHost = !(userNiriOnly.config.programs.niri.enable or false);
+    dmsDoesNotDisablePolkitForAllUsers = niriDms.config.systemd.user.services.niri-flake-polkit.enable;
     noctaliaLeavesPolkitToNiri = niriNoctalia.config.systemd.user.services.niri-flake-polkit.enable;
     niriOnlyHasGeneralBinding = builtins.hasAttr "Mod+Q" niriOnlyHome.home.programs.niri.settings.binds;
     niriOnlyHasNoDmsBinding = !(builtins.hasAttr "Mod+Space" niriOnlyHome.home.programs.niri.settings.binds);
@@ -172,6 +177,7 @@ let
       && desktopShellOverrideHome.home.programs.rbw.settings.pinentry
       == lib.getExe nixpkgs.legacyPackages.${system}.pinentry-curses;
     desktopShellIncludesClipboard = builtins.elem nixpkgs.legacyPackages.${system}.wl-clipboard desktopShellHome.home.home.packages;
+    desktopShellDoesNotSelectNiri = !(desktopShellHome.home.programs ? niri);
     dmsHasIpcBinding =
       dmsHome.home.programs.niri.settings.binds."Mod+Space".action.spawn == [
         "dms"

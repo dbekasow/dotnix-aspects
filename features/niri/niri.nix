@@ -5,7 +5,7 @@
     # Only niri-unstable is used, so the stable lane shares unstable pin.
     inputs.nixpkgs-stable.follows = "nixpkgs";
   };
-  dotnix.niri.nixos = { pkgs, ... }: {
+  dotnix.host.niri.nixos = { pkgs, ... }: {
     imports = [ inputs.niri.nixosModules.niri ];
 
     nix.settings = {
@@ -19,7 +19,7 @@
     programs.niri.package = pkgs.niri-unstable;
   };
 
-  dotnix.niri.homeManager =
+  dotnix.home.niri.homeManager =
     { lib
     , specialArgs
     , pkgs
@@ -81,7 +81,7 @@
     };
 
   # Impermanence contribution for niri.
-  dotnix.niri.homePersistence = {
+  dotnix.home.niri.homePersistence = {
     home.persistence."/persist".directories = [ ".cache/mesa_shader_cache" ];
   };
 }

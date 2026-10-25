@@ -1,7 +1,7 @@
-# Graphical socket; shell and greeter remain explicit host choices.
+# Shared graphical foundation; compositor support and greeter remain explicit.
 { dotnix, ... }: {
   dotnix.desktop-shell = {
-    includes = with dotnix; [ fonts gnome-services niri thunar xdg-portals clipboard xdg ];
+    includes = with dotnix; [ fonts gnome-services thunar xdg-portals clipboard xdg ];
     homeManager = { lib, options, pkgs, ... }: {
       config = lib.mkMerge [
         (lib.optionalAttrs (options.services ? "gpg-agent") {
