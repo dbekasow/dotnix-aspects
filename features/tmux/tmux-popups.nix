@@ -1,28 +1,23 @@
 {
   dotnix.tmux.homeManager = { config, lib, popup-launcher, ... }:
     let
-      launcherKeys = {
-        bluetui = "B";
-        bottom = "b";
-        lazydocker = "d";
-        shell = "f";
-        lazygit = "g";
-        k9s = "k";
-        aerc = "m";
-        nix-graph = "n";
-        gh-dash = "p";
-        dua = "u";
-        wifitui = "w";
-        yazi = "y";
-        tv = "t";
-        scratch = "S";
-      };
-      candidates = map
-        (launcher: lib.recursiveUpdate launcher {
-          key = launcherKeys.${launcher.name};
-          command = if launcher.name == "scratch" then "env TMUX= tmux new-session -A -s scratch" else launcher.command;
-          directory = if launcher.name == "scratch" then null else "#{pane_current_path}";
-        })
+      candidates = lib.concatMap
+        (launcher:
+          let
+            key = lib.attrByPath [ "keys" "tmux" ] null launcher;
+          in
+          if key == null then
+            builtins.trace
+              "dotnix.tmux: omitting popup launcher '${launcher.name}' because it has no `keys.tmux` binding; add one to its record in features/popup-launchers.nix."
+              [ ]
+          else
+            [
+              (lib.recursiveUpdate launcher {
+                inherit key;
+                command = if launcher.name == "scratch" then "env TMUX= tmux new-session -A -s scratch" else launcher.command;
+                directory = if launcher.name == "scratch" then null else "#{pane_current_path}";
+              })
+            ])
         popup-launcher;
       popups = lib.sortOn (p: lib.toLower p.key + p.key) candidates;
 

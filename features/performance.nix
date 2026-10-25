@@ -2,7 +2,7 @@
   # Kernel tuning for a laptop with plenty of RAM and swap on Btrfs+LUKS.
   # Kept separate from boot.nix since this is purely about runtime behavior,
   # not booting.
-  dotnix.performance.nixos = {
+  dotnix.host.performance.nixos = {
     boot.kernel.sysctl = {
       # The swapfile sits behind LUKS on Btrfs — touch it as late as
       # possible.

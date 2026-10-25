@@ -8,14 +8,14 @@
       git
       gnupg
       host.home-manager
-      locale
-      nh
-      nix
-      nur
-      security
+      host.locale
+      host.nh
+      host.nix
+      host.nur
+      host.security
       ssh
       stylix
-      system-packages
+      host.system-packages
     ];
   };
 

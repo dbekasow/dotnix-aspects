@@ -140,17 +140,17 @@ let
     hostIncludes = with dotnix; [
       core
       base
-      boot-systemd
-      performance
-      bluetooth
-      disko
+      host.boot-systemd
+      host.performance
+      host.bluetooth
+      host.disko
       host.persistence
       host.btrfs-root-reset
-      geolocation
-      network
-      network-wifi
+      host.geolocation
+      host.network
+      host.network-wifi
       host.pipewire
-      power
+      host.power
       age
       age-rekey
       yubikey
@@ -208,7 +208,7 @@ let
     consumerInputs = lib.removeAttrs inputs [ "impermanence" ];
   };
   pipewireSelected = evaluate {
-    hostIncludes = with dotnix; [ host.persistence host.home-manager host.pipewire bluetooth ];
+    hostIncludes = with dotnix; [ host.persistence host.home-manager host.pipewire host.bluetooth ];
     userIncludes = [ dotnix.home.persistence ];
     otherHost = true;
     hostModule = {
@@ -221,8 +221,52 @@ let
     hostIncludes = [ dotnix.host.pipewire ];
     withUser = false;
   };
+  hostFoundation = evaluate {
+    hostIncludes = with dotnix.host; [
+      boot
+      boot-systemd
+      disko
+      network
+      network-wifi
+      bluetooth
+      power
+      performance
+      geolocation
+      journald
+      locale
+      security
+      system-packages
+      nix
+      nur
+      nh
+      nix-ld
+    ];
+    withUser = false;
+    otherHost = true;
+    hostModule = {
+      boot.loader.timeout = 17;
+      disko.devices.disk.main.device = "/dev/vda";
+      fileSystems."/".device = lib.mkForce "/dev/mapper/cryptroot";
+    };
+  };
+  hostNixDefault = evaluate {
+    hostIncludes = [ dotnix.host.nix ];
+    withUser = false;
+  };
+  hostNixCommunityCache = evaluate {
+    hostIncludes = [ dotnix.host.nix dotnix.host.nix-community-cache ];
+    withUser = false;
+  };
+  nixCacheOverride = evaluate {
+    hostIncludes = [ dotnix.host.nix ];
+    withUser = false;
+    hostModule.nix.settings = {
+      substituters = [ "https://example.invalid" ];
+      trusted-public-keys = [ ];
+    };
+  };
   pipewireWithoutPersistenceRouting = evaluate {
-    hostIncludes = with dotnix; [ host.persistence host.home-manager host.pipewire bluetooth ];
+    hostIncludes = with dotnix; [ host.persistence host.home-manager host.pipewire host.bluetooth ];
     userIncludes = [ dotnix.home.persistence dotnix.home.pipewire ];
     disablePersistenceRouting = true;
   };
@@ -268,6 +312,31 @@ let
     hostModule.users.users.fixture.home = "/home/fixture";
     userModule.programs.k9s.enable = false;
   };
+  popupMissingBackendBinding = evaluate {
+    userIncludes = with dotnix; [
+      tmux
+      herdr
+      {
+        popup-launcher = [
+          {
+            name = "tmux-only";
+            command = "/bin/true";
+            width = "20%";
+            height = "20%";
+            keys.tmux = "z";
+          }
+          {
+            name = "herdr-only";
+            command = "/bin/true";
+            width = "20%";
+            height = "20%";
+            keys.herdr = "prefix+alt+q";
+          }
+        ];
+      }
+    ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+  };
   standaloneHerdr =
     let
       fixture = {
@@ -302,6 +371,15 @@ let
     popupQuirkExcludesDisabledLauncher =
       !(lib.any (entry: entry.description == "k9s") popupDisabled.home-manager.users.fixture.programs.herdr.settings.keys.command)
       && !(lib.hasInfix "k9s" popupDisabled.home-manager.users.fixture.programs.tmux.extraConfig);
+    popupMissingBackendBindingIsOmitted =
+      let
+        tmux = popupMissingBackendBinding.home-manager.users.fixture.programs.tmux.extraConfig;
+        herdr = popupMissingBackendBinding.home-manager.users.fixture.programs.herdr.settings.keys.command;
+      in
+      lib.hasInfix "tmux-only" tmux
+      && !(lib.hasInfix "herdr-only" tmux)
+      && lib.any (entry: entry.description == "herdr-only") herdr
+      && !(lib.any (entry: entry.description == "tmux-only") herdr);
     popupMenuCoexistsWithWorkmux =
       let
         enabled = popupEnabled.home-manager.users.fixture.programs.tmux.extraConfig;
@@ -428,6 +506,48 @@ let
       pipewireHostOnly.services.pipewire.enable
       && !(builtins.hasAttr "home-manager" pipewireHostOnly)
       && !(pipewireHostOnly.environment ? persistence);
+    hostCapabilitiesAreSelectableWithoutHomeManager =
+      let
+        inherit (hostFoundation) selected;
+        inherit (hostFoundation) unselected;
+      in
+      selected.boot.loader.timeout == 17
+      && selected.boot.loader.systemd-boot.enable
+      && selected.disko.devices.disk.main.type == "disk"
+      && selected.networking.networkmanager.enable
+      && selected.hardware.bluetooth.enable
+      && selected.zramSwap.enable
+      && selected.location.provider == "geoclue2"
+      && selected.services.journald.settings.Journal.Storage == "persistent"
+      && selected.time.timeZone == "Europe/Berlin"
+      && selected.security.polkit.enable
+      && lib.any (package: package.pname == "helix") selected.environment.systemPackages
+      && selected.programs.nh.enable
+      && selected.programs.nix-ld.enable
+      && !(builtins.hasAttr "home-manager" selected)
+      && !(selected.environment ? persistence)
+      && !(unselected.networking.networkmanager.enable or false)
+      && !(unselected.programs.nh.enable or false);
+    hostNixCommunityCacheRequiresOptIn =
+      let
+        defaults = hostNixDefault.nix.settings;
+        selected = hostNixCommunityCache.nix.settings;
+      in
+      !(lib.elem "https://nix-community.cachix.org" (defaults.substituters or [ ]))
+      && (defaults.extra-substituters or [ ]) == [ ]
+      && !(lib.elem "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" (defaults.trusted-public-keys or [ ]))
+      && (defaults.extra-trusted-public-keys or [ ]) == [ ]
+      && (selected.extra-substituters or [ ]) == [ "https://nix-community.cachix.org" ]
+      && (selected.extra-trusted-public-keys or [ ]) == [
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      ];
+    hostNixCanonicalOverridesLeaveNoCommunityCache =
+      let settings = nixCacheOverride.nix.settings; in
+      lib.elem "https://example.invalid" settings.substituters
+      && !(lib.elem "https://nix-community.cachix.org" settings.substituters)
+      && (settings.extra-substituters or [ ]) == [ ]
+      && !(lib.elem "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" settings.trusted-public-keys)
+      && (settings.extra-trusted-public-keys or [ ]) == [ ];
     selectedPipewireHomePersistence =
       lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireUserOnly.home-manager.users.fixture.home.persistence."/persist".directories;
     selectedBluetoothSystemPersistence =
