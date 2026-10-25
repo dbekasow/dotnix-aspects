@@ -32,6 +32,8 @@ let
     , userIncludes ? [ ]
     , hostModule ? { }
     , userModule ? { }
+    , accountModule ? { }
+    , userClasses ? [ "homeManager" ]
     , withUser ? true
     , extraUsers ? { }
     , disablePersistenceRouting ? false
@@ -53,7 +55,7 @@ let
         den.hosts.${system} = {
           fixture = {
             users = (lib.optionalAttrs withUser {
-              fixture.classes = [ "homeManager" ];
+              fixture.classes = userClasses;
             }) // extraUsers;
             inherit instantiate;
           };
@@ -68,6 +70,7 @@ let
             provides = {
               fixture = {
                 includes = userIncludes;
+                user = accountModule;
                 homeManager = {
                   home.username = "fixture";
                   home.homeDirectory = "/home/fixture";
@@ -96,14 +99,24 @@ let
 
   populatedResources = evaluate {
     consumerSelf = populatedSelf;
-    hostIncludes = with dotnix; [ age age-rekey users yubikey-pam desktop-shell dms stylix certificates ];
+    hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms stylix certificates ];
     userIncludes = with dotnix; [ age-rekey stylix ];
     hostModule.users.users.fixture.home = "/home/fixture";
   };
   emptyResources = evaluate {
-    hostIncludes = with dotnix; [ age age-rekey users yubikey-pam desktop-shell dms stylix certificates ];
+    hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms stylix certificates ];
     userIncludes = with dotnix; [ age-rekey stylix ];
     hostModule.users.users.fixture.home = "/home/fixture";
+  };
+  accountOnly = evaluate {
+    userClasses = [ "user" ];
+    userIncludes = [ dotnix.account.users ];
+    extraUsers.unrelated.classes = [ "user" ];
+  };
+  accountWithHomeManager = evaluate {
+    userClasses = [ "user" "homeManager" ];
+    userIncludes = [ dotnix.account.users ];
+    accountModule.isNormalUser = false;
   };
   workstation = evaluate {
     hostIncludes = with dotnix; [
@@ -282,9 +295,6 @@ let
       && populatedResources.home-manager.users.fixture.age.rekey.secretsDir == "${resourceTree}/modules/users/fixture/secrets"
       && populatedResources.home-manager.users.fixture.age.rekey.hostPubkey != ""
       && populatedResources.age.secrets ? "home-identity-fixture"
-      && populatedResources.age.secrets ? "password-fixture"
-      && populatedResources.users.users.fixture.hashedPasswordFile == populatedResources.age.secrets."password-fixture-hashed".path
-      && !populatedResources.users.mutableUsers
       && populatedResources.security.pam.u2f.enable
       && populatedResources.security.pam.u2f.settings.authfile == populatedResources.age.secrets.u2f.path
       && populatedResources.programs.dank-material-shell.lockscreen.securityKey.enable
@@ -300,6 +310,19 @@ let
       && emptyResources.age.rekey.hostPubkey == ""
       && emptyResources.home-manager.users.fixture.age.rekey.hostPubkey == ""
       && emptyResources.security.pki.certificateFiles == [ ];
+    accountSelectionIsExplicitAndHomeIndependent =
+      accountOnly.users.users.fixture.isNormalUser
+      && !(accountOnly.users.users.unrelated.isNormalUser or false)
+      && !(builtins.hasAttr "home-manager" accountOnly)
+      && accountOnly.users.mutableUsers
+      && accountOnly.users.users.fixture.hashedPasswordFile == null
+      && !(accountOnly ? age)
+      && !(lib.elem "wheel" accountOnly.users.users.fixture.extraGroups)
+      && accountOnly.users.defaultUserShell != accountOnly.programs.fish.package
+      && !(accountOnly.programs.fish.enable or false);
+    accountSelectionSupportsHomeManagerAndOverrides =
+      accountWithHomeManager.users.users.fixture.isNormalUser == false
+      && accountWithHomeManager.home-manager.users.fixture.home.username == "fixture";
     workstationHasSelectedRootAndBootloader =
       workstation.fileSystems."/".fsType == "btrfs" && workstation.boot.loader.systemd-boot.enable;
     workstationHasCoreSystemDesktopDevelopment =

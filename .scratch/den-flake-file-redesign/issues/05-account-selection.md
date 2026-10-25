@@ -3,7 +3,7 @@
 **What to build:** Provide consumer-owned account selections so only explicitly selected accounts are affected and account foundations remain independent of home selections. Ordinary native account options and optional integrated Home Manager use remain possible; host-only accounts remain valid.
 
 **Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria
