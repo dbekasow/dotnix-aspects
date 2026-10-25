@@ -107,7 +107,7 @@ let
 
   populatedResources = evaluate {
     consumerSelf = populatedSelf;
-    hostIncludes = with dotnix; [ host.age host.age-rekey host.yubikey-pam host.niri desktop-shell dms host.stylix host.certificates ];
+    hostIncludes = with dotnix; [ host.age host.age-rekey host.yubikey-pam host.niri host.desktop-shell dms host.stylix host.certificates ];
     userClasses = [ "user" "homeManager" ];
     userIncludes = [ dotnix.account.passwords dotnix.home.age dotnix.home.age-rekey dotnix.home.niri dotnix.home.stylix ];
     hostModule = {
@@ -129,7 +129,7 @@ let
     };
   };
   emptyResources = evaluate {
-    hostIncludes = with dotnix; [ host.age host.age-rekey host.yubikey-pam host.niri desktop-shell dms host.stylix host.certificates ];
+    hostIncludes = with dotnix; [ host.age host.age-rekey host.yubikey-pam host.niri host.desktop-shell dms host.stylix host.certificates ];
     userIncludes = [ dotnix.home.age dotnix.home.age-rekey dotnix.home.niri dotnix.home.stylix ];
     hostModule = {
       users.users.fixture.home = "/home/fixture";
@@ -147,7 +147,7 @@ let
   };
   explicitNativeResources = evaluate {
     consumerSelf = populatedSelf;
-    hostIncludes = with dotnix; [ host.age host.age-rekey host.ssh host.yubikey-pam host.niri desktop-shell dms host.stylix host.certificates ];
+    hostIncludes = with dotnix; [ host.age host.age-rekey host.ssh host.yubikey-pam host.niri host.desktop-shell dms host.stylix host.certificates ];
     userIncludes = [ dotnix.home.age dotnix.home.age-rekey dotnix.home.niri dotnix.home.stylix ];
     hostModule = {
       users.users.fixture.home = "/home/fixture";
@@ -251,7 +251,7 @@ let
     };
   };
   coreOnly = evaluate {
-    hostIncludes = [ dotnix.core ];
+    hostIncludes = [ dotnix.host.core ];
     userClasses = [ "user" ];
     hostModule.age.rekey.localStorageDir = "${resourceTree}/core-local";
   };
@@ -302,9 +302,9 @@ let
   };
   workstation = evaluate {
     hostIncludes = with dotnix; [
-      core
+      host.core
       host.niri
-      base
+      host.base
       host.boot-systemd
       host.performance
       host.bluetooth
@@ -320,10 +320,9 @@ let
       host.age-rekey
       host.yubikey
       host.yubikey-pam
-      desktop
-      development
+      host.desktop
     ];
-    userIncludes = [ dotnix.home.niri dotnix.desktop dotnix.development dotnix.noctalia ];
+    userIncludes = [ dotnix.home.niri dotnix.home.desktop dotnix.home.development dotnix.noctalia ];
     hostModule = {
       disko.devices.disk.main.device = "/dev/vda";
       age.rekey.localStorageDir = "${resourceTree}/workstation-local";
@@ -372,11 +371,11 @@ let
   };
   shellHomeProfileOnly = evaluate {
     userClasses = [ "user" "homeManager" ];
-    userIncludes = [ dotnix.account.users dotnix.term-shell ];
+    userIncludes = [ dotnix.account.users dotnix.home.term-shell ];
   };
   terminalShellAndUx = evaluate {
     userClasses = [ "user" "homeManager" ];
-    userIncludes = [ dotnix.account.users dotnix.term-shell dotnix.term-ux ];
+    userIncludes = [ dotnix.account.users dotnix.home.terminal ];
   };
   shellUxOnly = evaluate {
     userClasses = [ "user" "homeManager" ];
@@ -386,14 +385,14 @@ let
   shellNativeOverrides = evaluate {
     hostIncludes = [ dotnix.host.fish ];
     userClasses = [ "user" "homeManager" ];
-    userIncludes = [ dotnix.account.users dotnix.home.fish dotnix.account.fish ];
+    userIncludes = [ dotnix.account.users dotnix.home.term-shell dotnix.account.fish ];
     hostModule.programs.fish.enable = false;
     userModule.programs.fish.enable = false;
     accountModule.shell = bash;
   };
   developmentHomeBaseline = evaluate { };
   developmentHome = evaluate {
-    userIncludes = [ dotnix.development ];
+    userIncludes = [ dotnix.home.development ];
   };
   standaloneJust = evaluate {
     userIncludes = [ dotnix.just ];
@@ -410,8 +409,19 @@ let
     consumerInputs = (lib.removeAttrs inputs [ "dotnix" ]) // { library = source; };
   };
   socketOnly = evaluate {
-    hostIncludes = with dotnix; [ desktop-shell ];
+    hostIncludes = [ dotnix.host.desktop-shell ];
     withUser = false;
+  };
+  hostDesktopShellProfile = evaluate {
+    hostIncludes = with dotnix.host; [ home-manager persistence desktop-shell ];
+    userClasses = [ "user" "homeManager" ];
+    hostModule.users.users.fixture.shell = bash;
+  };
+  homeDesktopProfile = evaluate {
+    hostIncludes = with dotnix.host; [ home-manager persistence ];
+    userIncludes = [ dotnix.home.persistence dotnix.home.desktop ];
+    userClasses = [ "user" "homeManager" ];
+    hostModule.users.users.fixture.shell = bash;
   };
   niriHostOnly = evaluate {
     hostIncludes = [ dotnix.host.niri ];
@@ -424,11 +434,11 @@ let
     extraUsers.unrelated.classes = [ "homeManager" ];
   };
   graphicalBaseWithoutShell = evaluate {
-    hostIncludes = with dotnix; [ fonts gnome-services thunar xdg-portals ];
-    userIncludes = with dotnix; [ xdg clipboard ];
+    hostIncludes = [ dotnix.fonts dotnix.host.gnome-services dotnix.thunar dotnix.xdg-portals ];
+    userIncludes = [ dotnix.home.gnome-services dotnix.xdg dotnix.clipboard ];
   };
   dmsSelected = evaluate {
-    hostIncludes = with dotnix; [ host.niri desktop-shell dms host.dms-greeter ];
+    hostIncludes = with dotnix; [ host.niri host.desktop-shell dms host.dms-greeter ];
     userIncludes = with dotnix; [ dotnix.home.niri dms ];
     hostModule = {
       users.users.fixture.home = "/home/fixture";
@@ -439,7 +449,7 @@ let
     };
   };
   noctaliaSelected = evaluate {
-    hostIncludes = with dotnix; [ host.niri desktop-shell host.noctalia-greeter ];
+    hostIncludes = with dotnix; [ host.niri host.desktop-shell host.noctalia-greeter ];
     withUser = false;
   };
   greeterResource = "${resourceTree}/modules/hosts/fixture/greeter";
@@ -530,12 +540,12 @@ let
   };
   home = evaluate {
     hostIncludes = with dotnix; [ host.persistence ];
-    userIncludes = with dotnix; [ dotnix.home.persistence dotnix.home.stylix desktop noctalia ];
+    userIncludes = with dotnix; [ dotnix.home.persistence dotnix.home.stylix dotnix.home.desktop noctalia ];
     withUser = true;
   };
   homeWithNiri = evaluate {
     hostIncludes = with dotnix; [ host.persistence ];
-    userIncludes = with dotnix; [ dotnix.home.persistence dotnix.home.niri desktop-shell noctalia ];
+    userIncludes = with dotnix; [ dotnix.home.persistence dotnix.home.niri dotnix.home.desktop-shell noctalia ];
     withUser = true;
   };
   persistenceOnly = evaluate {
@@ -1222,6 +1232,34 @@ let
       && !(graphicalBaseWithoutShell.home-manager.users.fixture.programs.noctalia.enable or false)
       && graphicalBaseWithoutShell.home-manager.users.fixture.xdg.userDirs.enable
       && builtins.elem nixpkgs.legacyPackages.${system}.wl-clipboard graphicalBaseWithoutShell.home-manager.users.fixture.home.packages;
+    hostDesktopShellProfileIsRolePure =
+      hostDesktopShellProfile.fonts.fontconfig.enable
+      && hostDesktopShellProfile.services.gnome.gnome-keyring.enable
+      && hostDesktopShellProfile.xdg.portal.enable
+      && hostDesktopShellProfile.programs.thunar.enable
+      && !(hostDesktopShellProfile.home-manager.users.fixture.xdg.userDirs.enable or false)
+      && !(lib.elem nixpkgs.legacyPackages.${system}.wl-clipboard (hostDesktopShellProfile.home-manager.users.fixture.home.packages or [ ]))
+      && !(lib.any (directory: directory.directory == ".config/dconf") (hostDesktopShellProfile.home-manager.users.fixture.home.persistence."/persist".directories or [ ]))
+      && !(hostDesktopShellProfile.programs.niri.enable or false)
+      && !(hostDesktopShellProfile.programs.dank-material-shell.enable or false)
+      && !(hostDesktopShellProfile.programs.dms-greeter.enable or false)
+      && !(hostDesktopShellProfile.services.displayManager.noctalia-greeter.enable or false)
+      && hostDesktopShellProfile.users.users.fixture.shell == bash;
+    homeDesktopProfileIsRolePure =
+      let home = homeDesktopProfile.home-manager.users.fixture; in
+      home.xdg.userDirs.enable
+      && lib.elem nixpkgs.legacyPackages.${system}.wl-clipboard home.home.packages
+      && home.programs.firefox.enable
+      && builtins.length home.programs.firefox.profiles.default.extensions.packages == 6
+      && !(lib.elem nixpkgs.legacyPackages.${system}.material-symbols (homeDesktopProfile.fonts.packages or [ ]))
+      && !(homeDesktopProfile.services.gnome.gnome-keyring.enable or false)
+      && !(homeDesktopProfile.xdg.portal.enable or false)
+      && !(homeDesktopProfile.programs.thunar.enable or false)
+      && !(homeDesktopProfile.programs.niri.enable or false)
+      && !(homeDesktopProfile.programs.dank-material-shell.enable or false)
+      && lib.any (directory: directory.directory == ".config/dconf") (home.home.persistence."/persist".directories or [ ])
+      && lib.any (directory: directory.directory == ".local/share/keyrings") (home.home.persistence."/persist".directories or [ ])
+      && homeDesktopProfile.users.users.fixture.shell == bash;
     dmsShellAndGreeterExplicitlySelected =
       dmsSelected.programs.dank-material-shell.enable
       && dmsSelected.programs.dms-greeter.enable

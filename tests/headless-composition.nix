@@ -34,26 +34,14 @@ let
     flake.nixosConfigurations.fixture.config;
 
   server = evaluate {
-    hostIncludes = [ dotnix.server ];
+    hostIncludes = [ dotnix.host.server ];
   };
   workstation = evaluate {
     hostIncludes = with dotnix; [
       host.home-manager
-      base
-      host.boot-systemd
-      host.performance
-      host.bluetooth
-      host.disko
-      host.persistence
-      host.btrfs-root-reset
-      host.geolocation
-      host.network
-      host.network-wifi
-      host.pipewire
-      host.power
+      host.workstation
       host.age
       host.age-rekey
-      host.yubikey
       host.yubikey-pam
     ];
     hostModule = {

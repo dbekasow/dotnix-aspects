@@ -4,9 +4,9 @@
   dotnix.myuser = {
     includes = with dotnix; [
       account.users # create this explicitly selected OS account
-      terminal # shells, tools, multiplexer
-      development # editor, vcs, automation
-      core-home # user-scope Home Manager modules, including Stylix
+      home.terminal # shells, tools, multiplexer
+      home.development # editor, vcs, automation
+      home.core-home # user-scope Home Manager modules, including Stylix
       home.persistence # generic persistence baseline for this home
     ];
 

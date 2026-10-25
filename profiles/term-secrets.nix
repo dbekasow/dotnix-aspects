@@ -1,4 +1,4 @@
 # CLI secret store.
 { dotnix, ... }: {
-  dotnix.term-secrets.includes = [ dotnix.home.rbw ];
+  dotnix.home.term-secrets.includes = [ dotnix.home.rbw ];
 }

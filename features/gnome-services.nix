@@ -1,5 +1,5 @@
 {
-  dotnix.gnome-services.nixos = { pkgs, ... }: {
+  dotnix.host.gnome-services.nixos = { pkgs, ... }: {
     services = {
       dbus = {
         implementation = "broker";
@@ -18,9 +18,9 @@
   };
 
   # Impermanence contribution for gnome-services.
-  # gnome-services itself is a nixos aspect, but dconf and the keyring live in
-  # the user's home, so the persistence entry is homeManager-side.
-  dotnix.gnome-services.homePersistence = {
+  # GNOME services run on the host, but dconf and the keyring live in the
+  # user's home, so the persistence entry is Home Manager-side.
+  dotnix.home.gnome-services.homePersistence = {
     home.persistence."/persist".directories = [
       ".config/dconf"
       ".local/share/keyrings"
