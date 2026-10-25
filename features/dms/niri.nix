@@ -1,17 +1,4 @@
 _: {
-  dotnix.dms.nixos =
-    { config
-    , lib
-    , options
-    , ...
-    }:
-    {
-      config = lib.mkIf (options ? programs && options.programs ? niri && config.programs.niri.enable) {
-        # DMS provides its own Polkit agent when both shells are selected.
-        systemd.user.services.niri-flake-polkit.enable = false;
-      };
-    };
-
   dotnix.dms.homeManager = { config, ... }: {
     programs.niri.settings.binds =
       with config.lib.niri.actions;

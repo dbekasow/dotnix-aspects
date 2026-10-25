@@ -3,7 +3,7 @@
 **What to build:** Separate Niri host support from per-user Niri selection and make shared graphical foundation capabilities explicitly consumable. This includes Niri bindings, fonts, GNOME services, XDG and portals, Thunar, and clipboard support, without requiring DMS or Noctalia.
 
 **Blocked by:** [05: Configure accounts without hidden shell or vault choices](05-account-selection.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria

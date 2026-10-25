@@ -9,7 +9,8 @@
     # must match the user aspect name in modules/users/<user>/default.nix
     provides.myuser.includes = with dotnix; [
       myuser
-      desktop-shell # Home Manager shell integration for this user
+      desktop-shell # graphical foundation for this user's home
+      home.niri # per-user Niri configuration and bindings
       dms # Home Manager DMS launcher and settings; use noctalia here too to select it instead
       home.pipewire # WirePlumber state persistence for this user's home
     ];
@@ -17,7 +18,8 @@
     includes = with dotnix; [
       dell-precision-5570 # from ./hardware.nix
       core # Home Manager NixOS integration is explicitly selected
-      desktop-shell # host graphical socket
+      desktop-shell # graphical foundation
+      host.niri # NixOS Niri support, separate from per-user configuration
       dms # host shell — use noctalia instead for that host
       dms-greeter # greeter — swap for `noctalia-greeter`
       base # shared boot behavior
