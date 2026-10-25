@@ -14,7 +14,7 @@
       host.nur
       host.security
       host.ssh
-      stylix
+      host.stylix
       host.system-packages
     ];
   };
@@ -26,7 +26,7 @@
     git-alias
     home.gpg-agent
     home.ssh
-    stylix
+    home.stylix
   ];
 
 }
