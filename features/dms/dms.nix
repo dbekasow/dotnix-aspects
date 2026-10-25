@@ -1,8 +1,7 @@
 { inputs, ... }:
 let
   # Library dependency inputs (the DMS modules) stay closed over the library
-  # flake; the vault path resolves from the aspect `inputs` argument (consumer
-  # flake) exposed by den.batteries.flake-scope.
+  # flake.
   libraryInputs = inputs;
 in
 {
@@ -28,8 +27,8 @@ in
         programs.dank-material-shell = {
           enable = true;
 
-          systemd.enable = true;
-          systemd.restartIfChanged = true;
+          # Runtime selection belongs to individual Home Manager targets.
+          systemd.enable = lib.mkDefault false;
 
           # DMS follows the native host U2F configuration when selected; it
           # does not infer an authfile path or require secret tooling.
@@ -55,7 +54,14 @@ in
         ];
       };
 
-    homeManager = { ... }: {
+    homeManager = { config, lib, ... }: {
+      assertions = [
+        {
+          assertion = !(config.programs.noctalia.enable or false);
+          message = "DMS and Noctalia cannot both be selected for the same Home Manager target.";
+        }
+      ];
+
       imports = with libraryInputs; [
         dms.homeModules.dank-material-shell
         dms.homeModules.niri
@@ -63,6 +69,7 @@ in
 
       programs.dank-material-shell = {
         enable = true;
+        systemd.enable = lib.mkDefault true;
 
         enableAudioWavelength = true;
         enableCalendarEvents = true;

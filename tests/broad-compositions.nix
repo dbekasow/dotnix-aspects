@@ -1074,6 +1074,7 @@ let
     dmsShellAndGreeterExplicitlySelected =
       dmsSelected.programs.dank-material-shell.enable
       && dmsSelected.programs.dms-greeter.enable
+      && !dmsSelected.programs.dank-material-shell.systemd.enable
       && dmsSelected.programs.dank-material-shell.lockscreen.securityKey.enable
       && lib.elem "authfile=${resourceTree}/explicit-u2f-mappings" dmsSelected.programs.dank-material-shell.lockscreen.securityKey.moduleArgs
       && !(dmsSelected.stylix.enable or false)
