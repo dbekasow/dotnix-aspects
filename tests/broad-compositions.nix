@@ -162,6 +162,20 @@ let
     userIncludes = with dotnix; [ desktop development noctalia ];
     hostModule = { disko.devices.disk.main.device = "/dev/vda"; };
   };
+  developmentHomeBaseline = evaluate { };
+  developmentHome = evaluate {
+    userIncludes = [ dotnix.development ];
+  };
+  standaloneJust = evaluate {
+    userIncludes = [ dotnix.just ];
+  };
+  homeGitOnly = evaluate {
+    userIncludes = [ dotnix.git ];
+  };
+  hostGitOnly = evaluate {
+    hostIncludes = lib.optional (builtins.hasAttr "git" dotnix.host) dotnix.host.git;
+    withUser = false;
+  };
   adapterOnly = evaluate {
     withUser = false;
     consumerInputs = (lib.removeAttrs inputs [ "dotnix" ]) // { library = source; };
@@ -486,8 +500,30 @@ let
       workstation.programs.fish.enable
       && workstation.zramSwap.enable
       && workstation.programs.niri.enable
-      && workstation.virtualisation.docker.enable
+      && !(workstation.virtualisation.docker.enable or false)
+      && !(workstation.programs.nix-ld.enable or false)
       && workstation.home-manager.users.fixture.programs.helix.enable;
+    developmentHomeKeepsHostPrerequisitesExplicit =
+      developmentHome.home-manager.users.fixture.programs.helix.enable
+      && !(developmentHome.virtualisation.docker.enable or false)
+      && !(developmentHome.programs.nix-ld.enable or false)
+      && (developmentHome.nix.settings.substituters or [ ]) == (adapterOnly.nix.settings.substituters or [ ])
+      && (developmentHome.nix.settings.extra-substituters or [ ]) == (adapterOnly.nix.settings.extra-substituters or [ ])
+      && (developmentHome.nix.settings.trusted-public-keys or [ ]) == (adapterOnly.nix.settings.trusted-public-keys or [ ])
+      && (developmentHome.nix.settings.extra-trusted-public-keys or [ ]) == (adapterOnly.nix.settings.extra-trusted-public-keys or [ ])
+      && map (package: package.drvPath) developmentHome.environment.systemPackages
+      == map (package: package.drvPath) developmentHomeBaseline.environment.systemPackages
+      && builtins.attrNames developmentHome.systemd.services
+      == builtins.attrNames developmentHomeBaseline.systemd.services;
+    standaloneDevelopmentToolNeedsNoProfile =
+      lib.any (package: package.pname == "just") standaloneJust.home-manager.users.fixture.home.packages
+      && !(standaloneJust.virtualisation.docker.enable or false)
+      && !(standaloneJust.programs.nix-ld.enable or false);
+    homeGitSelectionDoesNotEnableHostGit = !(homeGitOnly.programs.git.enable or false);
+    hostGitRemainsExplicitlySelectable =
+      builtins.hasAttr "git" dotnix.host
+      && hostGitOnly.programs.git.enable
+      && hostGitOnly.programs.git.lfs.enable;
     socketDoesNotSelectShellOrGreeter =
       !(socketOnly.programs.dank-material-shell.enable or false)
       && !(socketOnly.programs.dms-greeter.enable or false)
@@ -551,7 +587,7 @@ let
       && selected.services.journald.settings.Journal.Storage == "persistent"
       && selected.time.timeZone == "Europe/Berlin"
       && selected.security.polkit.enable
-      && lib.any (package: package.pname == "helix") selected.environment.systemPackages
+      && !(lib.any (package: builtins.elem (package.pname or "") [ "herdr" "helix" ]) selected.environment.systemPackages)
       && selected.programs.nh.enable
       && selected.programs.nix-ld.enable
       && !(builtins.hasAttr "home-manager" selected)
