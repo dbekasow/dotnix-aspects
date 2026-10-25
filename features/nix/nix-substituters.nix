@@ -1,5 +1,5 @@
 {
-  dotnix.host.nix.nixos = { lib, ... }: {
+  dotnix.host.nix-community-cache.nixos = { lib, ... }: {
     # mkDefault so hosts can replace the extra caches (e.g. a VPS attaching its
     # own binary cache) instead of fighting the shared defaults.
     nix.settings = {

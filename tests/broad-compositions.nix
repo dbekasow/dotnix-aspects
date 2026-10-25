@@ -206,6 +206,22 @@ let
       fileSystems."/".device = lib.mkForce "/dev/mapper/cryptroot";
     };
   };
+  hostNixDefault = evaluate {
+    hostIncludes = [ dotnix.host.nix ];
+    withUser = false;
+  };
+  hostNixCommunityCache = evaluate {
+    hostIncludes = [ dotnix.host.nix dotnix.host.nix-community-cache ];
+    withUser = false;
+  };
+  nixCacheOverride = evaluate {
+    hostIncludes = [ dotnix.host.nix ];
+    withUser = false;
+    hostModule.nix.settings = {
+      substituters = [ "https://example.invalid" ];
+      trusted-public-keys = [ ];
+    };
+  };
   pipewireWithoutPersistenceRouting = evaluate {
     hostIncludes = with dotnix; [ impermanence host.home-manager host.pipewire host.bluetooth ];
     userIncludes = [ dotnix.home.pipewire ];
@@ -384,14 +400,32 @@ let
       && selected.time.timeZone == "Europe/Berlin"
       && selected.security.polkit.enable
       && lib.any (package: package.pname == "helix") selected.environment.systemPackages
-      && lib.elem "https://nix-community.cachix.org" selected.nix.settings.extra-substituters
-      && lib.elem "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" selected.nix.settings.extra-trusted-public-keys
       && selected.programs.nh.enable
       && selected.programs.nix-ld.enable
       && !(builtins.hasAttr "home-manager" selected)
       && !(selected.environment ? persistence)
       && !(unselected.networking.networkmanager.enable or false)
       && !(unselected.programs.nh.enable or false);
+    hostNixCommunityCacheRequiresOptIn =
+      let
+        defaults = hostNixDefault.nix.settings;
+        selected = hostNixCommunityCache.nix.settings;
+      in
+      !(lib.elem "https://nix-community.cachix.org" (defaults.substituters or [ ]))
+      && (defaults.extra-substituters or [ ]) == [ ]
+      && !(lib.elem "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" (defaults.trusted-public-keys or [ ]))
+      && (defaults.extra-trusted-public-keys or [ ]) == [ ]
+      && (selected.extra-substituters or [ ]) == [ "https://nix-community.cachix.org" ]
+      && (selected.extra-trusted-public-keys or [ ]) == [
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      ];
+    hostNixCanonicalOverridesLeaveNoCommunityCache =
+      let settings = nixCacheOverride.nix.settings; in
+      lib.elem "https://example.invalid" settings.substituters
+      && !(lib.elem "https://nix-community.cachix.org" settings.substituters)
+      && (settings.extra-substituters or [ ]) == [ ]
+      && !(lib.elem "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" settings.trusted-public-keys)
+      && (settings.extra-trusted-public-keys or [ ]) == [ ];
     selectedPipewireHomePersistence =
       lib.any (directory: directory.directory == ".local/state/wireplumber") pipewireUserOnly.home-manager.users.fixture.home.persistence."/persist".directories;
     selectedBluetoothSystemPersistence =
