@@ -38,7 +38,7 @@ let
   };
   workstation = evaluate {
     hostIncludes = with dotnix; [
-      home-manager
+      host.home-manager
       base
       boot-systemd
       performance
@@ -48,7 +48,7 @@ let
       geolocation
       network
       network-wifi
-      pipewire
+      host.pipewire
       power
       age
       age-rekey

@@ -8,6 +8,8 @@ let
     (i: i.files)
   ];
 
+  consumerAdapter = ./integration/default.nix;
+
   devParts = map (name: "${modules}/parts/${name}") [
     "flake-parts.nix"
     "age.nix"
@@ -38,6 +40,7 @@ in
       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     };
 
+    flake.flakeModules.default = consumerAdapter;
     flake.flakeModules.devTools.imports = [ inputs.flake-file.flakeModules.default ]
       ++ map (f: f { inherit inputs lib; }) (map import devParts);
     flake.templates.default = {

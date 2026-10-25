@@ -7,7 +7,7 @@
       fish
       git
       gnupg
-      home-manager
+      host.home-manager
       locale
       nh
       nix

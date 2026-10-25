@@ -11,6 +11,7 @@
       myuser
       desktop-shell # Home Manager shell integration for this user
       dms # Home Manager DMS launcher and settings; use noctalia here too to select it instead
+      home.pipewire # WirePlumber state persistence for this user's home
     ];
 
     includes = with dotnix; [
@@ -28,7 +29,7 @@
       geolocation # location service
       network # NetworkManager and Avahi
       network-wifi # Wi-Fi configuration
-      pipewire # audio
+      host.pipewire # audio
       power # workstation power management and resume defaults
       yubikey # hardware-backed login tools
       yubikey-pam # PAM integration for YubiKey
