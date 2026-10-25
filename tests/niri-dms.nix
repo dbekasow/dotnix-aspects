@@ -11,6 +11,7 @@ let
     , userIncludes ? [ ]
     , hostModule ? { }
     , userModule ? { }
+    , niriOverlay ? true
     ,
     }:
     let
@@ -26,7 +27,7 @@ let
             inputs.nixpkgs.lib.nixosSystem (args // {
               pkgs = import inputs.nixpkgs {
                 inherit system;
-                overlays = [ inputs.niri.overlays.niri ];
+                overlays = lib.optional niriOverlay inputs.niri.overlays.niri;
               };
             });
         };
@@ -35,7 +36,7 @@ let
           nixos = {
             system.stateVersion = "25.11";
             nixpkgs.hostPlatform = system;
-            nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+            nixpkgs.overlays = lib.optional niriOverlay inputs.niri.overlays.niri;
             home-manager.useGlobalPkgs = true;
             users.users.fixture = {
               isNormalUser = true;
@@ -66,6 +67,10 @@ let
   };
   userNiriOnly = evaluate {
     userIncludes = with dotnix; [ home.niri ];
+  };
+  overlayFreeHomeNiri = evaluate {
+    userIncludes = [ dotnix.home.niri ];
+    niriOverlay = false;
   };
   niriDisabled = evaluate {
     hostIncludes = with dotnix; [ host.niri ];
@@ -151,6 +156,10 @@ let
     standaloneNiriActivationPackage = niriOnlyHome.home.home.activationPackage.drvPath != "";
     niriOnlyPolkitAgent = niriOnly.config.systemd.user.services.niri-flake-polkit.enable;
     userNiriSelectionDoesNotEnableHost = !(userNiriOnly.config.programs.niri.enable or false);
+    homeNiriWorksWithoutHostOverlay =
+      !(overlayFreeHomeNiri.config.programs.niri.enable or false)
+      && overlayFreeHomeNiri.home.programs.niri.finalConfig != null
+      && builtins.hasAttr "Mod+Q" overlayFreeHomeNiri.home.programs.niri.settings.binds;
     dmsDoesNotDisablePolkitForAllUsers = niriDms.config.systemd.user.services.niri-flake-polkit.enable;
     noctaliaLeavesPolkitToNiri = niriNoctalia.config.systemd.user.services.niri-flake-polkit.enable;
     niriOnlyHasGeneralBinding = builtins.hasAttr "Mod+Q" niriOnlyHome.home.programs.niri.settings.binds;

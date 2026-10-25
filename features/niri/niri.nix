@@ -29,7 +29,10 @@
       imports = lib.optional (!((specialArgs.osConfig or { }) ? niri-flake)) inputs.niri.homeModules.niri;
 
       programs.niri.settings = {
-        xwayland-satellite.path = lib.getExe pkgs.xwayland-satellite-unstable;
+        xwayland-satellite.path = lib.getExe (
+          pkgs.xwayland-satellite-unstable
+            or inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-unstable
+        );
         hotkey-overlay.skip-at-startup = true;
 
         # niri's default ~/Pictures (capital P) collides with the persisted
