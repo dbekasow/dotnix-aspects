@@ -38,6 +38,7 @@ let
     , otherHost ? false
     , consumerInputs ? inputs
     , consumerSelf ? source
+    , overlays ? [ inputs.nur.overlays.default inputs.llm-agents.overlays.shared-nixpkgs inputs.niri.overlays.niri ]
     ,
     }:
     let
@@ -45,7 +46,7 @@ let
         inputs.nixpkgs.lib.nixosSystem (args // {
           pkgs = import inputs.nixpkgs {
             inherit system;
-            overlays = [ inputs.nur.overlays.default inputs.llm-agents.overlays.shared-nixpkgs inputs.niri.overlays.niri ];
+            inherit overlays;
           };
         });
       fixture = {
@@ -328,6 +329,18 @@ let
       flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } fixture;
     in
     flake.homeConfigurations.fixture.config;
+  agentToolsWithoutGlobalOverlay = evaluate {
+    overlays = [ ];
+    hostIncludes = [ dotnix.host.home-manager ];
+    userIncludes = with dotnix; [ ai-tools workmux repomix tuicr handy ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+  };
+  handyServiceSelected = evaluate {
+    overlays = [ ];
+    hostIncludes = [ dotnix.host.home-manager ];
+    userIncludes = [ dotnix.handy-service ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+  };
   checks = {
     popupTmuxWorksWithoutWorkmux =
       let tmux = popupTmuxOnly.home-manager.users.fixture.programs.tmux;
@@ -363,6 +376,23 @@ let
     standaloneHerdrWorksWithoutHostOverlay =
       standaloneHerdr.programs.herdr.settings.keys.prefix == "ctrl+a"
       && !(lib.any (entry: entry.description == "bluetui") standaloneHerdr.programs.herdr.settings.keys.command);
+    agentToolsResolveWithoutGlobalOverlay =
+      let
+        systemConfig = agentToolsWithoutGlobalOverlay;
+        home = systemConfig.home-manager.users.fixture;
+        packageNames = map lib.getName home.home.packages;
+      in
+      builtins.length systemConfig.nixpkgs.overlays == 0
+      && !(systemConfig.nixpkgs.config.allowUnfree or false)
+      && lib.elem "beads" packageNames
+      && lib.elem "workmux" packageNames
+      && lib.elem "repomix" packageNames
+      && lib.elem "tuicr" packageNames
+      && lib.elem "handy" packageNames
+      && !(builtins.hasAttr "handy" home.systemd.user.services);
+    handyServiceRequiresExplicitSelection =
+      handyServiceSelected.home-manager.users.fixture.systemd.user.services.handy.Install.WantedBy
+      == [ "graphical-session.target" ];
     populatedResourcesUseConsumerTree =
       populatedSelf.inputs == source.inputs
       && toString populatedSelf.outPath == toString resourceTree;

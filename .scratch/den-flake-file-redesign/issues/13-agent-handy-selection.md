@@ -3,7 +3,7 @@
 **What to build:** Make agent tools and Handy consumable as independent feature selections. Library-owned inputs and required unfree/overlay prerequisites remain explicitly assigned to the responsible feature and consumer.
 
 **Blocked by:** [02: Reorganize feature ownership and discovery around the confirmed criterion](02-feature-ownership-discovery.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria
