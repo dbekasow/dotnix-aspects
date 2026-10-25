@@ -1,9 +1,9 @@
 {
-  dotnix.gnupg.nixos = { pkgs, ... }: {
+  dotnix.host.gnupg.nixos = { lib, pkgs, ... }: {
     programs.gnupg.agent.enable = true;
     programs.gnupg.agent.enableSSHSupport = true;
-    # GUI prompting is owned by the HM gpg-agent aspect; system side
-    # stays tty-capable.
-    programs.gnupg.agent.pinentryPackage = pkgs.pinentry-curses;
+    # Host-side prompting stays tty-capable; consumers may override this
+    # native option when their host needs another pinentry.
+    programs.gnupg.agent.pinentryPackage = lib.mkDefault pkgs.pinentry-curses;
   };
 }

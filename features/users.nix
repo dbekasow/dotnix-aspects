@@ -4,14 +4,13 @@ _:
     isNormalUser = lib.mkDefault true;
   };
 
-  dotnix.account.passwords = { host, inputs, user, ... }:
+  dotnix.account.passwords = { host, user, ... }:
     if (host.class or null) != "nixos" then
       { }
     else
       let
         passwordSecret = "password-${user.userName}";
         hashedPasswordSecret = "${passwordSecret}-hashed";
-        defaultSecretsDir = "${inputs.self}/modules/hosts/${host.name}/secrets";
       in
       {
         user = { host, lib, osConfig ? { }, ... }:
@@ -24,10 +23,13 @@ _:
               hashedPasswordFile = secrets.${hashedPasswordSecret}.path;
             };
 
-        provides.${host.name}.nixos = { config, lib, ... }:
+        provides.${host.name}.nixos = { config, lib, options, ... }:
           let
-            secretsDir = lib.attrByPath [ "age" "rekey" "secretsDir" ] defaultSecretsDir config;
-            vaultReady = lib.pathExists "${secretsDir}/ssh_host_ed25519_key.pub";
+            vaultReady =
+              config.age.rekey.secretsDir != null
+              && config.age.rekey.generatedSecretsDir != null
+              && config.age.rekey.hostPubkey != ""
+              && config.age.rekey.hostPubkey != options.age.rekey.hostPubkey.default;
           in
           {
             users.mutableUsers = lib.mkDefault (!vaultReady);

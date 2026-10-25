@@ -14,6 +14,7 @@ let
     printf 'certificate presence marker\\n' > $out/modules/hosts/fixture/certificates/fixture.crt
     printf 'ignored presence marker\\n' > $out/modules/hosts/fixture/certificates/ignored.txt
     printf 'wallpaper presence marker\\n' > $out/modules/users/fixture/assets/wallpaper.png
+    printf 'explicit certificate fixture\\n' > $out/explicit-root.crt
   '';
   populatedSelf = source // { outPath = resourceTree; };
 
@@ -100,31 +101,132 @@ let
 
   populatedResources = evaluate {
     consumerSelf = populatedSelf;
-    hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms stylix certificates ];
+    hostIncludes = with dotnix; [ host.age host.age-rekey host.yubikey-pam desktop-shell dms stylix host.certificates ];
     userClasses = [ "user" "homeManager" ];
-    userIncludes = with dotnix; [ account.passwords age-rekey stylix ];
-    hostModule.users.users.fixture.home = "/home/fixture";
+    userIncludes = [ dotnix.account.passwords dotnix.home.age dotnix.home.age-rekey dotnix.stylix ];
+    hostModule = {
+      users.users.fixture.home = "/home/fixture";
+      age.rekey = {
+        secretsDir = "${resourceTree}/explicit-host-secrets";
+        generatedSecretsDir = "${resourceTree}/explicit-host-generated";
+        localStorageDir = "${resourceTree}/explicit-host-local";
+        hostPubkey = "host public fixture marker";
+      };
+      security.pki.certificateFiles = [ "${resourceTree}/explicit-root.crt" ];
+      security.pam.u2f.settings.authfile = "${resourceTree}/explicit-u2f-mappings";
+    };
+    userModule.age.rekey = {
+      secretsDir = "${resourceTree}/explicit-home-secrets";
+      generatedSecretsDir = "${resourceTree}/explicit-home-generated";
+      localStorageDir = "${resourceTree}/explicit-home-local";
+      hostPubkey = "home public fixture marker";
+    };
   };
   emptyResources = evaluate {
-    hostIncludes = with dotnix; [ age age-rekey yubikey-pam desktop-shell dms stylix certificates ];
-    userIncludes = with dotnix; [ age-rekey stylix ];
-    hostModule.users.users.fixture.home = "/home/fixture";
+    hostIncludes = with dotnix; [ host.age host.age-rekey host.yubikey-pam desktop-shell dms stylix host.certificates ];
+    userIncludes = [ dotnix.home.age dotnix.home.age-rekey dotnix.stylix ];
+    hostModule = {
+      users.users.fixture.home = "/home/fixture";
+      age.rekey = {
+        secretsDir = null;
+        generatedSecretsDir = null;
+        localStorageDir = "${resourceTree}/empty-host-local";
+      };
+    };
+    userModule.age.rekey = {
+      secretsDir = null;
+      generatedSecretsDir = null;
+      localStorageDir = "${resourceTree}/empty-home-local";
+    };
+  };
+  explicitNativeResources = evaluate {
+    consumerSelf = populatedSelf;
+    hostIncludes = with dotnix; [ host.age host.age-rekey host.ssh host.yubikey-pam desktop-shell dms stylix host.certificates ];
+    userIncludes = [ dotnix.home.age dotnix.home.age-rekey dotnix.stylix ];
+    hostModule = {
+      users.users.fixture.home = "/home/fixture";
+      services.openssh.enable = false;
+      services.openssh.settings.PasswordAuthentication = true;
+      age.rekey = {
+        secretsDir = "${resourceTree}/explicit-host-secrets";
+        generatedSecretsDir = "${resourceTree}/explicit-host-generated";
+        localStorageDir = "${resourceTree}/explicit-host-local";
+        hostPubkey = "host public fixture marker";
+      };
+      security.pki.certificateFiles = [ "${resourceTree}/explicit-root.crt" ];
+      security.pam.u2f.settings.authfile = "${resourceTree}/explicit-u2f-mappings";
+    };
+    userModule.age.rekey = {
+      secretsDir = "${resourceTree}/explicit-home-secrets";
+      generatedSecretsDir = "${resourceTree}/explicit-home-generated";
+      localStorageDir = "${resourceTree}/explicit-home-local";
+      hostPubkey = "home public fixture marker";
+    };
+    extraUsers.unrelated.classes = [ "user" "homeManager" ];
+  };
+  resourcesStayOnSelectedHost = evaluate {
+    otherHost = true;
+    withUser = false;
+    hostIncludes = [ dotnix.host.age dotnix.host.age-rekey dotnix.host.ssh dotnix.host.certificates ];
+    hostModule = {
+      age.rekey = {
+        secretsDir = "${resourceTree}/selected-host-secrets";
+        generatedSecretsDir = "${resourceTree}/selected-host-generated";
+        localStorageDir = "${resourceTree}/selected-host-local";
+        hostPubkey = "selected host public fixture marker";
+      };
+      security.pki.certificateFiles = [ "${resourceTree}/explicit-root.crt" ];
+    };
+  };
+  hostAuthenticationOnly = evaluate {
+    hostIncludes = with dotnix.host; [ age age-rekey ];
+    withUser = false;
+    hostModule.age.rekey.localStorageDir = "${resourceTree}/host-only-local";
+  };
+  homeIdentityWithoutHostAuthentication = evaluate {
+    hostIncludes = [ dotnix.host.home-manager ];
+    userIncludes = [ dotnix.home.age dotnix.home.age-rekey ];
+    userModule.age.rekey = {
+      secretsDir = "${resourceTree}/independent-home-secrets";
+      generatedSecretsDir = "${resourceTree}/independent-home-generated";
+      localStorageDir = "${resourceTree}/independent-home-local";
+      hostPubkey = "independent home public fixture marker";
+      masterIdentities = [ ];
+      storageMode = "local";
+    };
+  };
+  yubikeyPamWithoutAgeOrDesktop = evaluate {
+    hostIncludes = [ dotnix.host.yubikey-pam ];
+    withUser = false;
+    hostModule.security.pam.u2f.settings.authfile = "${resourceTree}/explicit-u2f-mappings";
   };
   passwordsWithoutVault = evaluate {
-    hostIncludes = with dotnix; [ age age-rekey ];
+    hostIncludes = with dotnix; [ host.age host.age-rekey ];
     userClasses = [ "user" ];
     userIncludes = [ dotnix.account.passwords ];
+    hostModule.age.rekey = {
+      secretsDir = "${resourceTree}/passwords-without-vault-secrets";
+      generatedSecretsDir = "${resourceTree}/passwords-without-vault-generated";
+      localStorageDir = "${resourceTree}/passwords-without-vault-local";
+      hostPubkey = "";
+    };
   };
   passwordsWithOverriddenSecretsDir = evaluate {
     consumerSelf = source;
-    hostIncludes = with dotnix; [ age age-rekey ];
+    hostIncludes = with dotnix; [ host.age host.age-rekey ];
     userClasses = [ "user" ];
     userIncludes = [ dotnix.account.passwords ];
-    hostModule.age.rekey.secretsDir = lib.mkForce "${resourceTree}/password-vault";
+    hostModule.age.rekey = {
+      secretsDir = "${resourceTree}/password-vault";
+      generatedSecretsDir = "${resourceTree}/password-vault/generated";
+      localStorageDir = "${resourceTree}/password-vault/local";
+      hostPubkey = "password fixture public key";
+    };
   };
   coreOnly = evaluate {
     hostIncludes = [ dotnix.core ];
     userClasses = [ "user" ];
+    hostModule.age.rekey.localStorageDir = "${resourceTree}/core-local";
   };
   accountOnly = evaluate {
     userClasses = [ "user" ];
@@ -151,15 +253,18 @@ let
       host.network-wifi
       host.pipewire
       host.power
-      age
-      age-rekey
-      yubikey
-      yubikey-pam
+      host.age
+      host.age-rekey
+      host.yubikey
+      host.yubikey-pam
       desktop
       development
     ];
     userIncludes = with dotnix; [ desktop development noctalia ];
-    hostModule = { disko.devices.disk.main.device = "/dev/vda"; };
+    hostModule = {
+      disko.devices.disk.main.device = "/dev/vda";
+      age.rekey.localStorageDir = "${resourceTree}/workstation-local";
+    };
   };
   adapterOnly = evaluate {
     withUser = false;
@@ -174,6 +279,10 @@ let
     userIncludes = with dotnix; [ dms ];
     hostModule = {
       users.users.fixture.home = "/home/fixture";
+      security.pam.u2f = {
+        enable = true;
+        settings.authfile = "${resourceTree}/explicit-u2f-mappings";
+      };
     };
   };
   noctaliaSelected = evaluate {
@@ -271,7 +380,7 @@ let
     disablePersistenceRouting = true;
   };
   broadNativeCompositions = evaluate {
-    userIncludes = with dotnix; [ git rbw maildir ];
+    userIncludes = [ dotnix.git dotnix.home.rbw dotnix.maildir ];
     hostModule.users.users.fixture.home = "/home/fixture";
     userModule = {
       programs.git.settings.user = {
@@ -398,30 +507,62 @@ let
       populatedSelf.inputs == source.inputs
       && toString populatedSelf.outPath == toString resourceTree;
     populatedResourceGates =
-      populatedResources.age.rekey.secretsDir == "${resourceTree}/modules/hosts/fixture/secrets"
-      && populatedResources.age.rekey.hostPubkey != ""
-      && populatedResources.home-manager.users.fixture.age.rekey.secretsDir == "${resourceTree}/modules/users/fixture/secrets"
-      && populatedResources.home-manager.users.fixture.age.rekey.hostPubkey != ""
-      && populatedResources.age.secrets ? "home-identity-fixture"
+      populatedResources.age.rekey.secretsDir == "${resourceTree}/explicit-host-secrets"
+      && populatedResources.age.rekey.hostPubkey == "host public fixture marker"
+      && populatedResources.home-manager.users.fixture.age.rekey.secretsDir == "${resourceTree}/explicit-home-secrets"
+      && populatedResources.home-manager.users.fixture.age.rekey.hostPubkey == "home public fixture marker"
+      && !(populatedResources.age.secrets ? "home-identity-fixture")
       && populatedResources.age.secrets ? "password-fixture"
       && populatedResources.users.users.fixture.hashedPasswordFile == populatedResources.age.secrets."password-fixture-hashed".path
       && !populatedResources.users.mutableUsers
       && populatedResources.security.pam.u2f.enable
-      && populatedResources.security.pam.u2f.settings.authfile == populatedResources.age.secrets.u2f.path
+      && populatedResources.security.pam.u2f.settings.authfile == "${resourceTree}/explicit-u2f-mappings"
       && populatedResources.programs.dank-material-shell.lockscreen.securityKey.enable
-      && lib.elem "authfile=${populatedResources.age.secrets.u2f.path}" populatedResources.programs.dank-material-shell.lockscreen.securityKey.moduleArgs;
+      && lib.elem "authfile=${resourceTree}/explicit-u2f-mappings" populatedResources.programs.dank-material-shell.lockscreen.securityKey.moduleArgs;
     populatedWallpaperPath = toString populatedResources.home-manager.users.fixture.stylix.image == "${resourceTree}/modules/users/fixture/assets/wallpaper.png";
-    populatedCertificateFiles = lib.unique populatedResources.security.pki.certificateFiles == [ "${resourceTree}/modules/hosts/fixture/certificates/fixture.crt" ];
+    populatedCertificateFiles = lib.unique populatedResources.security.pki.certificateFiles == [ "${resourceTree}/explicit-root.crt" ];
+    explicitNativeResourcesOverrideGuessedPaths =
+      explicitNativeResources.age.rekey.secretsDir == "${resourceTree}/explicit-host-secrets"
+      && explicitNativeResources.age.rekey.generatedSecretsDir == "${resourceTree}/explicit-host-generated"
+      && explicitNativeResources.age.rekey.localStorageDir == "${resourceTree}/explicit-host-local"
+      && explicitNativeResources.age.rekey.hostPubkey == "host public fixture marker"
+      && explicitNativeResources.home-manager.users.fixture.age.rekey.secretsDir == "${resourceTree}/explicit-home-secrets"
+      && explicitNativeResources.home-manager.users.fixture.age.rekey.hostPubkey == "home public fixture marker"
+      && lib.unique explicitNativeResources.security.pki.certificateFiles == [ "${resourceTree}/explicit-root.crt" ]
+      && explicitNativeResources.security.pam.u2f.settings.authfile == "${resourceTree}/explicit-u2f-mappings"
+      && !explicitNativeResources.services.openssh.enable
+      && explicitNativeResources.services.openssh.settings.PasswordAuthentication
+      && !(explicitNativeResources.home-manager.users.unrelated ? age)
+      && explicitNativeResources.programs.dank-material-shell.lockscreen.securityKey.enable
+      && lib.elem "authfile=${resourceTree}/explicit-u2f-mappings" explicitNativeResources.programs.dank-material-shell.lockscreen.securityKey.moduleArgs;
     emptyResourceGates =
       emptyResources.age.secrets == { }
       && emptyResources.users.users.fixture.hashedPasswordFile == null
       && emptyResources.users.mutableUsers
       && !(emptyResources.age.secrets ? "password-fixture")
-      && !(emptyResources.security.pam.u2f.enable or false)
+      && emptyResources.security.pam.u2f.enable
       && !(emptyResources.programs.dank-material-shell.lockscreen.securityKey.enable or false)
-      && emptyResources.age.rekey.hostPubkey == ""
-      && emptyResources.home-manager.users.fixture.age.rekey.hostPubkey == ""
+      && emptyResources.age.rekey.secretsDir == null
+      && emptyResources.age.rekey.generatedSecretsDir == null
+      && emptyResources.home-manager.users.fixture.age.rekey.secretsDir == null
+      && emptyResources.home-manager.users.fixture.age.rekey.generatedSecretsDir == null
       && emptyResources.security.pki.certificateFiles == [ ];
+    resourcesStayOnSelectedHostOnly =
+      resourcesStayOnSelectedHost.selected.age.rekey.secretsDir == "${resourceTree}/selected-host-secrets"
+      && resourcesStayOnSelectedHost.selected.security.pki.certificateFiles == [ "${resourceTree}/explicit-root.crt" ]
+      && !(resourcesStayOnSelectedHost.unselected ? age)
+      && !(resourcesStayOnSelectedHost.unselected.services.openssh.enable or false)
+      && resourcesStayOnSelectedHost.unselected.security.pki.certificateFiles == [ ]
+      && !(resourcesStayOnSelectedHost.unselected ? home-manager);
+    hostAuthenticationAndHomeIdentityAreIndependent =
+      !(homeIdentityWithoutHostAuthentication ? age)
+      && homeIdentityWithoutHostAuthentication.home-manager.users.fixture.age.rekey.hostPubkey == "independent home public fixture marker"
+      && !(hostAuthenticationOnly ? home-manager)
+      && !(hostAuthenticationOnly.age.secrets ? "home-identity-fixture");
+    yubikeyPamDoesNotRequireAgeOrDesktop =
+      yubikeyPamWithoutAgeOrDesktop.security.pam.u2f.enable
+      && yubikeyPamWithoutAgeOrDesktop.security.pam.u2f.settings.authfile == "${resourceTree}/explicit-u2f-mappings"
+      && !(yubikeyPamWithoutAgeOrDesktop.programs.dank-material-shell.enable or false);
     accountSelectionIsExplicitAndHomeIndependent =
       accountOnly.users.users.fixture.isNormalUser
       && !(accountOnly.users.users.unrelated.isNormalUser or false)
@@ -442,6 +583,7 @@ let
       && !(passwordsWithoutVault.age.secrets ? "password-fixture-hashed");
     passwordRecipeUsesNativeSecretsDirOverride =
       passwordsWithOverriddenSecretsDir.age.rekey.secretsDir == "${resourceTree}/password-vault"
+      && passwordsWithOverriddenSecretsDir.age.rekey.hostPubkey == "password fixture public key"
       && passwordsWithOverriddenSecretsDir.age.secrets ? "password-fixture"
       && passwordsWithOverriddenSecretsDir.users.users.fixture.hashedPasswordFile == passwordsWithOverriddenSecretsDir.age.secrets."password-fixture-hashed".path
       && !passwordsWithOverriddenSecretsDir.users.mutableUsers;
@@ -463,7 +605,10 @@ let
       && !(socketOnly.programs.dms-greeter.enable or false)
       && !(socketOnly.services.displayManager.noctalia-greeter.enable or false);
     dmsShellAndGreeterExplicitlySelected =
-      dmsSelected.programs.dank-material-shell.enable && dmsSelected.programs.dms-greeter.enable;
+      dmsSelected.programs.dank-material-shell.enable
+      && dmsSelected.programs.dms-greeter.enable
+      && dmsSelected.programs.dank-material-shell.lockscreen.securityKey.enable
+      && lib.elem "authfile=${resourceTree}/explicit-u2f-mappings" dmsSelected.programs.dank-material-shell.lockscreen.securityKey.moduleArgs;
     noctaliaGreeterExplicitlySelected =
       noctaliaSelected.services.displayManager.noctalia-greeter.enable;
     noctaliaHomeShellExplicitlySelected = home.home-manager.users.fixture.programs.noctalia.enable;

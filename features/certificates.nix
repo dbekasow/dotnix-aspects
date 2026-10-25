@@ -1,15 +1,7 @@
 {
-  dotnix.certificates = { inputs, ... }: {
-    nixos = { host, lib, ... }: with lib; {
-      security.pki.certificateFiles =
-        let
-          certDir = "${inputs.self}/modules/hosts/${host.name}/certificates";
-          certFiles = optionals (pathExists certDir) (pipe certDir [
-            filesystem.listFilesRecursive
-            (filter (hasSuffix ".crt"))
-          ]);
-        in
-        certFiles;
-    };
+  # Consumers provide certificate resources with the native
+  # `security.pki.certificateFiles` option.
+  dotnix.host.certificates.nixos = { lib, ... }: {
+    security.pki.installCACerts = lib.mkDefault true;
   };
 }
