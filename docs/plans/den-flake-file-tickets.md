@@ -1,6 +1,6 @@
 # Den / flake-file implementation ticket drafts
 
-Status: draft breakdown only. No tickets have been published. Parent-user approval of ticket granularity and blocking edges is pending; implementation remains separately gated. This repository uses [local Markdown issue tracking](../agents/issue-tracker.md); keep drafts local until approved.
+Status: HISTORICAL / SUPERSEDED. No tickets have been published. The following six-ticket draft is retained solely as historical planning context; it is not a current implementation backlog and is not proposed for approval. Replace it with a new breakdown only if implementation planning is later authorized. Implementation remains separately gated. This repository uses [local Markdown issue tracking](../agents/issue-tracker.md); keep drafts local until then.
 
 ## Delivery rules
 

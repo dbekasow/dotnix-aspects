@@ -1,6 +1,8 @@
 # Den / flake-file architecture assessment
 
-Status: planning evidence; implementation is not authorized. This assessment supplements, and does not replace or amend, the decision record. Existing production files, inputs, lockfiles, and deleted planning artifacts remain untouched.
+Status: historical planning evidence; implementation is not authorized. This assessment supplements, and does not replace or amend, the decision record. Existing production files, inputs, lockfiles, and deleted planning artifacts remain untouched.
+
+> **Superseded recommendation:** Earlier advice here against a setup module and to keep popup-launcher Quirk registration consumer-owned is superseded by the approved inert default consumer adapter, which registers library-owned global contracts without enabling features. Namespace import alone still does not register Quirks. Pinned source facts and historical probes below remain valid. See the [approved target architecture](den-architecture-target.md) and [canonical spec](../../.scratch/den-flake-file-redesign/spec.md).
 
 ## Finding
 

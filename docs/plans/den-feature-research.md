@@ -1,6 +1,8 @@
 # Den feature research: composition, context, and data flow
 
-Status: supplemental planning evidence. Two read-only researchers examined primary sources at the pinned Den revision. The parent checked critical recommendations with focused consumer evaluations. This is not an exhaustive Den audit, implementation approval, or a proposal to adopt every mechanism.
+Status: historical supplemental planning evidence. Two read-only researchers examined primary sources at the pinned Den revision. The parent checked critical recommendations with focused consumer evaluations. This is not an exhaustive Den audit, implementation approval, or a proposal to adopt every mechanism.
+
+> **Superseded recommendation:** Earlier advice here against a setup module and to keep popup-launcher Quirk registration consumer-owned is superseded by the approved inert default consumer adapter, which registers library-owned global contracts without enabling features. Namespace import alone still does not register Quirks. Pinned source facts and historical probes below remain valid. See the [approved target architecture](den-architecture-target.md) and [canonical spec](../../.scratch/den-flake-file-redesign/spec.md).
 
 ## Question and version boundary
 
