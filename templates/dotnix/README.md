@@ -15,6 +15,7 @@ modules/
   hosts/
     myHost/
       configuration.nix   # Den host entity and host aspect composition
+      greeter/              # consumer-owned greeter configuration and assets
       hardware.nix         # hardware-specific aspects
   users/
     myUser/
@@ -23,7 +24,20 @@ modules/
 flake.nix
 ```
 
-`modules/parts.nix` is the Den entry point. It imports Den's flake module and the library namespace, declares the user-scope `popup-launcher` Quirk for Tmux/Herdr, then enables the `flake-scope` and `hostname` batteries. The host configuration registers `myHost` and gives `myuser` the `user` and `homeManager` classes; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that account. The user aspect explicitly selects `account.users`; integrated Home Manager remains optional through its separate class. Host and home Age/Rekey aspects are selected separately and use native `age.rekey` resources defined in their owning consumer modules. Add `account.passwords` only to users who need generated passwords; it stays inactive until the host's secret directories and public key are configured. The example explicitly opts into `home.gpg-agent-gui`; `desktop-shell` does not force GUI pinentry. Desktop shell selection is explicit at both scopes: `desktop-shell` and `dms` are provided to `myuser` for Home Manager configuration and included by the host for NixOS configuration. To select Noctalia, replace `dms` with `noctalia` in both `provides.myuser.includes` and host `includes`; greeter remains host-only.
+`modules/parts.nix` is the Den entry point. It imports Den's flake module and the library namespace, declares the user-scope `popup-launcher` Quirk for Tmux/Herdr, then enables the `flake-scope` and `hostname` batteries. The host configuration registers `myHost` and gives `myuser` the `user` and `homeManager` classes; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that account. The user aspect explicitly selects `account.users`; integrated Home Manager remains optional through its separate class. Host and home Age/Rekey aspects are selected separately and use native `age.rekey` resources defined in their owning consumer modules. Add `account.passwords` only to users who need generated passwords; it stays inactive until the host's secret directories and public key are configured. The example explicitly opts into `home.gpg-agent-gui`; `desktop-shell` does not force GUI pinentry.
+
+Desktop shell selection is explicit at both scopes: `desktop-shell` and `dms` are provided to `myuser` for Home Manager configuration and included by the host for NixOS configuration. To select Noctalia, replace `dms` with `noctalia` in both `provides.myuser.includes` and host `includes`, select `host.noctalia-greeter` instead of `host.dms-greeter`, and remove DMS-only `programs.dms-greeter.*` assignments from the host's `nixos` settings. Greeter resources remain host-owned; see the example below.
+
+## Greeter resources
+
+Greeters are host-wide capabilities. They do not infer a user's home or require a matching user shell. The sample host supplies DMS's native `programs.dms-greeter.configHome` from its consumer-owned `greeter/home` directory. Set any extra DMS files through native `programs.dms-greeter.configFiles`. When switching to Noctalia, replace `host.dms-greeter` with `host.noctalia-greeter` and remove DMS-only `programs.dms-greeter.*` assignments from the host's `nixos` settings, including the sample `configHome` assignment in `configuration.nix`; these options are undeclared without the DMS greeter. Then set Noctalia's native settings to consumer-owned assets:
+
+```nix
+services.displayManager.noctalia-greeter.settings.appearance.wallpaper = {
+  path = builtins.toString ./greeter/wallpaper.svg;
+  fill_mode = "crop";
+};
+```
 
 ## Usage
 

@@ -7,7 +7,7 @@
   # session needed at login time. One greeter per host: dms-greeter and
   # noctalia-greeter both claim greetd's default session, so importing
   # both fails the option merge instead of half-booting.
-  dotnix.noctalia-greeter.nixos = {
+  dotnix.host.noctalia-greeter.nixos = {
     imports = [ inputs.noctalia-greeter.nixosModules.default ];
 
     services.displayManager.noctalia-greeter.enable = true;
