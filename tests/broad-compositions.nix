@@ -8,7 +8,7 @@ let
   bash = (import nixpkgs { inherit system; }).bashInteractive;
   # Markers prove resource presence only; contents are not usable keys, certificates, or images. This suite evaluates gates only and never builds or activates these fake resource configs.
   resourceTree = (import nixpkgs { inherit system; }).runCommand "consumer-resources" { } ''
-    mkdir -p $out/modules/hosts/fixture/secrets $out/modules/hosts/fixture/certificates $out/modules/users/fixture/secrets $out/modules/users/fixture/assets $out/password-vault
+    mkdir -p $out/modules/hosts/fixture/secrets $out/modules/hosts/fixture/certificates $out/modules/hosts/fixture/greeter/home/.config/DankMaterialShell $out/modules/users/fixture/secrets $out/modules/users/fixture/assets $out/password-vault
     printf 'public fixture marker\\n' > $out/modules/hosts/fixture/secrets/ssh_host_ed25519_key.pub
     printf 'public fixture marker\\n' > $out/password-vault/ssh_host_ed25519_key.pub
     printf 'public fixture marker\\n' > $out/modules/users/fixture/secrets/home-key.pub
@@ -16,6 +16,9 @@ let
     printf 'ignored presence marker\\n' > $out/modules/hosts/fixture/certificates/ignored.txt
     printf 'wallpaper presence marker\\n' > $out/modules/users/fixture/assets/wallpaper.png
     printf 'explicit wallpaper marker\\n' > $out/explicit-wallpaper.png
+    printf '{"consumer":"fixture"}\\n' > $out/modules/hosts/fixture/greeter/settings.json
+    printf '{}' > $out/modules/hosts/fixture/greeter/home/.config/DankMaterialShell/settings.json
+    printf 'greeter wallpaper marker\\n' > $out/modules/hosts/fixture/greeter/wallpaper.png
   '';
   populatedSelf = source // { outPath = resourceTree; };
 
@@ -320,15 +323,101 @@ let
     userIncludes = with dotnix; [ xdg clipboard ];
   };
   dmsSelected = evaluate {
-    hostIncludes = with dotnix; [ host.niri desktop-shell dms dms-greeter ];
+    hostIncludes = with dotnix; [ host.niri desktop-shell dms host.dms-greeter ];
     userIncludes = with dotnix; [ dotnix.home.niri dms ];
     hostModule = {
       users.users.fixture.home = "/home/fixture";
     };
   };
   noctaliaSelected = evaluate {
-    hostIncludes = with dotnix; [ host.niri desktop-shell noctalia-greeter ];
+    hostIncludes = with dotnix; [ host.niri desktop-shell host.noctalia-greeter ];
     withUser = false;
+  };
+  greeterResource = "${resourceTree}/modules/hosts/fixture/greeter";
+  dmsGreeterResources = {
+    programs.dms-greeter = {
+      configHome = "${greeterResource}/home";
+      configFiles = [ "${greeterResource}/settings.json" ];
+    };
+  };
+  dmsGreeterWithoutUsers = evaluate {
+    hostIncludes = [ dotnix.host.dms-greeter ];
+    withUser = false;
+  };
+  dmsGreeterWithExplicitResources = evaluate {
+    hostIncludes = [ dotnix.host.dms-greeter ];
+    withUser = false;
+    hostModule = dmsGreeterResources;
+  };
+  dmsGreeterWithAccounts = evaluate {
+    hostIncludes = [ dotnix.host.dms-greeter ];
+    withUser = false;
+    extraUsers = {
+      alice.classes = [ "user" ];
+      zelda.classes = [ "user" ];
+    };
+    hostModule = dmsGreeterResources // {
+      users.users.alice.home = "/home/alice";
+      users.users.zelda.home = "/home/zelda";
+    };
+  };
+  dmsGreeterWithRenamedAccounts = evaluate {
+    hostIncludes = [ dotnix.host.dms-greeter ];
+    withUser = false;
+    extraUsers = {
+      bob.classes = [ "user" ];
+      zara.classes = [ "user" ];
+    };
+    hostModule = dmsGreeterResources // {
+      users.users.bob.home = "/home/bob";
+      users.users.zara.home = "/home/zara";
+    };
+  };
+  dmsGreeterWithPersistence = evaluate {
+    hostIncludes = with dotnix; [ host.persistence host.dms-greeter ];
+    withUser = false;
+  };
+  noctaliaGreeterWithExplicitResources = evaluate {
+    hostIncludes = [ dotnix.host.noctalia-greeter ];
+    withUser = false;
+    hostModule.services.displayManager.noctalia-greeter.settings.appearance.wallpaper.path =
+      "${greeterResource}/wallpaper.png";
+  };
+  dmsGreeterHome = evaluate {
+    hostIncludes = with dotnix; [ host.home-manager host.dms-greeter ];
+    userIncludes = [ dotnix.noctalia ];
+    extraUsers.unrelated.classes = [ "user" "homeManager" ];
+    hostModule = dmsGreeterResources // {
+      users.users.fixture.home = "/home/fixture";
+      users.users.unrelated.home = "/home/unrelated";
+    };
+  };
+  dmsGreeterWithFishHome = evaluate {
+    hostIncludes = with dotnix; [ host.home-manager host.dms-greeter ];
+    userClasses = [ "user" "homeManager" ];
+    userIncludes = [ dotnix.account.users dotnix.home.fish ];
+    hostModule = dmsGreeterResources // {
+      users.users.fixture.home = "/home/fixture";
+    };
+  };
+  dmsGreeterWithNushellHome = evaluate {
+    hostIncludes = with dotnix; [ host.home-manager host.dms-greeter ];
+    userClasses = [ "user" "homeManager" ];
+    userIncludes = [ dotnix.account.users dotnix.home.nushell ];
+    hostModule = dmsGreeterResources // {
+      users.users.fixture.home = "/home/fixture";
+    };
+  };
+  noctaliaGreeterHome = evaluate {
+    hostIncludes = with dotnix; [ host.home-manager host.noctalia-greeter ];
+    userIncludes = [ dotnix.noctalia ];
+    extraUsers.unrelated.classes = [ "user" "homeManager" ];
+    hostModule = {
+      users.users.fixture.home = "/home/fixture";
+      users.users.unrelated.home = "/home/unrelated";
+      services.displayManager.noctalia-greeter.settings.appearance.wallpaper.path =
+        "${greeterResource}/wallpaper.png";
+    };
   };
   home = evaluate {
     hostIncludes = with dotnix; [ host.persistence ];
@@ -843,6 +932,51 @@ let
       && !(dmsSelected.home-manager.users.fixture.stylix.enable or false);
     noctaliaGreeterExplicitlySelected =
       noctaliaSelected.services.displayManager.noctalia-greeter.enable;
+    dmsGreeterWorksWithoutConsumerAccounts =
+      dmsGreeterWithoutUsers.programs.dms-greeter.enable
+      && dmsGreeterWithoutUsers.programs.dms-greeter.configHome == null
+      && !(builtins.hasAttr "home-manager" dmsGreeterWithoutUsers)
+      && !(builtins.hasAttr "home-manager" noctaliaGreeterWithExplicitResources);
+    dmsGreeterUsesConsumerResources =
+      dmsGreeterWithExplicitResources.programs.dms-greeter.enable
+      && !(builtins.hasAttr "home-manager" dmsGreeterWithExplicitResources)
+      && dmsGreeterWithExplicitResources.programs.dms-greeter.configHome == "${greeterResource}/home"
+      && builtins.elem "${greeterResource}/settings.json"
+        (map builtins.toString dmsGreeterWithExplicitResources.programs.dms-greeter.configFiles);
+    dmsGreeterIgnoresAccountHomes =
+      dmsGreeterWithExplicitResources.programs.dms-greeter.configHome
+      == dmsGreeterWithAccounts.programs.dms-greeter.configHome
+      && dmsGreeterWithExplicitResources.programs.dms-greeter.configHome
+      == dmsGreeterWithRenamedAccounts.programs.dms-greeter.configHome
+      && map builtins.toString dmsGreeterWithExplicitResources.programs.dms-greeter.configFiles
+      == map builtins.toString dmsGreeterWithAccounts.programs.dms-greeter.configFiles
+      && map builtins.toString dmsGreeterWithExplicitResources.programs.dms-greeter.configFiles
+      == map builtins.toString dmsGreeterWithRenamedAccounts.programs.dms-greeter.configFiles;
+    dmsGreeterIgnoresHomeShell =
+      dmsGreeterWithFishHome.home-manager.users.fixture.programs.fish.enable
+      && !(dmsGreeterWithFishHome.home-manager.users.fixture.programs.nushell.enable or false)
+      && dmsGreeterWithNushellHome.home-manager.users.fixture.programs.nushell.enable
+      && !(dmsGreeterWithNushellHome.home-manager.users.fixture.programs.fish.enable or false)
+      && dmsGreeterWithFishHome.programs.dms-greeter.configHome
+      == dmsGreeterWithNushellHome.programs.dms-greeter.configHome
+      && map builtins.toString dmsGreeterWithFishHome.programs.dms-greeter.configFiles
+      == map builtins.toString dmsGreeterWithNushellHome.programs.dms-greeter.configFiles;
+    noctaliaGreeterUsesConsumerAsset =
+      noctaliaGreeterWithExplicitResources.services.displayManager.noctalia-greeter.settings.appearance.wallpaper.path
+      == "${greeterResource}/wallpaper.png";
+    greeterTargetDoesNotChangeUninvolvedHomes =
+      dmsGreeterHome.home-manager.users.fixture.home.homeDirectory
+      == noctaliaGreeterHome.home-manager.users.fixture.home.homeDirectory
+      && dmsGreeterHome.home-manager.users.fixture.programs.noctalia.settings
+      == noctaliaGreeterHome.home-manager.users.fixture.programs.noctalia.settings
+      && dmsGreeterHome.home-manager.users.unrelated.home.homeDirectory
+      == noctaliaGreeterHome.home-manager.users.unrelated.home.homeDirectory
+      && !(dmsGreeterHome.home-manager.users.unrelated.programs.noctalia.enable or false)
+      && !(noctaliaGreeterHome.home-manager.users.unrelated.programs.noctalia.enable or false);
+    dmsGreeterPersistenceContributionIsPreserved =
+      lib.any
+        (directory: directory.directory == "/var/lib/dms-greeter")
+        dmsGreeterWithPersistence.environment.persistence."/persist".directories;
     noctaliaHomeShellExplicitlySelected = home.home-manager.users.fixture.programs.noctalia.enable;
     noctaliaNiriContextHasBinds =
       homeWithNiri.home-manager.users.fixture.programs.noctalia.enable

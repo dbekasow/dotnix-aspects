@@ -3,7 +3,7 @@
 **What to build:** Use DMS and Noctalia greeters as host-wide capabilities with explicitly provided configuration homes and assets. Greeter resources do not depend on account alphabetical order or a user's home shell selection.
 
 **Blocked by:** [14: Separate Niri support from user configuration](14-niri-scope-separation.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); publication is approved, implementation requires separate approval.
 
 ## Acceptance criteria
