@@ -51,12 +51,15 @@ let
       host.network-wifi
       host.pipewire
       host.power
-      age
-      age-rekey
-      yubikey
-      yubikey-pam
+      host.age
+      host.age-rekey
+      host.yubikey
+      host.yubikey-pam
     ];
-    hostModule = { disko.devices.disk.main.device = "/dev/vda"; };
+    hostModule = {
+      disko.devices.disk.main.device = "/dev/vda";
+      age.rekey.localStorageDir = "/tmp/den-redesign-headless-rekey";
+    };
   };
 in
 assert server.fileSystems."/".device == "/dev/vda1";

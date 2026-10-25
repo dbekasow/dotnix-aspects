@@ -1,33 +1,32 @@
 { dotnix, ... }: {
   dotnix.core = {
     includes = with dotnix; [
-      age
-      age-rekey
-      certificates
+      host.age
+      host.age-rekey
+      host.certificates
       host.fish
-      git
-      gnupg
-      host.home-manager
       host.git
+      host.gnupg
+      host.home-manager
       host.locale
       host.nh
       host.nix
       host.nur
       host.security
-      ssh
+      host.ssh
       host.stylix
       host.system-packages
     ];
   };
 
   dotnix.core-home.includes = with dotnix; [
-    age
-    age-rekey
+    home.age
+    home.age-rekey
     git
     git-alias
-    gpg-agent
-    ssh
-    dotnix.home.stylix
+    home.gpg-agent
+    home.ssh
+    home.stylix
   ];
 
 }

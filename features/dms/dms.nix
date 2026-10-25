@@ -11,7 +11,8 @@ in
   };
   dotnix.dms = _: {
     nixos =
-      { lib
+      { config
+      , lib
       , pkgs
       , ...
       }:
@@ -28,6 +29,18 @@ in
 
           # Runtime selection belongs to individual Home Manager targets.
           systemd.enable = lib.mkDefault false;
+
+          # DMS follows the native host U2F configuration when selected; it
+          # does not infer an authfile path or require secret tooling.
+          lockscreen.securityKey = lib.mkIf
+            (config.security.pam.u2f.enable && config.security.pam.u2f.settings.authfile != null)
+            {
+              enable = true;
+              moduleArgs = [
+                "cue"
+                "authfile=${config.security.pam.u2f.settings.authfile}"
+              ];
+            };
         };
 
         programs.dsearch.enable = true;

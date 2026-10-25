@@ -108,20 +108,40 @@ The consumer owns its nixpkgs channel. Set `dotnix.inputs.nixpkgs.follows = "nix
 
 A local `path:/home/denis/projects/dotnix-aspects` input is development-only and not portable. Nix hashes the entire directory, including `.git`, untracked and ignored files; never keep private files in that library tree. After library changes, refresh only that input with `nix flake update dotnix`, or test current code with `--no-write-lock-file --override-input dotnix path:/home/denis/projects/dotnix-aspects`. Plain `nix flake lock` does not refresh an existing local snapshot.
 
-## Secrets & paths (consumer contract)
+## Secrets and authentication (consumer resources)
 
-Secret identities, vault files, certificates, wallpapers, and other host/user resources belong to the consumer repository, not the library input. Activate `den.batteries.flake-scope` as shown above: resource-owning aspect functions capture the consumer's `inputs.self`, while dependency imports retain the library's inputs. Set identities and secret-manager references through native consumer options. No wrapper or custom `dotnix` option namespace is required.
+Secret identities, vault files, certificates and YubiKey mappings belong to the consumer. These features do not inspect `inputs.self` or infer paths from host/account names. Select host and home behavior separately, then set the native options for each target:
 
-agenix-rekey expects this layout in the **consumer** repo:
+| Capability                  | Selection                                                                                             |
+| --------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Agenix host support         | `dotnix.host.age`                                                                                     |
+| Agenix Home Manager support | `dotnix.home.age`                                                                                     |
+| Host/home agenix-rekey      | `dotnix.host.age-rekey`, `dotnix.home.age-rekey`                                                      |
+| System certificates         | `dotnix.host.certificates` plus native `security.pki.certificateFiles` or `security.pki.certificates` |
+| OpenSSH server/client       | `dotnix.host.ssh`, `dotnix.home.ssh`                                                                  |
+| GnuPG and GPG Agent         | `dotnix.host.gnupg`, `dotnix.home.gpg-agent`                                                          |
+| RBW                         | `dotnix.home.rbw`                                                                                     |
+| YubiKey hardware and PAM    | `dotnix.host.yubikey`, `dotnix.host.yubikey-pam`                                                      |
 
+Set host and home `age.rekey` resources independently. For example, each target can choose its own `secretsDir`, `generatedSecretsDir`, `localStorageDir`, `hostPubkey`, `masterIdentities` and `storageMode`; no repository layout is assumed by the library. `age.identityPaths` is also a native option, set on the host or Home Manager target that owns each identity.
+
+```nix
+# Consumer host module
+age.rekey = {
+  secretsDir = ./. + "/secrets/hosts/myHost";
+  generatedSecretsDir = ./. + "/secrets/generated/myHost";
+  localStorageDir = ./. + "/secrets/rekeyed/myHost";
+  hostPubkey = builtins.readFile ./secrets/hosts/myHost/host.pub;
+  masterIdentities = [ ./secrets/masterkey.age ];
+  storageMode = "local";
+};
+security.pki.certificateFiles = [ ./certificates/internal-ca.crt ];
+security.pam.u2f.settings.authfile = ./secrets/u2f-mappings;
 ```
-modules/hosts/<host>/secrets/ssh_host_ed25519_key.pub   # host identity
-modules/hosts/<host>/certificates/*.crt                 # extra CAs (optional)
-modules/users/<user>/secrets/home-key.pub               # user identity
-yubikey.pub, masterkey.age                              # master identities (repo root)
-```
 
-Evaluating without these files is fine — the vault only gets declared once the host key exists; `nix run .#rekey` bootstraps it.
+`dotnix.account.passwords` remains a separate per-account opt-in. It creates generated password secrets only when the consumer supplies native host rekey directories and a host public key; otherwise users remain mutable. YubiKey-PAM does not require agenix-rekey or desktop support. Its authfile is supplied through `security.pam.u2f.settings.authfile` or the NixOS PAM default. DMS uses the native U2F authfile only when one is configured.
+
+GUI pinentry integrations are separately selectable as `dotnix.home.gpg-agent-gui` and `dotnix.home.rbw-gui`. `desktop-shell` does not select or override them; consumer module definitions can still override their native pinentry options.
 
 ## Theming
 
@@ -135,7 +155,7 @@ Select `dotnix.host.stylix` on each host and `dotnix.home.stylix` in each home t
 
 **Dendritic pattern** — Each file owns its feature across all configuration classes. Values are shared via `let`-bindings or flake-parts options, not `specialArgs`.
 
-**Secrets with agenix-rekey** — Host and user secrets are managed through `age.rekey` with local storage mode and a master identity. `dotnix.account.passwords` is a separate per-user opt-in that restores declarative password generation; it reads native `age.rekey.secretsDir` (defaulting to `modules/hosts/<host>/secrets`) and requires host `age` and `age-rekey` selections. Ticket 06 owns the broader explicit-resource redesign.
+**Secrets with agenix-rekey** — Host and home secrets use separate `dotnix.host.age-rekey` and `dotnix.home.age-rekey` selections. Consumers provide their native `age.rekey` resource options; the library supplies no repository path defaults. `dotnix.account.passwords` remains a separate per-account opt-in and requires explicit host rekey resources.
 
 **Den-native outputs** — the consumer evaluates Den host and user entities and imports `denful.dotnix` through `den.namespace`. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
 

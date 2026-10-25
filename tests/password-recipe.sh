@@ -5,7 +5,7 @@
 set -euo pipefail
 
 repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-temp_dir="/tmp/den-password-recipe-$$"
+temp_dir="${TMPDIR:-/tmp}/den-password-recipe-$$"
 if [[ -e $temp_dir ]]; then
   printf 'temporary path already exists: %s\n' "$temp_dir" >&2
   exit 1
@@ -58,7 +58,7 @@ let
       inherit instantiate;
     };
     den.aspects.fixture = {
-      includes = with dotnix; [ age age-rekey ];
+      includes = with dotnix.host; [ age age-rekey ];
       nixos = {
         boot.loader.grub.enable = true;
         boot.loader.grub.device = "nodev";
@@ -66,7 +66,13 @@ let
         fileSystems."/".fsType = "ext4";
         system.stateVersion = "25.11";
         nixpkgs.hostPlatform = system;
-        age.rekey.secretsDir = lib.mkForce (builtins.getEnv "PASSWORD_RECIPE_SECRETS_DIR");
+        age.rekey = {
+          secretsDir = builtins.getEnv "PASSWORD_RECIPE_SECRETS_DIR";
+          generatedSecretsDir = builtins.getEnv "PASSWORD_RECIPE_SECRETS_DIR" + "/generated";
+          localStorageDir = builtins.getEnv "PASSWORD_RECIPE_SECRETS_DIR" + "/local";
+          hostPubkey = "synthetic public key marker";
+          storageMode = "local";
+        };
       };
       provides.fixture.includes = [ dotnix.account.passwords ];
     };
