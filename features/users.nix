@@ -39,8 +39,7 @@ _:
               ${hashedPasswordSecret}.generator = {
                 dependencies = [ config.age.secrets.${passwordSecret} ];
                 script = { pkgs, decrypt, deps, ... }: ''
-                  ${decrypt} ${lib.escapeShellArg (lib.head deps).file} | \\
-                  ${pkgs.openssl}/bin/openssl passwd -6 -stdin
+                  ${decrypt} ${lib.escapeShellArg (lib.head deps).file} | ${pkgs.openssl}/bin/openssl passwd -6 -stdin
                 '';
               };
             };
