@@ -25,7 +25,8 @@
       performance # workstation tuning
       bluetooth # laptop radio
       disko # starter Btrfs/LUKS layout; replace device below for this host
-      impermanence # persistent state on the Btrfs layout
+      host.persistence # selected persistence classes and /persist defaults
+      host.btrfs-root-reset # reset @root from @root-blank on this Btrfs layout
       geolocation # location service
       network # NetworkManager and Avahi
       network-wifi # Wi-Fi configuration

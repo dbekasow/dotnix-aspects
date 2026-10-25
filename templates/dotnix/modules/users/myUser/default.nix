@@ -7,6 +7,7 @@
       terminal # shells, tools, multiplexer
       development # editor, vcs, automation
       core-home # user-scope Home Manager modules, including Stylix
+      home.persistence # generic persistence baseline for this home
     ];
 
     user.extraGroups = [ "wheel" "networkmanager" ];
