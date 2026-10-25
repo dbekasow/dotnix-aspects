@@ -1,4 +1,4 @@
-{ pkgs, dotnix, library }:
+{ pkgs, dotnix }:
 let
   delayedResume = {
     description = "Synthetic delayed hibernate resume for ordering test";
@@ -45,11 +45,7 @@ pkgs.testers.runNixOSTest {
     baseline = _: probeNode;
 
     ordered = { lib, ... }: {
-      imports = [
-        library.inputs.agenix.nixosModules.default
-        library.inputs.home-manager.nixosModules.home-manager
-        dotnix.impermanence.nixos
-      ];
+      imports = [ dotnix.host.btrfs-root-reset.nixos ];
       boot = {
         initrd.systemd.enable = true;
         resumeDevice = "/dev/vda";
