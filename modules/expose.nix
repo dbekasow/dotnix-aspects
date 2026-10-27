@@ -1,64 +1,73 @@
-{ inputs, lib, config, ... }:
+{ inputs, lib, ... }:
 let
-  dotnixInputs = inputs;
+  modules = ./.;
+  featureRoot = ../features;
 
-  wrapMods = files: map
-    (file:
-      let mod = import file;
-      in if builtins.isFunction mod
-      then
-        lib.setDefaultModuleLocation file
-          (lib.mirrorFunctionArgs mod
-            (args: mod (args // { inputs = dotnixInputs // args.inputs; })))
-      else mod)
-    files;
-
-  modules = "${inputs.self}/modules";
-
-  aspects = lib.pipe inputs.import-tree [
-    (i: i.addPath "${modules}/aspects")
+  featureModules = lib.pipe inputs.import-tree [
+    # Use pinned import-tree defaults for feature entry-point discovery.
+    (i: i.addPath "${featureRoot}")
     (i: i.withLib lib)
     (i: i.files)
   ];
 
-  # Product parts: the wiring every consumer needs to boot a host.
-  productParts = map (name: "${modules}/parts/${name}") [
-    "flake-parts.nix"
-    "configuration.nix"
-    "age.nix"
-    "home-manager.nix"
-    "templates.nix"
+  profileModules = [
+    ../profiles/base.nix
+    ../profiles/core.nix
+    ../profiles/desktop-apps.nix
+    ../profiles/desktop-shell.nix
+    ../profiles/desktop.nix
+    ../profiles/development.nix
+    ../profiles/mail.nix
+    ../profiles/server.nix
+    ../profiles/term-cli.nix
+    ../profiles/term-monitoring.nix
+    ../profiles/term-nix.nix
+    ../profiles/term-secrets.nix
+    ../profiles/term-shell.nix
+    ../profiles/term-ux.nix
+    ../profiles/terminal-herdr.nix
+    ../profiles/terminal.nix
+    ../profiles/workstation.nix
   ];
 
-  # Dev parts: only the library evaluates these by default; consumers opt
-  # in via flakeModules.devTools. Keep them as one bundle — pre-commit needs
-  # treefmt, devshell needs the agenix-rekey package from age.nix.
+  consumerAdapter = (import ./integration/default.nix) inputs.self;
+
   devParts = map (name: "${modules}/parts/${name}") [
+    "flake-parts.nix"
+    "age.nix"
     "devshell.nix"
     "pre-commit.nix"
     "treefmt.nix"
   ];
 in
 {
-  imports = [ inputs.flake-parts.flakeModules.flakeModules ];
+  imports = featureModules ++ profileModules ++ devParts;
 
-  flake.flakeModules.default.imports = wrapMods (aspects ++ productParts);
+  config = {
+    flake-file.outputs = ''
+      inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+        imports = [
+          inputs.flake-file.flakeModules.default
+          inputs.den.flakeModule
+          (inputs.den.namespace "dotnix" true)
+          ./modules/expose.nix
+        ];
+      }
+    '';
 
-  # Registry without the factory: aspects + tiers plus the flake-parts.nix
-  # substrate that declares the flake.modules option they register into.
-  # For consumers that assemble hosts themselves (own nixosSystem,
-  # nix-darwin) — the dotnix options namespace, nixosConfigurations
-  # writer, age-rekey apps and template registration stay out.
-  # flakeModule is the complete product; this is the registry only.
-  flake.flakeModules.aspects = {
-    imports = wrapMods (aspects ++ [ "${modules}/parts/flake-parts.nix" ]);
+    flake-file.inputs = {
+      den.url = "github:denful/den/7594405b45e0ce2d5a418fe104a26e17f6b1dd8f";
+      flake-file.url = "github:vic/flake-file";
+      import-tree.url = "github:vic/import-tree";
+      nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    };
+
+    flake.flakeModules.default = consumerAdapter;
+    flake.flakeModules.devTools.imports = [ inputs.flake-file.flakeModules.default ]
+      ++ map (f: f { inherit inputs lib; }) (map import devParts);
+    flake.templates.default = {
+      description = "Dendritic NixOS configuration using dotnix";
+      path = ../templates/dotnix;
+    };
   };
-
-  flake.flakeModules.devTools = { imports = wrapMods devParts; };
-
-  # Flat standard outputs so plain NixOS/Home Manager flakes can import
-  # aspects (inputs.dotnix.nixosModules.fish) without flake-parts. Pure
-  # alias surface — the classes stay owned by flake.modules.
-  flake.nixosModules = config.flake.modules.nixos;
-  flake.homeManagerModules = config.flake.modules.homeManager;
 }

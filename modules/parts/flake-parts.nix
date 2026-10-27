@@ -1,7 +1,8 @@
-{ inputs, lib, ... }: {
-  imports = [
-    inputs.flake-parts.flakeModules.modules
-  ];
+{ lib, ... }: {
+  flake-file.inputs.flake-parts = {
+    url = "github:hercules-ci/flake-parts";
+    inputs.nixpkgs-lib.follows = "nixpkgs";
+  };
 
   systems = lib.mkDefault [ "x86_64-linux" ];
   # debug stays off: the introspection mirror taxes every outputs walk of

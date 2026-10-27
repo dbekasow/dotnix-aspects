@@ -50,7 +50,7 @@ rekey:
 [doc('Edit a secret')]
 [group('secrets')]
 edit secret:
-    agenix -e {{ secret }}
+    nix develop --command agenix edit {{ quote(secret) }}
 
 # ── Maintenance ───────────────────────────────────────────────────────────────
 
@@ -67,7 +67,7 @@ tree host:
 # ── Bootstrap ─────────────────────────────────────────────────────────────────
 
 bootstrapDir := "/tmp/bootstrap"
-hostDir := "modules/host"
+hostDir := "modules/hosts"
 
 [doc('Generate ssh host keypair')]
 [group('bootstrap')]

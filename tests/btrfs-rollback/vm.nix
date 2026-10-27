@@ -1,11 +1,7 @@
-{ pkgs, library }:
+{ pkgs, dotnix }:
 let
   provision = { ... }: {
-    imports = [
-      library.inputs.agenix.nixosModules.default
-      library.inputs.home-manager.nixosModules.home-manager
-      library.nixosModules.impermanence
-    ];
+    imports = [ dotnix.host.btrfs-root-reset.nixos ];
 
     boot = {
       initrd.systemd.enable = true;
@@ -152,7 +148,7 @@ let
   };
 in
 pkgs.testers.runNixOSTest {
-  name = "impermanence-btrfs-rollback";
+  name = "btrfs-root-reset";
 
   nodes = {
     rollback = {

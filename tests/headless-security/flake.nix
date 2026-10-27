@@ -1,63 +1,79 @@
 {
   inputs = {
     dotnix.url = "path:../..";
+    den.follows = "dotnix/den";
     flake-parts.follows = "dotnix/flake-parts";
     nixpkgs.follows = "dotnix/nixpkgs";
   };
 
-  outputs =
-    inputs:
-    let
-      server = {
-        imports = [
-          inputs.dotnix.nixosModules.server
-          inputs.dotnix.nixosModules.security
-        ];
-        boot.loader.grub = {
-          enable = true;
-          device = "nodev";
-        };
-        fileSystems."/" = {
-          device = "/dev/fixture-root";
-          fsType = "ext4";
-        };
-      };
-      hardwareGate = { config, lib, ... }: {
-        options.fixture.hardwareAuthenticationGate = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-        };
-        config = lib.mkIf config.fixture.hardwareAuthenticationGate {
-          security.sudo-rs.wheelNeedsPassword = lib.mkForce false;
-        };
-      };
-      hosts = inputs.self.nixosConfigurations;
-      defaultHost = hosts.fixture-server.config;
-      gatedHost = hosts.fixture-hardware-gated.config;
-    in
+  outputs = inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [ inputs.dotnix.flakeModule ];
+      imports = [
+        inputs.den.flakeModule
+        (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
+        ({ dotnix, ... }: {
+          den.hosts.x86_64-linux.fixture-server = { };
+          den.hosts.x86_64-linux.fixture-hardware-gated = { };
 
-      dotnix.hosts = {
-        fixture-server.modules = [ server ];
-        fixture-hardware-gated.modules = [
-          server
-          hardwareGate
-          { fixture.hardwareAuthenticationGate = true; }
-        ];
-      };
+          den.aspects.fixture-server = {
+            includes = [ dotnix.host.server dotnix.host.security ];
+            nixos = {
+              boot.loader.grub = {
+                enable = true;
+                device = "nodev";
+              };
+              fileSystems."/" = {
+                device = "/dev/fixture-root";
+                fsType = "ext4";
+              };
+              networking.hostName = "fixture-server";
+            };
+          };
 
-      flake.checks.x86_64-linux.headless-security =
-        assert defaultHost.dotnix.hostname == "fixture-server";
-        assert gatedHost.dotnix.hostname == "fixture-hardware-gated";
-        assert !defaultHost.dotnix.vaultReady;
-        assert defaultHost.security.sudo-rs.wheelNeedsPassword;
-        assert gatedHost.fixture.hardwareAuthenticationGate;
-        assert !gatedHost.security.sudo-rs.wheelNeedsPassword;
-        assert defaultHost.fileSystems."/".device == "/dev/fixture-root";
-        assert gatedHost.fileSystems."/".device == "/dev/fixture-root";
-        assert defaultHost.boot.loader.grub.enable;
-        assert gatedHost.boot.loader.grub.enable;
-        inputs.nixpkgs.legacyPackages.x86_64-linux.runCommand "headless-security" { } "touch $out";
+          den.aspects.fixture-hardware-gated = {
+            includes = [ dotnix.host.server dotnix.host.security ];
+            nixos = { config, lib, ... }: {
+              options.fixture.hardwareAuthenticationGate = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+              };
+              config = {
+                boot.loader.grub = {
+                  enable = true;
+                  device = "nodev";
+                };
+                fileSystems."/" = {
+                  device = "/dev/fixture-root";
+                  fsType = "ext4";
+                };
+                networking.hostName = "fixture-hardware-gated";
+                security.sudo-rs.wheelNeedsPassword = lib.mkIf config.fixture.hardwareAuthenticationGate (lib.mkForce false);
+                fixture.hardwareAuthenticationGate = true;
+              };
+            };
+          };
+        })
+      ];
+
+      perSystem = { pkgs, ... }:
+        let
+          hosts = inputs.self.nixosConfigurations;
+          defaultHost = hosts.fixture-server.config;
+          gatedHost = hosts.fixture-hardware-gated.config;
+        in
+        {
+          checks.headless-security =
+            assert defaultHost.networking.hostName == "fixture-server";
+            assert gatedHost.networking.hostName == "fixture-hardware-gated";
+            assert (defaultHost.age.secrets or { }) == { };
+            assert defaultHost.security.sudo-rs.wheelNeedsPassword;
+            assert gatedHost.fixture.hardwareAuthenticationGate;
+            assert !gatedHost.security.sudo-rs.wheelNeedsPassword;
+            assert defaultHost.fileSystems."/".device == "/dev/fixture-root";
+            assert gatedHost.fileSystems."/".device == "/dev/fixture-root";
+            assert defaultHost.boot.loader.grub.enable;
+            assert gatedHost.boot.loader.grub.enable;
+            pkgs.runCommand "headless-security" { } "touch $out";
+        };
     };
 }

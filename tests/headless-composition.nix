@@ -1,50 +1,54 @@
 let
-  flake = builtins.getFlake (toString ../.);
-  nixpkgs = flake.inputs.nixpkgs;
+  source = builtins.getFlake (toString ../.);
+  inputs = source.inputs // { dotnix = source; self = source; };
+  dotnix = source.denful.dotnix;
   system = "x86_64-linux";
-  bootstrap = { lib, ... }: {
-    options.dotnix.vaultReady = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
+
+  bootstrap = {
+    boot.loader.grub.enable = true;
+    boot.loader.grub.device = "nodev";
+    fileSystems."/" = {
+      device = "/dev/vda1";
+      fsType = "ext4";
     };
-    config = {
-      boot.loader.grub.enable = true;
-      boot.loader.grub.device = "nodev";
-      fileSystems."/" = {
-        device = "/dev/vda1";
-        fsType = "ext4";
+    system.stateVersion = "25.11";
+  };
+
+  evaluate =
+    { hostIncludes ? [ ], hostModule ? { } }:
+    let
+      fixture = {
+        imports = [
+          inputs.den.flakeModule
+          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
+          ({ den, ... }: { den.default.includes = [ den.batteries.flake-scope ]; })
+        ];
+        den.hosts.${system}.fixture = { };
+        den.aspects.fixture = {
+          includes = hostIncludes;
+          nixos = bootstrap // hostModule;
+        };
       };
-      system.stateVersion = "25.11";
+      flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } fixture;
+    in
+    flake.nixosConfigurations.fixture.config;
+
+  server = evaluate {
+    hostIncludes = [ dotnix.host.server ];
+  };
+  workstation = evaluate {
+    hostIncludes = with dotnix; [
+      host.home-manager
+      host.workstation
+      host.age
+      host.age-rekey
+      host.yubikey-pam
+    ];
+    hostModule = {
+      disko.devices.disk.main.device = "/dev/vda";
+      age.rekey.localStorageDir = "/tmp/den-redesign-headless-rekey";
     };
   };
-  evaluate =
-    modules:
-    (nixpkgs.lib.nixosSystem {
-      inherit system modules;
-    }).config;
-  server = evaluate [
-    flake.nixosModules.server
-    bootstrap
-  ];
-  workstation = evaluate [
-    flake.inputs.agenix.nixosModules.default
-    flake.inputs.home-manager.nixosModules.default
-    flake.nixosModules.base
-    flake.nixosModules.boot-systemd
-    flake.nixosModules.performance
-    flake.nixosModules.bluetooth
-    flake.nixosModules.disko
-    flake.nixosModules.impermanence
-    flake.nixosModules.geolocation
-    flake.nixosModules.network
-    flake.nixosModules.network-wifi
-    flake.nixosModules.pipewire
-    flake.nixosModules.power
-    flake.nixosModules.yubikey
-    flake.nixosModules.yubikey-pam
-    { disko.devices.disk.main.device = "/dev/vda"; }
-    bootstrap
-  ];
 in
 assert server.fileSystems."/".device == "/dev/vda1";
 assert server.boot.loader.grub.enable;

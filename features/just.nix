@@ -1,0 +1,5 @@
+{
+  dotnix.just.homeManager = { pkgs, ... }: {
+    home.packages = [ pkgs.just ];
+  };
+}

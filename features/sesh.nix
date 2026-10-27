@@ -1,0 +1,64 @@
+let
+  # Called from both modules below with the same inputs, so both get the same store path.
+  mkPicker = { config, lib, pkgs }:
+    let
+      # -d: a repo that is both a configured session and a zoxide entry shows once.
+      # -H: the current session is useless as a target.
+      list = "sesh list --icons -d -H";
+
+      # List order is header order.
+      modes = [
+        { key = "a"; icon = "⚡"; label = "all"; cmd = list; }
+        { key = "t"; icon = "🪟"; label = "tmux"; cmd = "${list} -t"; }
+        { key = "x"; icon = "📁"; label = "zoxide"; cmd = "${list} -z"; }
+        { key = "f"; icon = "🔎"; label = "find"; cmd = "fd -H -d 2 -t d -E .Trash . ~"; }
+      ];
+      header = lib.concatMapStringsSep "  " (m: "${m.icon} ^${m.key} ${m.label}") modes;
+      binds = lib.concatMapStringsSep "," (m: "ctrl-${m.key}:reload(${m.cmd})") modes;
+    in
+    pkgs.writeShellApplication {
+      name = "sesh-picker";
+      # sesh shells out to tmux and zoxide itself, so they need to be on PATH too.
+      runtimeInputs = with config.programs; [ sesh.package skim.package tmux.package pkgs.zoxide pkgs.fd ];
+      text = ''
+        # Esc or no match exits quietly instead of running `sesh connect ""`.
+        selection=$(${list} | sk --ansi --no-sort --height 100% \
+          --header '${header} ^d kill' \
+          --bind 'tab:down,btab:up,${binds}' \
+          --bind 'ctrl-d:execute(tmux kill-session -t {2..})+reload(${list})' \
+          --preview 'sesh preview {}' --preview-window right:55%) || exit 0
+        exec sesh connect "$selection"
+      '';
+    };
+in
+{
+  dotnix.sesh.homeManager = { config, lib, pkgs, ... }: {
+    programs.sesh = {
+      enable = true;
+      # nixpkgs' Go 1.27 mockery cannot read its own export data; sesh requires Go 1.26.
+      package = lib.mkDefault (pkgs.sesh.override { buildGo127Module = pkgs.buildGo126Module; });
+
+      # Both built-ins break on an aborted picker; sesh-picker replaces them.
+      enableAlias = false;
+      enableTmuxIntegration = false;
+
+      settings = {
+        default_session.preview_command = "eza --tree --icons --color=always --level 2 {}";
+      };
+    };
+
+    home.packages = [ (mkPicker { inherit config lib pkgs; }) ];
+    programs.fish.shellAbbrs.s = "sesh-picker";
+
+    programs.fish.interactiveShellInit = ''
+      if not set -q TMUX
+        ${lib.getExe config.programs.sesh.package} connect (pwd)
+      end
+    '';
+
+    programs.tmux.extraConfig = lib.mkIf config.programs.tmux.enable ''
+      bind -N "Sesh picker" s display-popup -EE -w 80% -h 70% -T " sesh " "${lib.getExe (mkPicker { inherit config lib pkgs; })}"
+      bind -N "Last session" S run-shell "${lib.getExe config.programs.sesh.package} last"
+    '';
+  };
+}
