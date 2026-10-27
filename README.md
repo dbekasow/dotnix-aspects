@@ -10,25 +10,15 @@ Feature sources live under root `features/`. Small features can stay in one file
 
 ## Usage
 
-Add the library and Den as flake inputs. Import Den's flake module and the exported namespace in the consumer's native Den entry point. The public library output is `denful.dotnix`; consumers do not receive wrapped module aliases or an independent host builder.
+Add the library and Den as flake inputs. Import the library's default consumer adapter in the consumer's flake-parts entry point. The adapter imports Den's flake module and the public `denful.dotnix` namespace, enables the required batteries, and declares the shared popup Quirk. Consumers do not receive wrapped module aliases or an independent host builder.
 
 ```nix
 # modules/parts.nix — same entry point used by templates/dotnix
-{ inputs, den, ... }:
+{ inputs, ... }:
 {
   imports = [
-    inputs.den.flakeModule
-    (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
-    inputs.dotnix.flakeModules.devTools
-  ];
-
-  den.quirks.popup-launcher = {
-    description = "Enabled popup launcher records shared by selected user-scope aspects";
-  };
-
-  den.default.includes = [
-    den.batteries.flake-scope
-    den.batteries.hostname
+    inputs.dotnix.flakeModules.default
+    inputs.dotnix.flakeModules.devTools # optional
   ];
 }
 ```
@@ -63,7 +53,7 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 
 ### Namespace and classes
 
-`denful.dotnix` includes namespace-owned aspect definitions and custom class declarations. Import it through Den's namespace helper so the consumer merges class schemas and aspect providers into its own Den evaluation. Select features in Den aspects and entities; namespace discovery alone never activates them. Declare the `popup-launcher` Quirk in the consumer entry point as shown above: Den's namespace exports aspects and classes, not Quirk declarations. Selected Tmux and Herdr aspects share enabled launcher data only within the same user; each renders its own keys and runtime behavior.
+`denful.dotnix` includes namespace-owned aspect definitions and custom class declarations. The default adapter imports it through Den's namespace helper so the consumer merges class schemas and aspect providers into its own Den evaluation. Select features in Den aspects and entities; namespace discovery alone never activates them. The adapter declares the `popup-launcher` Quirk, which Den's namespace alone does not export. Selected Tmux and Herdr aspects share enabled launcher data only within the same user; each renders its own keys and runtime behavior.
 
 ## Composition rules
 
@@ -87,13 +77,11 @@ Profiles are optional named include bundles, not a base-to-workstation inheritan
 
 Compose host system functions and personal Home Manager choices independently:
 
-| Selection scope   | Typical includes                                                                                                              | Ownership                                                                                                       |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Selection scope   | Typical includes                                                                                                              | Ownership                                                                                                       |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Host entity       | `host.core`, `host.workstation`, `host.server`, `host.desktop`, `host.niri`, `host.dms-greeter`, `host.noctalia-greeter`      | Consumer chooses system behavior and hardware; disk path, secrets, and `system.stateVersion` remain host-owned. |
-| Account selection | `account.users`                                                                                                               | Consumer selects account foundation per named user; `account.passwords` is separate and opt-in.                 |
-| Home selection    | `home.core-home`, `home.desktop`, `home.development`, `home.mail`, `home.terminal`, `home.niri`                               | Consumer chooses personal Home Manager features and `home.stateVersion`; integrated Home Manager is optional.   |
+| Selection scope   | Typical includes                                                                                                         | Ownership                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Host entity       | `host.core`, `host.workstation`, `host.server`, `host.desktop`, `host.niri`, `host.dms-greeter`, `host.noctalia-greeter` | Consumer chooses system behavior and hardware; disk path, secrets, and `system.stateVersion` remain host-owned. |
+| Account selection | `account.users`                                                                                                          | Consumer selects account foundation per named user; `account.passwords` is separate and opt-in.                 |
+| Home selection    | `home.core-home`, `home.desktop`, `home.development`, `home.mail`, `home.terminal`, `home.niri`                          | Consumer chooses personal Home Manager features and `home.stateVersion`; integrated Home Manager is optional.   |
 
 `host.core` and `home.core-home` are separate optional profiles; select each on its owning entity. `host.workstation` remains a convenience bundle; hosts can select its individual features instead. `host.server` provides only its intentionally small reusable behavior. `host.disko` supplies reusable geometry but no device default: every host importing it must set native `disko.devices.disk.main.device` to its own disk path. Run `nix eval --impure --file tests/headless-composition.nix` to verify the server remains independent of workstation tuning and disk configuration.
 
@@ -162,7 +150,7 @@ Select `dotnix.host.stylix` on each host and `dotnix.home.stylix` in each home t
 
 **Secrets with agenix-rekey** — Host and home secrets use separate `dotnix.host.age-rekey` and `dotnix.home.age-rekey` selections. Consumers provide their native `age.rekey` resource options; the library supplies no repository path defaults. `dotnix.account.passwords` remains a separate per-account opt-in and requires explicit host rekey resources.
 
-**Den-native outputs** — the consumer evaluates Den host and user entities and imports `denful.dotnix` through `den.namespace`. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
+**Den-native outputs** — the consumer evaluates Den host and user entities; the default adapter imports `denful.dotnix` through `den.namespace`. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
 
 ## License
 
