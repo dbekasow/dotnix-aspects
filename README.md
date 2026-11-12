@@ -6,6 +6,8 @@ A reusable library of [dendritic](https://github.com/mightyiam/dendritic) NixOS 
 
 Feature sources live under root `features/`. Small features can stay in one file; multi-part owners such as Helix, DMS, Niri, Firefox, and Tmux keep related parts and integrations local. Each module declares its public `dotnix.*` aspect names explicitly; filesystem names do not define public namespace paths. Optional profile modules live separately under root `profiles/` and are assembled explicitly.
 
+Every role-scoped aspect lives in one of three uniform catalogs: `dotnix.host.*` for host behavior, `dotnix.home.*` for Home Manager behavior, and `dotnix.account.*` for account-level settings, so selections like `with dotnix.home; [ bat fd ripgrep ]` resolve uniformly. The top level stays reserved for cross-cutting aspects (`dotnix.popup-launchers`) and consumer-owned composites such as per-user aspects and hardware profiles; the library itself declares no other top-level aspects. A feature with behavior in multiple roles declares one role-qualified aspect per role instead of a single class-multiplexed aspect: `host.dms`/`home.dms` and `host.noctalia`/`home.noctalia` follow this role-split convention.
+
 `modules/expose.nix` discovers feature modules only by scanning `features/` with the pinned import-tree default: directory scans select `.nix` files and exclude paths containing relative `/_`. `default.nix` does not stop recursive scanning. This is a filename filter, not module-shape validation or a security boundary: explicitly supplied files bypass the filter, changing scan roots changes which paths are relative, and `initFilter` replaces the default predicate. Keep helpers outside discovery or under an owner-local `_private/` path and import them explicitly.
 
 ## Usage
@@ -28,16 +30,16 @@ Compose host and user behavior through Den entities and aspects, as in the execu
 ```nix
 { dotnix, ... }:
 {
-  den.hosts.x86_64-linux.myHost.users.myuser.classes = [ "homeManager" ];
+  den.hosts.x86_64-linux.myHost.users.myuser.classes = [ "user" "homeManager" ];
 
   den.aspects.myHost = {
     provides.myuser.includes = [ dotnix.myuser ];
-    includes = with dotnix.host; [ core network boot ];
+    includes = with dotnix.host; [ core base network age-rekey ];
     nixos.system.stateVersion = "26.11";
   };
 
   dotnix.myuser = {
-    includes = with dotnix.home; [ core terminal ];
+    includes = with dotnix; [ account.users home.core home.terminal ];
     homeManager.home.stateVersion = "26.11";
   };
 }
@@ -57,21 +59,43 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 
 ## Composition rules
 
-- `host.core` is standalone — no other tier is required. Host, home, and account choices remain independent.
+- `host.core` is standalone — no other profile is required. Host, home, and account choices remain independent.
 - **Profiles are optional, role-qualified compositions.** Select `host.*` profiles on a host and `home.*` profiles on one user's Home Manager entity. Mixed bundles expose separate role selections; they never route host behavior to homes or choose accounts, resources, or integrations for consumers.
 - **State history belongs to its owner.** Set `system.stateVersion` in each host and `home.stateVersion` for each HM user to their existing installed values; Den does not infer or advance them.
-- **Host axis vs. user axis.** Consumers select aspects on `den.hosts.<system>.<host>` and user entities; Den's native output integration creates NixOS and Home Manager outputs. `host.desktop` and `home.desktop` are independent choices: the former is the graphical system foundation, the latter adds the home graphical foundation and GUI applications.
+- **Host axis vs. user axis.** Consumers select aspects on `den.hosts.<system>.<host>` and user entities; Den's native output integration creates NixOS and Home Manager outputs. `host.desktop` and `home.desktop` are independent choices: both include their role's `graphical` foundation, and the home profile additionally adds the `home.desktop-apps` GUI applications.
 - **Select Niri host support and user configuration independently.** Add `host.niri` to a host's includes for NixOS support. Select `home.niri` in a user's includes for that user's Niri settings and bindings; this imports Niri's Home Manager options provider when host support has not already supplied it. A home selection does not enable NixOS Niri. `host.graphical` and `home.graphical` provide their respective graphical foundations, including Stylix theming; `home.desktop` also adds GUI applications. None selects Niri, DMS/Noctalia runtimes, or a greeter. Select `home.dms` or `home.noctalia` in each intended user's Home Manager includes; host DMS support does not start DMS for every account, so different users on one host can select different shells. Noctalia's Niri bindings require the user's `home.niri` context. Select exactly one host greeter (`host.dms-greeter` or `host.noctalia-greeter`); both own greetd's default session. Remove direct `inputs.niri.homeModules.niri` imports wherever `home.niri` is selected to avoid duplicate option declarations.
 - **Select applications and integrations independently.** `home.desktop-apps` (alacritty, ghostty, handy, anki), `home.office` (onlyoffice, thunderbird), and `home.browsers` (firefox) are optional GUI domain bundles; individual applications remain directly selectable. Applications do not enable Niri; Stylix arrives with the graphical profiles, not with an application bundle. To add Firefox's Niri window rules, select `dotnix.home.firefox.niri` alongside `dotnix.home.firefox` and the user's `dotnix.home.niri`; the app integration does not replace the home role selector. Select `dotnix.home.firefox.stylix` alongside Firefox and `dotnix.home.stylix` for Firefox-specific Stylix targets. Firefox alone enables neither backend. Firefox add-ons prefer consumer `pkgs.nur` and otherwise use library-captured `inputs.nur.legacyPackages.${system}`, so no consumer NUR overlay is required.
 - **Per-user Polkit agents.** Niri host support keeps Polkit authentication enabled but does not globally start an agent. A user's `home.niri` selection starts Niri's agent for that user; DMS's Niri integration leaves that agent stopped for DMS users, whose DMS runtime provides its own agent. Users without DMS keep Niri's authentication agent.
 - Registering an aspect does not activate it. Select `home.development` only for the chosen toolchain; it does not enable host trust/cache settings, Docker, nix-ld, or account shells. It carries Git and its aliases; Kubernetes is not part of it — select `dotnix.home.kubernetes` explicitly when wanted. Workmux/Tuicr Tmux bindings require both their tool aspect and enabled Tmux. Prefix `o` opens TUI popups; Prefix `w` opens Workmux's agents menu. The K9s popup follows `programs.k9s.enable`.
-- Herdr is an explicit Tmux alternative: select `home.terminal-herdr` instead of `home.terminal` for a user who wants Herdr. `home.terminal` and `home.term-ux` keep Tmux, Sesh, and Zellij; selecting Herdr does not change any consumer composition automatically.
+- Herdr is an explicit Tmux alternative: select `home.terminal-herdr` instead of `home.terminal` for a user who wants Herdr. The variant reuses `home.terminal` and subtracts the multiplexers its subtree pulls in via `excludes`; `home.terminal` and `home.term-ux` keep Tmux and Sesh for tmux users, and Zellij remains an individual selection. Selecting Herdr does not change any consumer composition automatically.
 - `host.persistence` selects generic host persistence classes, routing, and NixOS `/persist` defaults without assuming a disk or boot layout; it works without Home Manager. Select `home.persistence` in a user's includes to apply the Home Manager `/persist` baseline only to that home. Select `host.btrfs-root-reset` separately for the existing `@root`/`@root-blank` Btrfs reset policy. Root reset neither selects generic persistence nor enables Disko; the consumer supplies a compatible machine layout.
 - Persistence contribution audit one-liner: `grep -rn 'home.persistence' features/`
 
 ## Reusable profiles
 
-Profiles are optional named include bundles, not a base-to-workstation inheritance chain. Consumers can include individual aspects directly and make host system choices separately from user Home Manager choices. For example, a host may select `host.boot`, `host.network`, `host.disko`, `host.niri`, and `host.graphical`, while one user selects `home.niri`, `home.graphical`, `home.desktop-apps`, and `home.terminal`. Mixed profiles such as `desktop` expose independent `host.desktop` and `home.desktop` selectors; host selection never configures a user's home implicitly.
+Profiles are optional, purpose-named combinations of reusable features for one selection scope — domain-oriented convenience bundles, not occupant archetypes and not a base-to-workstation inheritance chain. Consumers can include individual aspects directly and make host system choices separately from user Home Manager choices. For example, a host may select `host.boot`, `host.network`, `host.disko`, `host.niri`, and `host.graphical`, while one user selects `home.niri`, `home.graphical`, `home.desktop-apps`, and `home.terminal`. Mixed profiles such as `desktop` expose independent `host.desktop` and `home.desktop` selectors; host selection never configures a user's home implicitly.
+
+The profile inventory, with each profile's purpose:
+
+| Profile                                                              | Roles      | Purpose                                                                              |
+| -------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------ |
+| `base`                                                               | host       | Shared boot and journald behavior without choosing a bootloader or disk layout.      |
+| `core`                                                               | host, home | Universal baseline for its role; standalone and overrides nothing.                   |
+| `shells`                                                             | home       | Login shells (fish, nushell) without their UX tooling.                               |
+| `graphical`                                                          | host, home | Graphical foundation including Stylix; compositor support and greeter stay explicit. |
+| `desktop`                                                            | host, home | Graphical foundation plus, on the home side, the GUI applications.                   |
+| `desktop-apps`                                                       | home       | GUI application remainder: alacritty, ghostty, handy, anki.                          |
+| `office`                                                             | home       | Office suite and the GUI mail client: onlyoffice, thunderbird.                       |
+| `browsers`                                                           | home       | Browser suite: firefox.                                                              |
+| `terminal`                                                           | home       | Composition of the `term-*` sub-bundles.                                             |
+| `terminal-herdr`                                                     | home       | `terminal` with Herdr instead of the multiplexers, via `excludes`.                   |
+| `development`                                                        | home       | Editor, VCS, and automation toolchain, including Git and its aliases.                |
+| `mail`                                                               | home       | Terminal mail: aerc, maildir.                                                        |
+| `server`                                                             | host       | Headless baseline: base, ssh, security.                                              |
+| `workstation`                                                        | host       | Optional laptop-oriented bundle; every member stays individually selectable.         |
+| `term-cli`, `term-monitoring`, `term-nix`, `term-secrets`, `term-ux` | home       | Occupant-granular terminal building blocks, selectable without `terminal`.           |
+
+`excludes` is the variant and subtraction mechanism: authoritative and subtree-scoped, it removes members that arrive transitively through `includes`, and the selection site can still override. `home.terminal-herdr` is the worked example: `{ includes = [ terminal herdr ]; excludes = [ tmux sesh ]; }`. Profile modules use freeform nested keys — includes-only bundles without `meta` or constraints; a `provides` nested key is the documented upgrade path if a profile ever needs them.
 
 ## Host and user composition
 
