@@ -1,14 +1,14 @@
 # Den and flake-file redesign: decision record
 
-Status: design and canonical spec approved; implementation is not authorized. Historical OpenSpec changes are evidence only; deleted files are not restored by this plan.
+Status: design and canonical spec approved; implementation subsequently authorized and completed — all 20 tickets under `.scratch/den-flake-file-redesign/issues/` are resolved and merged to main (see [merge acceptance](den-main-merge-acceptance.md)). Historical OpenSpec changes are evidence only; deleted files are not restored by this plan.
 
 ## Current approved structural revision
 
-The user approved a hybrid, feature/domain-owned architecture and the canonical behavior contract. The [target architecture](den-architecture-target.md) records ownership and representative mappings; the [canonical spec](../../.scratch/den-flake-file-redesign/spec.md) defines behavior, stories, and verification decisions. This approval is for design/spec only: no production implementation, ticket publication, source/lock change, or remote operation is authorized.
+The user approved a hybrid, feature/domain-owned architecture and the canonical behavior contract. The [target architecture](den-architecture-target.md) records ownership and representative mappings; the [canonical spec](../../.scratch/den-flake-file-redesign/spec.md) defines behavior, stories, and verification decisions.
 
 The public library keeps one Den aspect namespace with nested host, home, and account selection catalogs. Source organization separates library assembly, an inert consumer adapter and library-owned global contracts, domain features, optional role-pure profiles, tooling, private helpers, templates/recipes, and tests. The adapter registers Den integration, the namespace, and global contracts such as the popup-launcher Quirk and relevant class metadata without enabling feature behavior. Namespace import alone remains inert and does not register Quirks. Optional tooling stays separate. Feature-owned inputs, resources, integrations, and cross-role behavior follow the boundaries in the canonical spec.
 
-This revision supersedes earlier planning constraints against a setup module and in favor of consumer-owned popup-launcher Quirk registration. Earlier assessment, research, and ticket text remain historical evidence; their pinned facts and confirmed user goals are retained, but superseded recommendations are not current direction. The old six ticket drafts are historical and unpublished, not a current backlog. They require replacement if implementation-ticket planning is later authorized; no tickets are published now.
+This revision supersedes earlier planning constraints against a setup module and in favor of consumer-owned popup-launcher Quirk registration. Earlier assessment, research, and ticket text remain historical evidence; their pinned facts and confirmed user goals are retained, but superseded recommendations are not current direction. The old six ticket drafts are historical and unpublished, not a current backlog. They were replaced by the 20 resolved implementation tickets under `.scratch/den-flake-file-redesign/issues/`.
 
 ## Goals
 
@@ -62,7 +62,7 @@ This revision supersedes earlier planning constraints against a setup module and
 - Classify mechanisms as already appropriate, concrete improvement, targeted investigation, or deliberately unused. Verify technical claims against pinned sources rather than deciding every mechanism in advance.
 - Assess historical planning for relevance without restoring deleted artifacts or maintaining conflicting plans.
 - The first implementation slice must use a small reference consumer and a representative existing feature to prove selection, host/user boundaries, overridable defaults, and input ownership before broader migration. Choose the feature from code evidence.
-- Implementation requires a separate approval.
+- Implementation required a separate approval; it was granted and the implementation is complete.
 
 ## Planning artifacts
 
@@ -81,8 +81,3 @@ These results describe the earlier planning phase only; they do not verify the n
 - Scoped Prettier checks passed for the glossary and all planning documents. No full flake check, template build, or consumer-generation lifecycle run was performed in this planning phase.
 - No production implementation, source input/lock update, system activation, or consumer migration was performed. No tickets were published and no commits were created.
 - Local agent guidance and the canonical local spec are published. Tracker setup is complete. The earlier six-ticket breakdown remains unpublished historical context and is superseded; no replacement tickets were created in this design/spec task. Implementation remains separately gated.
-
-## Still open
-
-- Replacement implementation-ticket planning and any publication approval, only if requested and authorized later.
-- Separate implementation approval.
