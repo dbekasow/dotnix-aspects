@@ -13,9 +13,12 @@ nested keys are full aspects.
 
 ## Design lens
 
-The real occupants are the author, a partner, and parents on managed desktop
-machines, plus host-only VPS machines. Occupant composition stays
-consumer-owned ([ADR 0002](../../docs/adr/0002-occupant-composition-stays-consumer-owned.md));
+The real occupants are the author on private and work machines, a partner,
+and parents on managed desktop machines, plus host-only VPS machines. The
+work context differs from the private one only by explicit Kubernetes
+selection, composed by the consumer on its own machine. Occupant
+composition stays consumer-owned
+([ADR 0002](../../docs/adr/0002-occupant-composition-stays-consumer-owned.md));
 the library ships domain-oriented bundles fine-grained enough to compose
 very different occupants.
 
@@ -42,7 +45,8 @@ very different occupants.
    git and git-alias to `home.development`, stylix to `graphical`,
    gnupg/gpg-agent to explicit auth selections, fish to the shells area.
    `host.nur` stays individually selectable (role-pure home does not exist
-   for it).
+   for it). Kubernetes leaves `home.development`; the work occupant
+   selects `dotnix.home.kubernetes` explicitly.
 6. **Server profile**: `host.server` includes base, ssh, security;
    hardening, monitoring, and service content follow when the first VPS
    consumer is built.
