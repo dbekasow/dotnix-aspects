@@ -15,7 +15,7 @@ plus `dotnix.home.dms`, `dotnix.noctalia` becomes `dotnix.host.noctalia` plus
 features, the executable template, and all tests.
 
 **Blocked by:** None (can start immediately).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); ticket publication is
 approved, implementation requires separate approval.
 
