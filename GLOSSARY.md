@@ -27,3 +27,6 @@ A consumer choice to apply reusable home-scoped configuration to one explicitly 
 
 **Account selection**:
 A consumer choice to apply reusable account-level settings to an explicitly selected account, independently of that account's home selection.
+
+**Primary account**:
+The one email account a consumer marks primary. Identity-bearing features default to its address and real name unless the consumer sets them explicitly.

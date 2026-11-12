@@ -648,6 +648,15 @@ let
     userIncludes = [ dotnix.home.persistence dotnix.home.pipewire ];
     disablePersistenceRouting = true;
   };
+  primaryIdentityDefaults = evaluate {
+    userIncludes = [ dotnix.home.git dotnix.home.rbw ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+    userModule.accounts.email.accounts.work = {
+      address = "primary@example.invalid";
+      realName = "Fixture Primary";
+      primary = true;
+    };
+  };
   broadNativeCompositions = evaluate {
     userIncludes = [ dotnix.home.git dotnix.home.rbw dotnix.home.maildir ];
     hostModule.users.users.fixture.home = "/home/fixture";
@@ -1531,6 +1540,11 @@ let
       && broadNativeCompositions.home-manager.users.fixture.accounts.email.accounts.beta.address == "other@example.invalid";
     nativeCompositionsBuildActivation =
       broadNativeCompositions.home-manager.users.fixture.home.activationPackage.drvPath != "";
+    primaryIdentityFeedsGitAndRbwDefaults =
+      primaryIdentityDefaults.home-manager.users.fixture.programs.git.settings.user.name == "Fixture Primary"
+      && primaryIdentityDefaults.home-manager.users.fixture.programs.git.settings.user.email == "primary@example.invalid"
+      && primaryIdentityDefaults.home-manager.users.fixture.programs.rbw.settings.email == "primary@example.invalid"
+      && primaryIdentityDefaults.home-manager.users.fixture.home.activationPackage.drvPath != "";
   };
   failed = builtins.attrNames (nixpkgs.lib.filterAttrs (_: passed: !passed) checks);
 in
