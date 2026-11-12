@@ -4,10 +4,11 @@
 `host.core` keeps only the universal baseline: locale, nix, security,
 certificates, ssh, age, home-manager, system-packages. `home.core` keeps
 home.age, home.age-rekey, home.ssh. Move author-specific content to its
-domain: git and git-alias join `home.development`; stylix joins the
-`graphical` profiles (host and home); gnupg and gpg-agent become explicit
-auth selections instead of core content; fish leaves core (the shells area
-owns it). `host.nur` stays individually selectable. Add the GUI domain
+domain: git and git-alias join `home.development` while kubernetes leaves it
+(the work occupant selects `dotnix.home.kubernetes` explicitly); stylix
+joins the `graphical` profiles (host and home); gnupg and gpg-agent become
+explicit auth selections instead of core content; fish leaves core (the
+shells area owns it). `host.nur` stays individually selectable. Add the GUI domain
 bundles: `home.office` (onlyoffice, thunderbird as the GUI mail client) and
 `home.browsers` (firefox); shrink `home.desktop-apps` to the author's
 remainder (alacritty, ghostty, handy, anki). Fill `host.server` minimally:
@@ -24,8 +25,10 @@ approved, implementation requires separate approval.
 - [ ] `host.core` contains exactly the universal baseline; `home.core`
       contains exactly home.age, home.age-rekey, home.ssh; both remain
       role-pure and override nothing.
-- [ ] `home.development` includes git and git-alias; `graphical` includes
-      stylix on both roles; gnupg/gpg-agent are selectable without core.
+- [ ] `home.development` includes git and git-alias and no longer includes
+      kubernetes; `dotnix.home.kubernetes` remains individually selectable;
+      `graphical` includes stylix on both roles; gnupg/gpg-agent are
+      selectable without core.
 - [ ] `home.office` and `home.browsers` exist and compose for a
       non-developer occupant without terminal or development content.
 - [ ] `home.desktop-apps` contains only alacritty, ghostty, handy, anki.

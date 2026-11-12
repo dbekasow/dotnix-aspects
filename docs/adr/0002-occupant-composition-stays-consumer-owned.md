@@ -21,5 +21,6 @@ The library must keep domain bundles fine-grained enough to compose very
 different occupants: the `term-*` sub-bundles stay public, GUI applications
 get dedicated domain bundles (`home.office`, `home.browsers`), and variants
 are expressed with `includes` plus `excludes` instead of parallel profile
-names. The real occupants (author, partner, parents, plus host-only VPS
-machines) are the design lens for granularity, not library content.
+names. The real occupants (the author on private and work machines, a partner,
+parents, plus host-only VPS machines) are the design lens for granularity,
+not library content.
