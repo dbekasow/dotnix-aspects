@@ -1,5 +1,5 @@
 {
-  dotnix.helix-keys.homeManager = { pkgs, lib, ... }:
+  dotnix.home.helix-keys.homeManager = { pkgs, lib, ... }:
     let
       # ── hx-float: floating pane for tools that need buffer context ──
       # Only yazi and lazygit live here now; everything context-free moved to

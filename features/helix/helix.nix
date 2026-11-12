@@ -1,5 +1,5 @@
 {
-  dotnix.helix.homeManager = { lib, ... }: {
+  dotnix.home.helix.homeManager = { lib, ... }: {
     programs.helix = {
       enable = true;
       defaultEditor = lib.mkDefault true;
@@ -104,7 +104,7 @@
   };
 
   # Impermanence contribution for helix.
-  dotnix.helix.homePersistence = {
+  dotnix.home.helix.homePersistence = {
     home.persistence."/persist".directories = [
       ".cache/helix"
     ];

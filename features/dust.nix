@@ -1,5 +1,5 @@
 {
-  dotnix.dust.homeManager = { pkgs, ... }: {
+  dotnix.home.dust.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.dust ];
   };
 }

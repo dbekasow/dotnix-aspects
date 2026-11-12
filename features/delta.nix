@@ -1,5 +1,5 @@
 {
-  dotnix.delta.homeManager = { lib, pkgs, ... }: {
+  dotnix.home.delta.homeManager = { lib, pkgs, ... }: {
     programs.delta = {
       enable = true;
       enableGitIntegration = true;

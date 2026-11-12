@@ -1,5 +1,5 @@
 {
-  dotnix.lazygit.homeManager = {
+  dotnix.home.lazygit.homeManager = {
     programs.lazygit = {
       enable = true;
 

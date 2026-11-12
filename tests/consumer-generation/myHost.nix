@@ -26,7 +26,7 @@ in
     };
 
     provides.myuser = {
-      includes = [ dotnix.direnv ];
+      includes = [ dotnix.home.direnv ];
       homeManager = {
         home.username = "myuser";
         home.homeDirectory = "/home/myuser";

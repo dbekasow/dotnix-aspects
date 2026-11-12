@@ -1,5 +1,5 @@
 {
-  dotnix.nix-search-tv.homeManager = {
+  dotnix.home.nix-search-tv.homeManager = {
     programs.nix-search-tv = {
       enable = true;
 
@@ -20,7 +20,7 @@
 
   # Impermanence contribution for nix-search-tv.
   # Persist the downloaded indexes (tool default: $XDG_CACHE_HOME/nix-search-tv).
-  dotnix.nix-search-tv.homePersistence = {
+  dotnix.home.nix-search-tv.homePersistence = {
     home.persistence."/persist".directories = [ ".cache/nix-search-tv" ];
   };
 }

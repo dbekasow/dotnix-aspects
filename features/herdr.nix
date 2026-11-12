@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  dotnix.herdr.homeManager =
+  dotnix.home.herdr.homeManager =
     { lib
     , popup-launcher
     , pkgs
@@ -14,7 +14,7 @@
           in
           if key == null then
             builtins.trace
-              "dotnix.herdr: omitting popup launcher '${launcher.name}' because it has no `keys.herdr` binding; add one to its record in features/popup-launchers.nix."
+              "dotnix.home.herdr: omitting popup launcher '${launcher.name}' because it has no `keys.herdr` binding; add one to its record in features/popup-launchers.nix."
               [ ]
           else
             let popup = lib.recursiveUpdate launcher { inherit key; }; in
@@ -51,7 +51,7 @@
   # Worktree checkouts are real working copies; the default root lives in
   # $HOME, which impermanence wipes at boot. Follows worktrees.directory's
   # default (~/.herdr/worktrees).
-  dotnix.herdr.homePersistence = {
+  dotnix.home.herdr.homePersistence = {
     home.persistence."/persist".directories = [ ".herdr/worktrees" ];
   };
 }

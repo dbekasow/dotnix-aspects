@@ -9,19 +9,20 @@
     # must match the user aspect name in modules/users/<user>/default.nix
     provides.myuser.includes = with dotnix; [
       myuser
-      home.desktop-shell # graphical foundation for this user's home
+      home.graphical # graphical foundation for this user's home
       home.niri # per-user Niri configuration and bindings
-      dms # Home Manager DMS launcher and settings; use noctalia here too to select it instead
+      home.dms # Home Manager DMS launcher and settings; use home.noctalia here too to select it instead
       home.gpg-agent-gui # explicit graphical pinentry integration for this user
       home.pipewire # WirePlumber state persistence for this user's home
     ];
 
     includes = with dotnix; [
       dell-precision-5570 # from ./hardware.nix
-      host.core # Home Manager NixOS integration is explicitly selected
-      host.desktop-shell # graphical foundation
+      host.core # universal host baseline: locale, nix, security, certificates, ssh, age, home-manager, system-packages
+      host.age-rekey # agenix-rekey wiring for the age.rekey resources below
+      host.graphical # graphical foundation
       host.niri # NixOS Niri support, separate from per-user configuration
-      dms # host shell — use noctalia instead for that host
+      host.dms # host shell — use host.noctalia instead for that host
       host.dms-greeter # greeter — swap for `host.noctalia-greeter`
       host.base # shared boot behavior
       host.boot-systemd # systemd-boot loader

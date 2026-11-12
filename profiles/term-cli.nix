@@ -1,6 +1,6 @@
 # CLI file and data tools.
 { dotnix, ... }: {
-  dotnix.home.term-cli.includes = with dotnix; [
+  dotnix.home.term-cli.includes = with dotnix.home; [
     bat
     dua
     dust

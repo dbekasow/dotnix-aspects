@@ -1,5 +1,5 @@
 {
-  dotnix.ripgrep.homeManager = {
+  dotnix.home.ripgrep.homeManager = {
     programs.ripgrep = {
       enable = true;
 

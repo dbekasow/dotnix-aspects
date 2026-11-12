@@ -1,8 +1,8 @@
 {
-  dotnix.gh.homeManager = { lib, pkgs, ... }: {
+  dotnix.home.gh.homeManager = { lib, pkgs, ... }: {
     programs.gh = {
       enable = true;
-      # Stacks with dotnix.git.credentials helpers for github.com: git
+      # Stacks with dotnix.home.git.credentials helpers for github.com: git
       # tries credential helpers in order, the first successful one wins.
       gitCredentialHelper.enable = lib.mkDefault true;
       settings = {
@@ -17,7 +17,7 @@
   };
 
   # Impermanence contribution for gh.
-  dotnix.gh.homePersistence = {
+  dotnix.home.gh.homePersistence = {
     home.persistence."/persist".directories = [ ".config/gh" ];
   };
 }

@@ -12,18 +12,20 @@ let
 
   profileModules = [
     ../profiles/base.nix
+    ../profiles/browsers.nix
     ../profiles/core.nix
     ../profiles/desktop-apps.nix
-    ../profiles/desktop-shell.nix
     ../profiles/desktop.nix
     ../profiles/development.nix
+    ../profiles/graphical.nix
     ../profiles/mail.nix
+    ../profiles/office.nix
     ../profiles/server.nix
+    ../profiles/shells.nix
     ../profiles/term-cli.nix
     ../profiles/term-monitoring.nix
     ../profiles/term-nix.nix
     ../profiles/term-secrets.nix
-    ../profiles/term-shell.nix
     ../profiles/term-ux.nix
     ../profiles/terminal-herdr.nix
     ../profiles/terminal.nix

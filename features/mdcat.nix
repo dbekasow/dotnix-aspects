@@ -1,5 +1,5 @@
 {
-  dotnix.mdcat.homeManager = { pkgs, ... }: {
+  dotnix.home.mdcat.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.mdcat ];
   };
 }

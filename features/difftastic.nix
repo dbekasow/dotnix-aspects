@@ -1,5 +1,5 @@
 {
-  dotnix.difftastic.homeManager = { lib, pkgs, ... }: {
+  dotnix.home.difftastic.homeManager = { lib, pkgs, ... }: {
     programs.difftastic = {
       enable = true;
 

@@ -1,7 +1,7 @@
 { config, ... }:
 let inherit (config.flake.factory.helix) withTypos; in
 {
-  dotnix.helix-lsp.homeManager = { pkgs, lib, ... }: {
+  dotnix.home.helix-lsp.homeManager = { pkgs, lib, ... }: {
     programs.helix.extraPackages = with pkgs; [ bash-language-server shellcheck shfmt ];
     programs.helix.languages = {
       language-server.bash-language-server = {

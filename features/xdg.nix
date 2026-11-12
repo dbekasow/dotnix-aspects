@@ -12,7 +12,7 @@ let
   };
 in
 {
-  dotnix.xdg.homeManager = { config, lib, ... }: {
+  dotnix.home.xdg.homeManager = { config, lib, ... }: {
     xdg.userDirs =
       let
         toAbsolute = dir: "${config.home.homeDirectory}/${dir}";
@@ -27,7 +27,7 @@ in
   # Impermanence contribution — the entry lives with the contributing
   # feature, not in the impermanence collector. persistedDirs mirrors the
   # map in xdg.nix — keep both in sync.
-  dotnix.xdg.homePersistence =
+  dotnix.home.xdg.homePersistence =
     { lib, ... }:
     let
       persistedDirs = {

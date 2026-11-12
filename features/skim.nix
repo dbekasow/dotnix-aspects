@@ -1,5 +1,5 @@
 {
-  dotnix.skim.homeManager = {
+  dotnix.home.skim.homeManager = {
     programs.skim = {
       enable = true;
 

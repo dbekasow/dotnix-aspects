@@ -1,5 +1,5 @@
 {
-  dotnix.starship.homeManager = {
+  dotnix.home.starship.homeManager = {
     programs.starship = {
       enable = true;
 

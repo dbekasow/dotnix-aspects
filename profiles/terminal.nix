@@ -1,7 +1,7 @@
 # Composition of the terminal sub-bundles.
 { dotnix, ... }: {
   dotnix.home.terminal.includes = with dotnix.home; [
-    term-shell
+    shells
     term-ux
     term-cli
     term-monitoring

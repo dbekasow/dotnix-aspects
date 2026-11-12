@@ -1,5 +1,5 @@
 {
-  dotnix.rustscan.homeManager = { pkgs, ... }: {
+  dotnix.home.rustscan.homeManager = { pkgs, ... }: {
     home.packages = with pkgs; [ nmap rustscan ];
   };
 }

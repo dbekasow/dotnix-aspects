@@ -10,7 +10,7 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  dotnix.noctalia.homeManager = {
+  dotnix.home.noctalia.homeManager = {
     # The pinned Home Manager ships its own programs.noctalia; disable it so the
     # flake module (pinned config schema + package) stays the single owner.
     # Importing both declares every option twice and fails evaluation.
@@ -49,7 +49,7 @@
     };
   };
 
-  dotnix.noctalia.nixos = {
+  dotnix.host.noctalia.nixos = {
     nix.settings = {
       extra-substituters = [ "https://noctalia.cachix.org" ];
       extra-trusted-public-keys = [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];

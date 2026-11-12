@@ -1,5 +1,5 @@
 {
-  dotnix.alacritty.homeManager = {
+  dotnix.home.alacritty.homeManager = {
     programs.alacritty = {
       enable = true;
 

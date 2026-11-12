@@ -1,5 +1,5 @@
 {
-  dotnix.jq.homeManager = { pkgs, ... }: {
+  dotnix.home.jq.homeManager = { pkgs, ... }: {
     programs.jq.enable = true;
     programs.jq.package = pkgs.gojq;
 

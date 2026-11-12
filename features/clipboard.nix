@@ -1,5 +1,5 @@
 {
-  dotnix.clipboard.homeManager = { lib, pkgs, ... }: {
+  dotnix.home.clipboard.homeManager = { lib, pkgs, ... }: {
     home.packages = with pkgs; [ wl-clipboard ];
 
     programs.fish.functions =

@@ -1,5 +1,5 @@
 {
-  dotnix.zellij.homeManager = { lib, ... }: {
+  dotnix.home.zellij.homeManager = { lib, ... }: {
     programs.zellij = {
       enable = lib.mkDefault false;
       enableFishIntegration = true;
@@ -35,7 +35,7 @@
   };
 
   # Impermanence contribution for zellij.
-  dotnix.zellij.homePersistence = {
+  dotnix.home.zellij.homePersistence = {
     home.persistence."/persist".directories = [
       # session_serialization = true is a no-op without this.
       ".cache/zellij"

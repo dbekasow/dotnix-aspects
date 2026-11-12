@@ -1,5 +1,5 @@
 {
-  dotnix.fx.homeManager = { pkgs, ... }: {
+  dotnix.home.fx.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.fx ];
   };
 }

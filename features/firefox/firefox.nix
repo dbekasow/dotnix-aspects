@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  dotnix.firefox.homeManager =
+  dotnix.home.firefox.homeManager =
     { lib, pkgs, ... }:
     let
       addons = pkgs.nur.repos.rycee.firefox-addons
@@ -136,7 +136,7 @@
       }
     ];
 
-  dotnix.firefox.niri.homeManager =
+  dotnix.home.firefox.niri.homeManager =
     { config, lib, ... }:
     {
       config = lib.mkIf (config._module.args.dotnixHomeNiriSelected or false) {
@@ -165,14 +165,14 @@
       };
     };
 
-  dotnix.firefox.stylix.homeManager = {
+  dotnix.home.firefox.stylix.homeManager = {
     stylix.targets.firefox = {
       profileNames = [ "default" ];
       colorTheme.enable = true;
     };
   };
 
-  dotnix.firefox.homePersistence = { lib, config, ... }: {
+  dotnix.home.firefox.homePersistence = { lib, config, ... }: {
     # Firefox profiles live in ~/.mozilla/firefox for stateVersion < 26.05
     # and ${xdg.configHome}/mozilla/firefox from 26.05; native-messaging
     # manifests stay in ~/.mozilla either way.

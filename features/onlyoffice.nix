@@ -1,5 +1,5 @@
 {
-  dotnix.onlyoffice.homeManager = {
+  dotnix.home.onlyoffice.homeManager = {
     programs.onlyoffice = {
       enable = true;
 

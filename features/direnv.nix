@@ -3,7 +3,7 @@
     url = "github:Mic92/direnv-instant";
     inputs.nixpkgs.follows = "nixpkgs";
   };
-  dotnix.direnv.homeManager = {
+  dotnix.home.direnv.homeManager = {
     imports = [ inputs.direnv-instant.homeModules.direnv-instant ];
 
     programs.direnv = {
@@ -25,7 +25,7 @@
   };
 
   # Impermanence contribution for direnv.
-  dotnix.direnv.homePersistence = {
+  dotnix.home.direnv.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/direnv" ];
   };
 }

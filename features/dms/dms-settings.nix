@@ -3,7 +3,7 @@
 # made DMS re-migrate settings.json (v5 → v33) on every start and home-manager
 # roll the file back on every switch.
 {
-  dotnix.dms.homeManager = { lib, ... }: {
+  dotnix.home.dms.homeManager = { lib, ... }: {
     # mkDefault so hosts can override individual leaves without mkForce.
     programs.dank-material-shell.settings = lib.mkDefault {
       widgetBackgroundColor = "sch";

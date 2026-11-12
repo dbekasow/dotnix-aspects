@@ -1,5 +1,5 @@
 {
-  dotnix.repomix.homeManager = { pkgs, ... }: {
+  dotnix.home.repomix.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.repomix ];
   };
 }

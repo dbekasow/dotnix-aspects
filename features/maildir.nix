@@ -1,7 +1,7 @@
 {
   # Notmuch identity (user.name / user.primary_email) is consumer-owned: set
   # `programs.notmuch.settings` in the consumer's own Home Manager module.
-  dotnix.maildir.homeManager = {
+  dotnix.home.maildir.homeManager = {
     accounts.email.maildirBasePath = "mail";
 
     programs.msmtp.enable = true;
@@ -29,7 +29,7 @@
   };
 
   # Impermanence contribution for maildir.
-  dotnix.maildir.homePersistence = {
+  dotnix.home.maildir.homePersistence = {
     home.persistence."/persist".directories = [ "mail" ];
   };
 }

@@ -1,5 +1,5 @@
 {
-  dotnix.tmux.homeManager = { config, lib, popup-launcher, ... }:
+  dotnix.home.tmux.homeManager = { config, lib, popup-launcher, ... }:
     let
       candidates = lib.concatMap
         (launcher:
@@ -8,7 +8,7 @@
           in
           if key == null then
             builtins.trace
-              "dotnix.tmux: omitting popup launcher '${launcher.name}' because it has no `keys.tmux` binding; add one to its record in features/popup-launchers.nix."
+              "dotnix.home.tmux: omitting popup launcher '${launcher.name}' because it has no `keys.tmux` binding; add one to its record in features/popup-launchers.nix."
               [ ]
           else
             [

@@ -7,7 +7,7 @@ let
   };
 in
 {
-  dotnix.ghostty.homeManager = { pkgs, ... }: {
+  dotnix.home.ghostty.homeManager = { pkgs, ... }: {
     programs.ghostty = {
       enable = true;
 

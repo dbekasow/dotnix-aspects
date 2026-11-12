@@ -1,5 +1,5 @@
 {
-  dotnix.tealdeer.homeManager = {
+  dotnix.home.tealdeer.homeManager = {
     programs.tealdeer = {
       enable = true;
       enableAutoUpdates = false;
@@ -13,7 +13,7 @@
 
   # Impermanence contribution for tealdeer.
   # Persist the tldr page cache.
-  dotnix.tealdeer.homePersistence = {
+  dotnix.home.tealdeer.homePersistence = {
     home.persistence."/persist".directories = [ ".cache/tealdeer" ];
   };
 }
