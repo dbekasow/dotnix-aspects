@@ -6,7 +6,7 @@
       account.users # create this explicitly selected OS account
       home.terminal # shells, tools, multiplexer
       home.development # editor, vcs, automation
-      home.core # user-scope Home Manager modules, including Stylix
+      home.core # universal home baseline: age, age-rekey, ssh
       home.persistence # generic persistence baseline for this home
     ];
 

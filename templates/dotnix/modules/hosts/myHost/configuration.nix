@@ -18,7 +18,8 @@
 
     includes = with dotnix; [
       dell-precision-5570 # from ./hardware.nix
-      host.core # Home Manager NixOS integration is explicitly selected
+      host.core # universal host baseline: locale, nix, security, certificates, ssh, age, home-manager, system-packages
+      host.age-rekey # agenix-rekey wiring for the age.rekey resources below
       host.graphical # graphical foundation
       host.niri # NixOS Niri support, separate from per-user configuration
       host.dms # host shell — use home.noctalia instead for that host
