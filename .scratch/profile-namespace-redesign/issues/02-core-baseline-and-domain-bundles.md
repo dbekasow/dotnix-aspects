@@ -16,7 +16,7 @@ includes base, ssh, security.
 
 **Blocked by:** [01: Unify role catalogs, split multi-role features, rename
 profiles](01-uniform-role-catalogs.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); ticket publication is
 approved, implementation requires separate approval.
 
