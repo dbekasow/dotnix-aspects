@@ -1,5 +1,5 @@
 {
-  dotnix.atuin.homeManager = { lib, ... }: {
+  dotnix.home.atuin.homeManager = { lib, ... }: {
     programs.atuin = {
       enable = true;
 
@@ -34,7 +34,7 @@
   };
 
   # Impermanence contribution for atuin.
-  dotnix.atuin.homePersistence = {
+  dotnix.home.atuin.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/atuin" ];
   };
 }

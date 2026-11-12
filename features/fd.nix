@@ -1,5 +1,5 @@
 {
-  dotnix.fd.homeManager = {
+  dotnix.home.fd.homeManager = {
     programs.fd = {
       enable = true;
       hidden = true;

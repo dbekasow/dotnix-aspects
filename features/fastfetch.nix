@@ -1,5 +1,5 @@
 {
-  dotnix.fastfetch.homeManager = { config, lib, ... }: {
+  dotnix.home.fastfetch.homeManager = { config, lib, ... }: {
     programs.fastfetch = {
       enable = true;
 

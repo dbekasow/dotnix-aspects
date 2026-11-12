@@ -1,5 +1,5 @@
 {
-  dotnix.procs.homeManager = { pkgs, ... }: {
+  dotnix.home.procs.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.procs ];
   };
 }

@@ -1,7 +1,7 @@
 { config, ... }:
 let inherit (config.flake.factory.helix) withTypos; in
 {
-  dotnix.helix-lsp.homeManager = { pkgs, lib, ... }: {
+  dotnix.home.helix-lsp.homeManager = { pkgs, lib, ... }: {
     # One LSP per language: basedpyright covers completion, refs, diagnostics.
     programs.helix.extraPackages = with pkgs; [ basedpyright ruff ];
     programs.helix.languages = {

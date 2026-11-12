@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  dotnix.handy.homeManager =
+  dotnix.home.handy.homeManager =
     { config
     , lib
     , options
@@ -29,7 +29,7 @@
     };
 
   # Opt-in backend process; selecting the Handy desktop integration alone does not start it.
-  dotnix.handy-service.homeManager =
+  dotnix.home.handy-service.homeManager =
     { lib, pkgs, ... }:
     let
       packages = pkgs.llm-agents or inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
@@ -73,7 +73,7 @@
   # README "App Data Directory"): models/, settings, transcript history.
   # The previous .local/share entry matched nothing — models re-downloaded
   # after every wipe.
-  dotnix.handy.homePersistence = {
+  dotnix.home.handy.homePersistence = {
     home.persistence."/persist".directories = [ ".config/com.pais.handy" ];
   };
 }

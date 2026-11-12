@@ -31,6 +31,6 @@
       (launcher: lib.filterAttrs (name: _: name != "enable") launcher)
       (lib.filter (launcher: launcher.enable) candidates);
 
-  dotnix.tmux.includes = [ dotnix.popup-launchers ];
-  dotnix.herdr.includes = [ dotnix.popup-launchers ];
+  dotnix.home.tmux.includes = [ dotnix.popup-launchers ];
+  dotnix.home.herdr.includes = [ dotnix.popup-launchers ];
 }

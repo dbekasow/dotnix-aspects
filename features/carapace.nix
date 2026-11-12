@@ -1,5 +1,5 @@
 {
-  dotnix.carapace.homeManager = {
+  dotnix.home.carapace.homeManager = {
     programs.carapace = {
       enable = true;
     };

@@ -1,5 +1,5 @@
 {
-  dotnix.bottom.homeManager = {
+  dotnix.home.bottom.homeManager = {
     programs.bottom = {
       enable = true;
 

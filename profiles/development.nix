@@ -1,6 +1,6 @@
 { dotnix, ... }: {
   dotnix.home.development = {
-    includes = with dotnix; [
+    includes = with dotnix.home; [
       llm-agents
       helix
       helix-keys

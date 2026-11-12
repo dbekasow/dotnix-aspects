@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  dotnix.noctalia.homeManager =
+  dotnix.home.noctalia.homeManager =
     { config, options, ... }:
     {
       config = lib.optionalAttrs (options.programs ? niri && options.programs.niri ? settings) {

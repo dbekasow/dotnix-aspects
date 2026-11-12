@@ -1,5 +1,5 @@
 _: {
-  dotnix.dms.homeManager = { config, lib, ... }: {
+  dotnix.home.dms.homeManager = { config, lib, ... }: {
     # Avoid duplicate Niri binds so the shell conflict assertion can report
     # invalid same-target selection directly.
     config = lib.mkIf (!(config.programs.noctalia.enable or false)) {

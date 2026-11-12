@@ -32,7 +32,7 @@ let
     };
 in
 {
-  dotnix.sesh.homeManager = { config, lib, pkgs, ... }: {
+  dotnix.home.sesh.homeManager = { config, lib, pkgs, ... }: {
     programs.sesh = {
       enable = true;
       # nixpkgs' Go 1.27 mockery cannot read its own export data; sesh requires Go 1.26.

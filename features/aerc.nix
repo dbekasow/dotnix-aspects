@@ -5,7 +5,7 @@
   # accounts.conf world-readable into the store, so aerc refuses to start
   # without that flag. The msmtp password comes from the vault
   # (passwordCommand), never from a store path.
-  dotnix.aerc.homeManager = {
+  dotnix.home.aerc.homeManager = {
     programs.aerc = {
       enable = true;
       extraConfig = {
@@ -28,7 +28,7 @@
   };
 
   # Impermanence contribution for aerc.
-  dotnix.aerc.homePersistence = {
+  dotnix.home.aerc.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/aerc" ];
   };
 }

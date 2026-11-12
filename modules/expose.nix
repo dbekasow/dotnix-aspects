@@ -14,7 +14,7 @@ let
     ../profiles/base.nix
     ../profiles/core.nix
     ../profiles/desktop-apps.nix
-    ../profiles/desktop-shell.nix
+    ../profiles/graphical.nix
     ../profiles/desktop.nix
     ../profiles/development.nix
     ../profiles/mail.nix
@@ -23,7 +23,7 @@ let
     ../profiles/term-monitoring.nix
     ../profiles/term-nix.nix
     ../profiles/term-secrets.nix
-    ../profiles/term-shell.nix
+    ../profiles/shells.nix
     ../profiles/term-ux.nix
     ../profiles/terminal-herdr.nix
     ../profiles/terminal.nix

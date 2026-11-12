@@ -2,7 +2,7 @@
   # The committer identity is consumer-owned: set `programs.git.settings.user`
   # in the consumer's own Home Manager module. This aspect only ships the
   # shared defaults.
-  dotnix.git.homeManager = {
+  dotnix.home.git.homeManager = {
     programs.git = {
       enable = true;
       lfs.enable = true;

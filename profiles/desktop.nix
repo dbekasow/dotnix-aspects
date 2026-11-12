@@ -1,5 +1,5 @@
-# Graphical foundation plus applications; consumers can select desktop-shell alone.
+# Graphical foundation plus applications; consumers can select graphical alone.
 { dotnix, ... }: {
-  dotnix.host.desktop.includes = [ dotnix.host.desktop-shell ];
-  dotnix.home.desktop.includes = [ dotnix.home.desktop-shell dotnix.home.desktop-apps ];
+  dotnix.host.desktop.includes = [ dotnix.host.graphical ];
+  dotnix.home.desktop.includes = [ dotnix.home.graphical dotnix.home.desktop-apps ];
 }

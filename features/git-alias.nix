@@ -1,5 +1,5 @@
 {
-  dotnix.git-alias.homeManager = {
+  dotnix.home.git-alias.homeManager = {
     programs.git.settings.alias = {
       # Status shortcuts
       s = "status --short --branch";

@@ -17,13 +17,13 @@
     system-packages
   ];
 
-  dotnix.home.core-home.includes = with dotnix; [
-    home.age
-    home.age-rekey
+  dotnix.home.core.includes = with dotnix.home; [
+    age
+    age-rekey
     git
     git-alias
-    home.gpg-agent
-    home.ssh
-    home.stylix
+    gpg-agent
+    ssh
+    stylix
   ];
 }

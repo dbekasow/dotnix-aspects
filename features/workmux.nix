@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  dotnix.workmux.homeManager = { config, lib, pkgs, ... }:
+  dotnix.home.workmux.homeManager = { config, lib, pkgs, ... }:
     let
       yaml = pkgs.formats.yaml { };
       packages = pkgs.llm-agents or inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};

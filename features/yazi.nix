@@ -1,5 +1,5 @@
 {
-  dotnix.yazi.homeManager = { pkgs, ... }: {
+  dotnix.home.yazi.homeManager = { pkgs, ... }: {
     # The glow previewer shells out to the glow binary; nixpkgs'
     # yaziPlugins.glow ships only the Lua half.
     home.packages = [ pkgs.glow ];
@@ -135,7 +135,7 @@
   };
 
   # Impermanence contribution for yazi.
-  dotnix.yazi.homePersistence = {
+  dotnix.home.yazi.homePersistence = {
     home.persistence."/persist".directories = [ ".local/state/yazi" ];
   };
 }

@@ -1,5 +1,5 @@
 {
-  dotnix.fzf.homeManager = {
+  dotnix.home.fzf.homeManager = {
     programs.fzf = {
       enable = true;
 

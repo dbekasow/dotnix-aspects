@@ -1,5 +1,5 @@
 {
-  dotnix.television.homeManager = { lib, pkgs, ... }: {
+  dotnix.home.television.homeManager = { lib, pkgs, ... }: {
     programs.television = {
       enable = true;
 
@@ -50,7 +50,7 @@
 
   # Impermanence contribution for television.
   # Persist the channel cache.
-  dotnix.television.homePersistence = {
+  dotnix.home.television.homePersistence = {
     home.persistence."/persist".directories = [ ".cache/television" ];
   };
 }

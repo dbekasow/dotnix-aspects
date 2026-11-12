@@ -1,5 +1,5 @@
 {
-  dotnix.xdg-portals.nixos = { pkgs, ... }: {
+  dotnix.host.xdg-portals.nixos = { pkgs, ... }: {
     xdg.portal = {
       enable = true;
 

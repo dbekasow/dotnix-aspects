@@ -1,5 +1,5 @@
 {
-  dotnix.bandwhich.homeManager = { pkgs, ... }: {
+  dotnix.home.bandwhich.homeManager = { pkgs, ... }: {
     home.packages = [ pkgs.bandwhich ];
   };
 }

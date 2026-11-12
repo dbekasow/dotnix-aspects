@@ -1,5 +1,5 @@
 {
-  dotnix.kubernetes.homeManager = { pkgs, ... }: {
+  dotnix.home.kubernetes.homeManager = { pkgs, ... }: {
     programs.k9s = {
       enable = true;
 

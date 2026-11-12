@@ -1,5 +1,5 @@
 {
-  dotnix.eza.homeManager = {
+  dotnix.home.eza.homeManager = {
     programs.eza = {
       enable = true;
 

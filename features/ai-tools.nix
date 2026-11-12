@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  dotnix.ai-tools.homeManager = { pkgs, ... }:
+  dotnix.home.ai-tools.homeManager = { pkgs, ... }:
     let
       packages = pkgs.llm-agents or inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
     in

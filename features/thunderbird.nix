@@ -1,5 +1,5 @@
 {
-  dotnix.thunderbird.homeManager = {
+  dotnix.home.thunderbird.homeManager = {
     programs.thunderbird = {
       enable = true;
 
@@ -53,7 +53,7 @@
   };
 
   # Impermanence contribution for thunderbird.
-  dotnix.thunderbird.homePersistence = {
+  dotnix.home.thunderbird.homePersistence = {
     home.persistence."/persist".directories = [ ".thunderbird" ];
   };
 }

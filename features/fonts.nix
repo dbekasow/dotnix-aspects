@@ -1,5 +1,5 @@
 {
-  dotnix.fonts.nixos = { pkgs, ... }: {
+  dotnix.host.fonts.nixos = { pkgs, ... }: {
     fonts = {
       enableDefaultPackages = false;
 

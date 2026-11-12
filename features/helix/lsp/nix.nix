@@ -1,5 +1,5 @@
 {
-  dotnix.helix-lsp.homeManager = { pkgs, lib, ... }: {
+  dotnix.home.helix-lsp.homeManager = { pkgs, lib, ... }: {
     # One LSP per language: nixd covers completion + options; nil, statix and
     # deadnix only duplicated server startup per buffer.
     programs.helix.extraPackages = with pkgs; [ nixd nixpkgs-fmt ];

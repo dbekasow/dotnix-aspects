@@ -78,12 +78,12 @@ let
     hostModule = { programs.niri.enable = lib.mkForce false; };
   };
   niriDms = evaluate {
-    hostIncludes = with dotnix; [ host.niri dms ];
-    userIncludes = with dotnix; [ home.niri dms ];
+    hostIncludes = with dotnix; [ host.niri host.dms ];
+    userIncludes = with dotnix; [ home.niri home.dms ];
   };
   niriNoctalia = evaluate {
     hostIncludes = with dotnix; [ host.niri ];
-    userIncludes = with dotnix; [ home.niri noctalia ];
+    userIncludes = with dotnix; [ home.niri home.noctalia ];
   };
   standaloneHome =
     let
@@ -116,32 +116,32 @@ let
     { home = flake.homeConfigurations.fixture.config; };
   niriOnlyHome = standaloneHome;
   niriNoctaliaHome = evaluate {
-    userIncludes = with dotnix; [ home.niri noctalia ];
+    userIncludes = with dotnix; [ home.niri home.noctalia ];
   };
   noctaliaOnlyHome = evaluate {
-    userIncludes = with dotnix; [ noctalia ];
+    userIncludes = with dotnix; [ home.noctalia ];
   };
   handyOnlyHome = evaluate {
-    userIncludes = with dotnix; [ handy ];
+    userIncludes = with dotnix; [ home.handy ];
   };
   handyNiriHome = evaluate {
-    userIncludes = with dotnix; [ home.niri handy ];
+    userIncludes = with dotnix; [ home.niri home.handy ];
   };
   desktopShellHome = evaluate {
-    userIncludes = with dotnix; [ home.desktop-shell home.gpg-agent-gui home.rbw-gui ];
+    userIncludes = with dotnix; [ home.graphical home.gpg-agent-gui home.rbw-gui ];
   };
   desktopShellWithoutGuiPinentry = evaluate {
-    userIncludes = with dotnix; [ home.desktop-shell home.gpg-agent home.rbw ];
+    userIncludes = with dotnix; [ home.graphical home.gpg-agent home.rbw ];
   };
   desktopShellOverrideHome = evaluate {
-    userIncludes = with dotnix; [ home.desktop-shell home.gpg-agent-gui home.rbw-gui ];
+    userIncludes = with dotnix; [ home.graphical home.gpg-agent-gui home.rbw-gui ];
     userModule = {
       services.gpg-agent.pinentry.package = nixpkgs.legacyPackages.${system}.pinentry-curses;
       programs.rbw.settings.pinentry = nixpkgs.legacyPackages.${system}.pinentry-curses;
     };
   };
   dmsHome = evaluate {
-    userIncludes = with dotnix; [ home.niri dms ];
+    userIncludes = with dotnix; [ home.niri home.dms ];
   };
   multiUser =
     let
@@ -165,7 +165,7 @@ let
             });
         };
         den.aspects.fixture = {
-          includes = with dotnix; [ host.niri dms ];
+          includes = with dotnix; [ host.niri host.dms ];
           nixos = {
             system.stateVersion = "25.11";
             nixpkgs.hostPlatform = system;
@@ -178,7 +178,7 @@ let
           };
           provides = {
             alice = {
-              includes = with dotnix; [ home.niri dms ];
+              includes = with dotnix; [ home.niri home.dms ];
               homeManager = {
                 home.username = "alice";
                 home.homeDirectory = "/home/alice";
@@ -186,7 +186,7 @@ let
               };
             };
             bob = {
-              includes = with dotnix; [ home.niri noctalia ];
+              includes = with dotnix; [ home.niri home.noctalia ];
               homeManager = {
                 home.username = "bob";
                 home.homeDirectory = "/home/bob";
@@ -205,7 +205,7 @@ let
       bob = config.home-manager.users.bob;
     };
   bothShells = evaluate {
-    userIncludes = with dotnix; [ home.niri dms noctalia ];
+    userIncludes = with dotnix; [ home.niri home.dms home.noctalia ];
   };
   conflictOnly = builtins.getEnv "NIRI_DMS_CONFLICT_ONLY" == "1";
 

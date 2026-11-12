@@ -3,7 +3,7 @@
     url = "github:AvengeMedia/dms-plugin-registry";
     inputs.nixpkgs.follows = "nixpkgs";
   };
-  dotnix.dms-plugins.homeManager = {
+  dotnix.home.dms-plugins.homeManager = {
     imports = [ inputs.dms-plugins.homeModules.default ];
 
     programs.dank-material-shell.plugins = {

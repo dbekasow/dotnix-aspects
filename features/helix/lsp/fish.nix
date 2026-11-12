@@ -1,7 +1,7 @@
 { config, ... }:
 let inherit (config.flake.factory.helix) withTypos; in
 {
-  dotnix.helix-lsp.homeManager = { pkgs, lib, ... }: {
+  dotnix.home.helix-lsp.homeManager = { pkgs, lib, ... }: {
     programs.helix.extraPackages = [ pkgs.fish-lsp ];
     programs.helix.languages = {
       language-server.fish-lsp = {

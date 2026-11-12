@@ -1,5 +1,5 @@
 {
-  dotnix.bat.homeManager = { pkgs, ... }: {
+  dotnix.home.bat.homeManager = { pkgs, ... }: {
     programs.bat = {
       enable = true;
 

@@ -1,5 +1,5 @@
 {
-  dotnix.tmux.homeManager = { config, lib, ... }: {
+  dotnix.home.tmux.homeManager = { config, lib, ... }: {
     programs.tmux.extraConfig = ''
       bind -N "New window" c new-window -c "#{pane_current_path}"
       bind -N "Split right" | split-window -h -c "#{pane_current_path}"

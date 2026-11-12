@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  dotnix.tuicr.homeManager = { config, lib, pkgs, ... }:
+  dotnix.home.tuicr.homeManager = { config, lib, pkgs, ... }:
     let
       packages = pkgs.llm-agents or inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
       inherit (packages) tuicr;

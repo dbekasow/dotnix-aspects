@@ -1,5 +1,5 @@
 {
-  dotnix.thunar.nixos = { pkgs, ... }: {
+  dotnix.host.thunar.nixos = { pkgs, ... }: {
     programs.thunar = {
       enable = true;
       plugins = with pkgs; [

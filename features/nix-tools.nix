@@ -1,5 +1,5 @@
 {
-  dotnix.nix-tools.homeManager = { pkgs, ... }: {
+  dotnix.home.nix-tools.homeManager = { pkgs, ... }: {
     programs.nix-init.enable = true;
 
     home.packages = with pkgs; [
@@ -15,7 +15,7 @@
 
   # Impermanence contribution for nix-tools.
   # Persist the per-user Nix cache
-  dotnix.nix-tools.homePersistence = {
+  dotnix.home.nix-tools.homePersistence = {
     home.persistence."/persist".directories = [ ".cache/nix" ];
   };
 }
