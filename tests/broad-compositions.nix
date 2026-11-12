@@ -377,6 +377,10 @@ let
     userClasses = [ "user" "homeManager" ];
     userIncludes = [ dotnix.account.users dotnix.home.terminal ];
   };
+  terminalHerdr = evaluate {
+    userClasses = [ "user" "homeManager" ];
+    userIncludes = [ dotnix.account.users dotnix.home.terminal-herdr ];
+  };
   shellUxOnly = evaluate {
     userClasses = [ "user" "homeManager" ];
     userIncludes = [ dotnix.account.users dotnix.home.atuin dotnix.home.carapace dotnix.home.starship dotnix.home.fzf dotnix.home.skim dotnix.home.zoxide ];
@@ -1180,6 +1184,25 @@ let
       && shellUxOnly.home-manager.users.fixture.programs.starship.settings.add_newline
       && !(shellUxOnly.home-manager.users.fixture.programs.fish.enable or false)
       && !(shellUxOnly.home-manager.users.fixture.programs.nushell.enable or false);
+    terminalHerdrSwapsMultiplexersViaExcludes =
+      terminalHerdr.home-manager.users.fixture.programs.fish.enable
+      && terminalHerdr.home-manager.users.fixture.programs.nushell.enable
+      && terminalHerdr.home-manager.users.fixture.programs.atuin.enable
+      && terminalHerdr.home-manager.users.fixture.programs.carapace.enable
+      && terminalHerdr.home-manager.users.fixture.programs.starship.enable
+      && terminalHerdr.home-manager.users.fixture.programs.fzf.enable
+      && terminalHerdr.home-manager.users.fixture.programs.skim.enable
+      && terminalHerdr.home-manager.users.fixture.programs.zoxide.enable
+      && terminalHerdr.home-manager.users.fixture.programs.bat.enable
+      && terminalHerdr.home-manager.users.fixture.programs.herdr.enable
+      && !(terminalHerdr.home-manager.users.fixture.programs.tmux.enable or false)
+      && !(terminalHerdr.home-manager.users.fixture.programs.sesh.enable or false);
+    terminalKeepsMultiplexersForTmuxUsers =
+      terminalShellAndUx.home-manager.users.fixture.programs.tmux.enable
+      && terminalShellAndUx.home-manager.users.fixture.programs.sesh.enable;
+    termUxHerdrAspectRemovedFromNamespace =
+      !(builtins.hasAttr "term-ux-herdr" dotnix.home)
+      && builtins.hasAttr "terminal-herdr" dotnix.home;
     shellNativeDefaultsRemainOverridable =
       !(shellNativeOverrides.programs.fish.enable or false)
       && !(shellNativeOverrides.home-manager.users.fixture.programs.fish.enable or false)
