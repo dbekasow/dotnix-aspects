@@ -22,20 +22,20 @@ approved, implementation requires separate approval.
 
 ## Acceptance criteria
 
-- [ ] `host.core` contains exactly the universal baseline; `home.core`
+- [x] `host.core` contains exactly the universal baseline; `home.core`
       contains exactly home.age, home.age-rekey, home.ssh; both remain
       role-pure and override nothing.
-- [ ] `home.development` includes git and git-alias and no longer includes
+- [x] `home.development` includes git and git-alias and no longer includes
       kubernetes; `dotnix.home.kubernetes` remains individually selectable;
       `graphical` includes stylix on both roles; gnupg/gpg-agent are
       selectable without core.
-- [ ] `home.office` and `home.browsers` exist and compose for a
+- [x] `home.office` and `home.browsers` exist and compose for a
       non-developer occupant without terminal or development content.
-- [ ] `home.desktop-apps` contains only alacritty, ghostty, handy, anki.
-- [ ] `host.server` includes base, ssh, security and nothing speculative.
-- [ ] A representative family-occupant composition (graphical, office,
+- [x] `home.desktop-apps` contains only alacritty, ghostty, handy, anki.
+- [x] `host.server` includes base, ssh, security and nothing speculative.
+- [x] A representative family-occupant composition (graphical, office,
       browsers, one shell) evaluates without developer content leaking in.
-- [ ] Gates pass: `nix fmt`, `nix flake check --no-build --no-write-lock-file`,
+- [x] Gates pass: `nix fmt`, `nix flake check --no-build --no-write-lock-file`,
       updated composition tests, template consumer evaluation.
 
 ## Comments
