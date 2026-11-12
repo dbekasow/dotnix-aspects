@@ -14,7 +14,7 @@ against the README wording and fix drift.
 **Blocked by:** [02: Slim core to a universal baseline and add GUI domain
 bundles](02-core-baseline-and-domain-bundles.md), [03: Express the
 multiplexer variant with excludes](03-terminal-variant-via-excludes.md).
-**Status:** ready-for-agent
+**Status:** claimed
 **Spec/authorization:** [Canonical spec](../spec.md); ticket publication is
 approved, implementation requires separate approval.
 
