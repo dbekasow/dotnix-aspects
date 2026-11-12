@@ -22,7 +22,7 @@
       host.age-rekey # agenix-rekey wiring for the age.rekey resources below
       host.graphical # graphical foundation
       host.niri # NixOS Niri support, separate from per-user configuration
-      host.dms # host shell — use home.noctalia instead for that host
+      host.dms # host shell — use host.noctalia instead for that host
       host.dms-greeter # greeter — swap for `host.noctalia-greeter`
       host.base # shared boot behavior
       host.boot-systemd # systemd-boot loader
