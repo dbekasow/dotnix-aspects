@@ -6,11 +6,11 @@
       candidates = lib.concatMap
         (launcher:
           let
-            key = lib.attrByPath [ "keys" "tmux" ] null launcher;
+            key = launcher.key or null;
           in
           if key == null then
             builtins.trace
-              "dotnix.home.tmux: omitting popup launcher '${launcher.name}' because it has no `keys.tmux` binding; add one to its record in features/popup-launchers.nix."
+              "dotnix.home.tmux: omitting popup launcher '${launcher.name}' because it has no `key`; add one to its record in features/popup-launchers.nix."
               [ ]
           else if !(launcher.enable { inherit config osConfig; }) then
             [ ]

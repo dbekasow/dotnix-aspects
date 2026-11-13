@@ -723,7 +723,7 @@ let
             command = "/bin/true";
             width = "20%";
             height = "20%";
-            keys.tmux = "z";
+            key = "z";
             enable = _: true;
           }
           {
