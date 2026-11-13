@@ -11,34 +11,39 @@
     let
       # `enable` gates are closures from features/popup-launchers.nix; they
       # must run here, where `config` is the user's home-manager config.
-      commandBindings = lib.concatMap
-        (launcher:
-          let
-            key = lib.attrByPath [ "keys" "herdr" ] null launcher;
-          in
-          if key == null then
-            builtins.trace
-              "dotnix.home.herdr: omitting popup launcher '${launcher.name}' because it has no `keys.herdr` binding; add one to its record in features/popup-launchers.nix."
+      # herdr 0.9.5 has no key sequences, so the menu is one popup bound to
+      # prefix+o: it lists the enabled launchers, reads one keypress, and
+      # execs the tool in place. All tools share the popup geometry; the
+      # per-tool upgrade path is documented in
+      # docs/plans/herdr-menu-plugin-research.md.
+      launchers = lib.sortOn (l: lib.toLower l.key + l.key) (
+        lib.concatMap
+          (launcher:
+            if !(launcher ? key) then
+              builtins.trace
+                "dotnix.home.herdr: omitting popup launcher '${launcher.name}' because it has no `key`; add one to its record in features/popup-launchers.nix."
+                [ ]
+            else if !(launcher.enable { inherit config osConfig; }) then
               [ ]
-          else if !(launcher.enable { inherit config osConfig; }) then
-            [ ]
-          else
-            let popup = lib.recursiveUpdate launcher { inherit key; }; in
-            [
-              {
-                inherit (popup)
-                  key
-                  command
-                  width
-                  height
-                  ;
-                type = "popup";
-                description = popup.name;
-              }
-            ])
-        popup-launcher;
+            else
+              [ launcher ])
+          popup-launcher
+      );
+      dispatchKeys = map (l: l.key) launchers;
+      # One line of sh via herdr's /bin/sh -c: the case arms dispatch the
+      # keypress case-sensitively; any other key (including Escape) exits.
+      menuScript = lib.concatStringsSep "; " (
+        (map (l: "echo '${l.key}  ${l.name}'") launchers)
+        ++ [ "read -rsn1 k" ]
+        ++ [ "case $k in ${lib.concatStringsSep " " (map (l: "${l.key}) exec ${l.command} ;;") launchers)} *) exit 0 ;; esac" ]
+      );
     in
     {
+      assertions = [{
+        assertion = dispatchKeys == lib.unique dispatchKeys;
+        message = "dotnix.home.herdr: duplicate popup menu dispatch keys: ${lib.concatStringsSep " " dispatchKeys}";
+      }];
+
       programs.herdr = {
         enable = true;
         package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
@@ -77,8 +82,18 @@
             split_vertical = "prefix+|";
             split_horizontal = "prefix+-";
 
-            # Popup launchers (features/popup-launchers.nix).
-            command = commandBindings;
+            # Tool menu (features/popup-launchers.nix): prefix+o opens the
+            # popup, one keypress execs the launcher in place.
+            command = [
+              {
+                key = "prefix+o";
+                command = menuScript;
+                width = "90%";
+                height = "85%";
+                type = "popup";
+                description = "popups";
+              }
+            ];
           };
         };
       };

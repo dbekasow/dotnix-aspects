@@ -24,20 +24,20 @@
         else if hostFlag != null then osConfig != null && lib.attrByPath hostFlag false osConfig
         else lib.any (g: g { inherit config osConfig; }) (map gate any);
       candidates = [
-        { name = "bluetui"; command = lib.getExe pkgs.bluetui; width = "60%"; height = "55%"; key = "B"; keys.herdr = "prefix+shift+b"; enable = gate { hostFlag = [ "hardware" "bluetooth" "enable" ]; }; }
-        { name = "bottom"; command = lib.getExe pkgs.bottom; width = "95%"; height = "90%"; key = "b"; keys.herdr = "prefix+alt+b"; enable = gate { program = "bottom"; }; }
-        { name = "lazydocker"; command = lib.getExe pkgs.lazydocker; width = "90%"; height = "85%"; key = "d"; keys.herdr = "prefix+alt+d"; enable = gate { program = "lazydocker"; }; }
-        { name = "shell"; command = lib.getExe pkgs.fish; width = "80%"; height = "70%"; key = "f"; keys.herdr = "prefix+f"; enable = gate { always = true; }; }
-        { name = "lazygit"; command = lib.getExe pkgs.lazygit; width = "95%"; height = "90%"; key = "g"; keys.herdr = "prefix+alt+g"; enable = gate { program = "lazygit"; }; }
-        { name = "k9s"; command = lib.getExe pkgs.k9s; width = "95%"; height = "90%"; key = "k"; keys.herdr = "prefix+alt+k"; enable = gate { program = "k9s"; }; }
-        { name = "aerc"; command = lib.getExe pkgs.aerc; width = "90%"; height = "85%"; key = "m"; keys.herdr = "prefix+m"; enable = gate { program = "aerc"; }; }
-        { name = "nix-graph"; command = lib.getExe pkgs.nix-graph; width = "90%"; height = "80%"; key = "n"; keys.herdr = "prefix+alt+n"; enable = gate { always = true; }; }
-        { name = "gh-dash"; command = lib.getExe pkgs.gh-dash; width = "90%"; height = "80%"; key = "p"; keys.herdr = "prefix+alt+p"; enable = gate { any = [{ program = "gh"; } { program = "gh-dash"; }]; }; }
-        { name = "dua"; command = "${lib.getExe pkgs.dua} i"; width = "75%"; height = "75%"; key = "u"; keys.herdr = "prefix+u"; enable = gate { always = true; }; }
-        { name = "wifitui"; command = lib.getExe pkgs.wifitui; width = "60%"; height = "55%"; key = "w"; keys.herdr = "prefix+alt+w"; enable = gate { hostFlag = [ "networking" "wireless" "iwd" "enable" ]; }; }
-        { name = "yazi"; command = lib.getExe pkgs.yazi; width = "95%"; height = "90%"; key = "y"; keys.herdr = "prefix+y"; enable = gate { program = "yazi"; }; }
-        { name = "tv"; command = lib.getExe pkgs.television; width = "70%"; height = "60%"; key = "t"; keys.herdr = "prefix+t"; enable = gate { program = "television"; }; }
-        { name = "scratch"; command = lib.getExe pkgs.fish; width = "90%"; height = "85%"; key = "S"; keys.herdr = "prefix+shift+s"; enable = gate { always = true; }; }
+        { name = "bluetui"; command = lib.getExe pkgs.bluetui; width = "60%"; height = "55%"; key = "B"; enable = gate { hostFlag = [ "hardware" "bluetooth" "enable" ]; }; }
+        { name = "bottom"; command = lib.getExe pkgs.bottom; width = "95%"; height = "90%"; key = "b"; enable = gate { program = "bottom"; }; }
+        { name = "lazydocker"; command = lib.getExe pkgs.lazydocker; width = "90%"; height = "85%"; key = "d"; enable = gate { program = "lazydocker"; }; }
+        { name = "shell"; command = lib.getExe pkgs.fish; width = "80%"; height = "70%"; key = "f"; enable = gate { always = true; }; }
+        { name = "lazygit"; command = lib.getExe pkgs.lazygit; width = "95%"; height = "90%"; key = "g"; enable = gate { program = "lazygit"; }; }
+        { name = "k9s"; command = lib.getExe pkgs.k9s; width = "95%"; height = "90%"; key = "k"; enable = gate { program = "k9s"; }; }
+        { name = "aerc"; command = lib.getExe pkgs.aerc; width = "90%"; height = "85%"; key = "m"; enable = gate { program = "aerc"; }; }
+        { name = "nix-graph"; command = lib.getExe pkgs.nix-graph; width = "90%"; height = "80%"; key = "n"; enable = gate { always = true; }; }
+        { name = "gh-dash"; command = lib.getExe pkgs.gh-dash; width = "90%"; height = "80%"; key = "p"; enable = gate { any = [{ program = "gh"; } { program = "gh-dash"; }]; }; }
+        { name = "dua"; command = "${lib.getExe pkgs.dua} i"; width = "75%"; height = "75%"; key = "u"; enable = gate { always = true; }; }
+        { name = "wifitui"; command = lib.getExe pkgs.wifitui; width = "60%"; height = "55%"; key = "w"; enable = gate { hostFlag = [ "networking" "wireless" "iwd" "enable" ]; }; }
+        { name = "yazi"; command = lib.getExe pkgs.yazi; width = "95%"; height = "90%"; key = "y"; enable = gate { program = "yazi"; }; }
+        { name = "tv"; command = lib.getExe pkgs.television; width = "70%"; height = "60%"; key = "t"; enable = gate { program = "television"; }; }
+        { name = "scratch"; command = lib.getExe pkgs.fish; width = "90%"; height = "85%"; key = "S"; enable = gate { always = true; }; }
       ];
     in
     candidates;
