@@ -57,7 +57,7 @@
             # Session
             prefix = "ctrl+space";
             goto = "prefix+s";
-            settings = "prefix+shfit+s";
+            settings = "prefix+shift+s";
 
             # Workspaces
             previous_workspace = "prefix+(";
