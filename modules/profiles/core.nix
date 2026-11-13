@@ -14,5 +14,6 @@
     age
     age-rekey
     ssh
+    xdg
   ];
 }
