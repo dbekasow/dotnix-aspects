@@ -29,7 +29,7 @@
           disableConfirmationPrompt = true;
           escapeTime = 0; # otherwise Esc lags in helix inside a pane
           focusEvents = true; # helix auto-save.focus-lost needs these
-          historyLimit = 20000; # same as zellij's scroll_buffer_size
+          historyLimit = 20000;
           keyMode = "vi";
           mouse = true;
           prefix = "C-Space";
