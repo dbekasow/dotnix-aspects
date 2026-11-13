@@ -60,8 +60,18 @@
         # herdr's defaults (catppuccin; 10 MB scrollback already exceeds tmux's
         # 20000-line historyLimit).
         settings = {
-          ui.host_cursor = "native";
           terminal.default_shell = lib.getExe pkgs.fish;
+          ui = {
+            host_cursor = "native";
+            status_indicators = "symbols";
+            tab_bar_position = "bottom";
+            tab_bar_right_separator = " · ";
+            tab_bar_right = [
+              { type = "zoom"; }
+              { type = "hostname"; }
+              { type = "datetime"; format = "%H:%M"; }
+            ];
+          };
           keys = {
             # Session
             prefix = "ctrl+space";
