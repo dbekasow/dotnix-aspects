@@ -1,7 +1,8 @@
 { inputs, ... }:
 {
   dotnix.home.herdr.homeManager =
-    { lib
+    { config
+    , lib
     , popup-launcher
     , pkgs
     , ...
@@ -47,16 +48,34 @@
         # 20000-line historyLimit).
         settings = {
           terminal.default_shell = lib.mkDefault (lib.getExe pkgs.fish);
-          keys.prefix = lib.mkDefault "ctrl+space";
-          keys.command = lib.mkDefault commandBindings;
+          keys = {
+            prefix = lib.mkDefault "ctrl+space";
+            switch_tab = lib.mkDefault [ "prefix+1..9" "alt+1..9" ];
+            command = lib.mkDefault commandBindings;
+          };
         };
       };
+
+      # Autostart on the same seam as sesh/tmux: every interactive fish
+      # outside a multiplexer attaches to herdr's default session. tmux and
+      # sesh win when a consumer composes them alongside herdr.
+      programs.fish.interactiveShellInit =
+        lib.mkIf (!config.programs.tmux.enable && !config.programs.sesh.enable) ''
+          if not set -q HERDR_ENV
+            ${lib.getExe config.programs.herdr.package}
+          end
+        '';
     };
 
   # Worktree checkouts are real working copies; the default root lives in
   # $HOME, which impermanence wipes at boot. Follows worktrees.directory's
   # default (~/.herdr/worktrees).
   dotnix.home.herdr.homePersistence = {
-    home.persistence."/persist".directories = [ ".herdr/worktrees" ];
+    home.persistence."/persist".directories = [
+      # herdr's own runtime state: the plugin registry, plugin config
+      # dirs, named sessions, and config.toml state.
+      ".config/herdr"
+      ".herdr/worktrees"
+    ];
   };
 }

@@ -858,6 +858,12 @@ let
       lib.hasInfix "HERDR_ENV" terminalHerdr.home-manager.users.fixture.programs.fish.interactiveShellInit;
     herdrAutostartYieldsToComposedMultiplexers =
       !(lib.hasInfix "HERDR_ENV" popupEnabled.home-manager.users.fixture.programs.fish.interactiveShellInit);
+    herdrAutoTitleIsLinkedDeclaratively =
+      let
+        activation = terminalHerdr.home-manager.users.fixture.home.activation.herdrAutoTitle.text;
+      in
+      lib.hasInfix "plugin link" activation
+      && lib.hasInfix "herdr-auto-title" activation;
     agentToolsResolveWithoutGlobalOverlay =
       let
         systemConfig = agentToolsWithoutGlobalOverlay;
