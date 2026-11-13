@@ -7,13 +7,17 @@ The canonical behavioral contract is the [local composition spec](../../.scratch
 ## Illustrative source layout
 
 ```text
-library/
-  default.nix
+modules/
+  expose.nix
   integration/
     consumer.nix
     contracts/
       persistence.nix
       popup-launcher.nix
+  parts/
+    devshell.nix
+    pre-commit.nix
+    treefmt.nix
   features/
     audio/
       pipewire.nix
@@ -43,14 +47,9 @@ library/
   profiles/
     host/
     home/
-tooling/
-  devshell.nix
-  pre-commit.nix
-  treefmt.nix
+  templates/
+    dotnix/
 lib/ # private shared helpers, not feature-discovery entries
-templates/
-  minimal/
-  workstation/
 docs/
   recipes/
 tests/

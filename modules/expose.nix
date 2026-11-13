@@ -1,36 +1,16 @@
 { inputs, lib, ... }:
 let
   modules = ./.;
-  featureRoot = ../features;
 
-  featureModules = lib.pipe inputs.import-tree [
-    # Use pinned import-tree defaults for feature entry-point discovery.
-    (i: i.addPath "${featureRoot}")
+  # Use pinned import-tree defaults for entry-point discovery.
+  discoverModules = root: lib.pipe inputs.import-tree [
+    (i: i.addPath "${root}")
     (i: i.withLib lib)
     (i: i.files)
   ];
 
-  profileModules = [
-    ../profiles/base.nix
-    ../profiles/browsers.nix
-    ../profiles/core.nix
-    ../profiles/desktop-apps.nix
-    ../profiles/desktop.nix
-    ../profiles/development.nix
-    ../profiles/graphical.nix
-    ../profiles/mail.nix
-    ../profiles/office.nix
-    ../profiles/server.nix
-    ../profiles/shells.nix
-    ../profiles/term-cli.nix
-    ../profiles/term-monitoring.nix
-    ../profiles/term-nix.nix
-    ../profiles/term-secrets.nix
-    ../profiles/term-ux.nix
-    ../profiles/terminal-herdr.nix
-    ../profiles/terminal.nix
-    ../profiles/workstation.nix
-  ];
+  featureModules = discoverModules ./features;
+  profileModules = discoverModules ./profiles;
 
   consumerAdapter = (import ./integration/default.nix) inputs.self;
 
@@ -69,7 +49,7 @@ in
       ++ map (f: f { inherit inputs lib; }) (map import devParts);
     flake.templates.default = {
       description = "Dendritic NixOS configuration using dotnix";
-      path = ../templates/dotnix;
+      path = ./templates/dotnix;
     };
   };
 }

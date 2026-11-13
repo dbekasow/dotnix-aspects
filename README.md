@@ -1,21 +1,21 @@
 # Dotnix-Aspects
 
-A reusable library of [dendritic](https://github.com/mightyiam/dendritic) NixOS and Home Manager aspects built on Den. Consumers import its native Den namespace and activate features by including aspects in host and user compositions. Optional bundles under root `profiles/` are conveniences, not mandatory tiers.
+A reusable library of [dendritic](https://github.com/mightyiam/dendritic) NixOS and Home Manager aspects built on Den. Consumers import its native Den namespace and activate features by including aspects in host and user compositions. Optional bundles under `modules/profiles/` are conveniences, not mandatory tiers.
 
 ## Feature catalog and discovery
 
-Feature sources live under root `features/`. Small features can stay in one file; multi-part owners such as Helix, DMS, Niri, Firefox, and Tmux keep related parts and integrations local. Each module declares its public `dotnix.*` aspect names explicitly; filesystem names do not define public namespace paths. Optional profile modules live separately under root `profiles/` and are assembled explicitly.
+Feature sources live under `modules/features/`. Small features can stay in one file; multi-part owners such as Helix, DMS, Niri, Firefox, and Tmux keep related parts and integrations local. Each module declares its public `dotnix.*` aspect names explicitly; filesystem names do not define public namespace paths. Profile modules live under `modules/profiles/` and are discovered by the same import-tree scan as features.
 
 Every role-scoped aspect lives in one of three uniform catalogs: `dotnix.host.*` for host behavior, `dotnix.home.*` for Home Manager behavior, and `dotnix.account.*` for account-level settings, so selections like `with dotnix.home; [ bat fd ripgrep ]` resolve uniformly. The top level stays reserved for cross-cutting aspects (`dotnix.popup-launchers`) and consumer-owned composites such as per-user aspects and hardware profiles; the library itself declares no other top-level aspects. A feature with behavior in multiple roles declares one role-qualified aspect per role instead of a single class-multiplexed aspect: `host.dms`/`home.dms` and `host.noctalia`/`home.noctalia` follow this role-split convention.
 
-`modules/expose.nix` discovers feature modules only by scanning `features/` with the pinned import-tree default: directory scans select `.nix` files and exclude paths containing relative `/_`. `default.nix` does not stop recursive scanning. This is a filename filter, not module-shape validation or a security boundary: explicitly supplied files bypass the filter, changing scan roots changes which paths are relative, and `initFilter` replaces the default predicate. Keep helpers outside discovery or under an owner-local `_private/` path and import them explicitly.
+`modules/expose.nix` discovers feature and profile modules only by scanning `modules/features/` and `modules/profiles/` with the pinned import-tree default: directory scans select `.nix` files and exclude paths containing relative `/_`. `default.nix` does not stop recursive scanning. This is a filename filter, not module-shape validation or a security boundary: explicitly supplied files bypass the filter, changing scan roots changes which paths are relative, and `initFilter` replaces the default predicate. Keep helpers outside discovery or under an owner-local `_private/` path and import them explicitly.
 
 ## Usage
 
 Add the library and Den as flake inputs. Import the library's default consumer adapter in the consumer's flake-parts entry point. The adapter imports Den's flake module and the public `denful.dotnix` namespace, enables the required batteries, and declares the shared popup Quirk. Consumers do not receive wrapped module aliases or an independent host builder.
 
 ```nix
-# modules/parts.nix — same entry point used by templates/dotnix
+# modules/parts.nix — same entry point used by modules/templates/dotnix
 { inputs, ... }:
 {
   imports = [
@@ -25,7 +25,7 @@ Add the library and Den as flake inputs. Import the library's default consumer a
 }
 ```
 
-Compose host and user behavior through Den entities and aspects, as in the executable template at `templates/dotnix/modules/hosts/myHost/configuration.nix` and `templates/dotnix/modules/users/myUser/default.nix`:
+Compose host and user behavior through Den entities and aspects, as in the executable template at `modules/templates/dotnix/modules/hosts/myHost/configuration.nix` and `modules/templates/dotnix/modules/users/myUser/default.nix`:
 
 ```nix
 { dotnix, ... }:
@@ -69,7 +69,7 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 - Registering an aspect does not activate it. Select `home.development` only for the chosen toolchain; it does not enable host trust/cache settings, Docker, nix-ld, or account shells. It carries Git and its aliases; Kubernetes is not part of it — select `dotnix.home.kubernetes` explicitly when wanted. Workmux/Tuicr Tmux bindings require both their tool aspect and enabled Tmux. Prefix `o` opens TUI popups; Prefix `w` opens Workmux's agents menu. The K9s popup follows `programs.k9s.enable`.
 - Herdr is an explicit Tmux alternative: select `home.terminal-herdr` instead of `home.terminal` for a user who wants Herdr. The variant reuses `home.terminal` and subtracts the multiplexers its subtree pulls in via `excludes`; `home.terminal` and `home.term-ux` keep Tmux and Sesh for tmux users. Selecting Herdr does not change any consumer composition automatically.
 - `host.persistence` selects generic host persistence classes, routing, and NixOS `/persist` defaults without assuming a disk or boot layout; it works without Home Manager. Select `home.persistence` in a user's includes to apply the Home Manager `/persist` baseline only to that home. Select `host.btrfs-root-reset` separately for the existing `@root`/`@root-blank` Btrfs reset policy. Root reset neither selects generic persistence nor enables Disko; the consumer supplies a compatible machine layout.
-- Persistence contribution audit one-liner: `grep -rn 'home.persistence' features/`
+- Persistence contribution audit one-liner: `grep -rn 'home.persistence' modules/features/`
 
 ## Reusable profiles
 

@@ -10,6 +10,9 @@ A collection of reusable configuration features and optional profiles, independe
 **Consumer**:
 A configuration that selects library features and profiles for its concrete hosts and users. The consumer owns those hosts, users, and selections.
 
+**Consumer template**:
+A ready-made starting configuration that consumers copy to bootstrap a new consumer. The library publishes one; the copying consumer owns the result.
+
 **Occupant**:
 A human who uses a machine managed by a consumer. The consumer composes the occupant's account, home, and selections; the library never encodes occupants.
 
