@@ -12,7 +12,6 @@
       git
       git-alias
       ai-tools
-      workmux
       tuicr
       bacon
       just

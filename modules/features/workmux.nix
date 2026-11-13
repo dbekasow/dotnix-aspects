@@ -4,13 +4,12 @@
     let
       yaml = pkgs.formats.yaml { };
       packages = pkgs.llm-agents or inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
-      inherit (packages) pi;
       inherit (packages) workmux;
     in
     {
       config = lib.mkMerge [
         {
-          home.packages = [ workmux pi ];
+          home.packages = [ workmux ];
 
           # Global defaults. A project's .workmux.yaml still overrides these, and
           # `panes` there replaces this list entirely rather than merging.
