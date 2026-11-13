@@ -52,7 +52,8 @@
         # herdr's defaults (catppuccin; 10 MB scrollback already exceeds tmux's
         # 20000-line historyLimit).
         settings = {
-          terminal.default_shell = lib.mkDefault (lib.getExe pkgs.fish);
+          ui.host_cursor = "native";
+          terminal.default_shell = lib.getExe pkgs.fish;
           keys = {
             # Session
             prefix = "ctrl+space";
