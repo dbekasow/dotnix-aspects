@@ -13,7 +13,7 @@
       candidates = [
         { name = "bluetui"; command = lib.getExe pkgs.bluetui; width = "60%"; height = "55%"; keys = { tmux = "B"; herdr = "prefix+shift+b"; }; enable = hostFlag [ "hardware" "bluetooth" "enable" ]; }
         { name = "bottom"; command = lib.getExe pkgs.bottom; width = "95%"; height = "90%"; keys = { tmux = "b"; herdr = "prefix+alt+b"; }; enable = withPrograms.bottom.enable or false; }
-        { name = "lazydocker"; command = lib.getExe pkgs.lazydocker; width = "90%"; height = "85%"; keys = { tmux = "d"; herdr = "prefix+d"; }; enable = withPrograms.lazydocker.enable or false; }
+        { name = "lazydocker"; command = lib.getExe pkgs.lazydocker; width = "90%"; height = "85%"; keys = { tmux = "d"; herdr = "prefix+alt+d"; }; enable = withPrograms.lazydocker.enable or false; }
         { name = "shell"; command = lib.getExe pkgs.fish; width = "80%"; height = "70%"; keys = { tmux = "f"; herdr = "prefix+f"; }; enable = true; }
         { name = "lazygit"; command = lib.getExe pkgs.lazygit; width = "95%"; height = "90%"; keys = { tmux = "g"; herdr = "prefix+alt+g"; }; enable = withPrograms.lazygit.enable or false; }
         { name = "k9s"; command = lib.getExe pkgs.k9s; width = "95%"; height = "90%"; keys = { tmux = "k"; herdr = "prefix+alt+k"; }; enable = withPrograms.k9s.enable or false; }

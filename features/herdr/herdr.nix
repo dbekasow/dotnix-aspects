@@ -49,9 +49,30 @@
         settings = {
           terminal.default_shell = lib.mkDefault (lib.getExe pkgs.fish);
           keys = {
-            prefix = lib.mkDefault "ctrl+space";
-            switch_tab = lib.mkDefault [ "prefix+1..9" "alt+1..9" ];
-            command = lib.mkDefault commandBindings;
+            # Session
+            prefix = "ctrl+space";
+            goto = "prefix+s";
+            settings = "prefix+shfit+s";
+
+            # Workspaces
+            previous_workspace = "prefix+(";
+            next_workspace = "prefix+)";
+            open_worktree = "prefix+shift+o";
+            remove_worktree = "prefix+shift+i";
+
+            # Tabs
+            switch_tab = [ "prefix+1..9" "alt+1..9" ];
+            move_tab_previous = "prefix+<";
+            move_tab_next = "prefix+>";
+            rename_tab = "prefix+comma";
+
+            # Panes
+            last_pane = "prefix+semicolon";
+            split_vertical = "prefix+|";
+            split_horizontal = "prefix+-";
+
+            # Popup launchers (features/popup-launchers.nix).
+            command = commandBindings;
           };
         };
       };
