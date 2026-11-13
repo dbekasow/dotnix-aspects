@@ -19,18 +19,26 @@ field. The default `open_notification_target` binding displaced by
 **Status:** ready-for-agent
 
 - [ ] `prefix+o` opens the menu popup showing the enabled launchers with
-      their dispatch keys, sorted by key
+      their dispatch keys, sorted by key (pending manual switch check)
 - [ ] A single case-sensitive keypress launches the tool inside the popup;
-      Escape or an unknown key closes the menu
-- [ ] The herdr consumer emits exactly one command binding (the menu)
-- [ ] The old herdr key field and the per-tool chords are gone from records
+      Escape or an unknown key closes the menu (pending manual switch check)
+- [x] The herdr consumer emits exactly one command binding (the menu)
+- [x] The old herdr key field and the per-tool chords are gone from records
       and consumer
-- [ ] Duplicate dispatch keys fail evaluation in the herdr consumer
-- [ ] The menu reflects the enable gates evaluated against the consuming
+- [x] Duplicate dispatch keys fail evaluation in the herdr consumer
+- [x] The menu reflects the enable gates evaluated against the consuming
       home-manager configuration
-- [ ] The composition suite stays green; broken assertions are migrated
-      minimally (gating assertions retarget the menu script content,
-      override test moves to the dispatch-key field)
+- [x] Composition suite removed by consumer decision (2026-11-13):
+      the consumer judged the eval-only composition checks not useful; no
+      automated coverage replaces them. Verification is the manual switch
+      check below.
+
+## Comments
+
+- 2026-11-13: Consumer overrode the spec's test-migration decision mid-ticket:
+  `tests/broad-compositions.nix` is deleted wholesale instead of migrated.
+  The suite had already run green over the finished menu change (109/109)
+  before deletion, so the feature was verified once against it.
 - [ ] Manual switch check recorded: dispatch works per tool, Escape/unknown
       closes, and the precedence over the displaced
       `open_notification_target` is confirmed

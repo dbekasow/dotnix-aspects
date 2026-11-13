@@ -12,10 +12,10 @@ behavior is identical everywhere, the composition suite is green.
 
 **Status:** ready-for-agent
 
-- [ ] Every launcher record carries the single dispatch-key field; the
+- [x] Every launcher record carries the single dispatch-key field; the
       per-multiplexer map's tmux entry is gone; its herdr entry remains for now
-- [ ] The tmux consumer binds `prefix+<dispatch key>` and its duplicate-key
+- [x] The tmux consumer binds `prefix+<dispatch key>` and its duplicate-key
       assertion reads the new field
-- [ ] Existing composition tests referencing the old tmux key field migrate
-      to the new field
-- [ ] `nix flake check` green and `nix fmt` produces no diff
+- [x] Moot (2026-11-13): the composition suite was deleted by consumer
+      decision during ticket 02; it ran green over this rename first
+- [x] `nix flake check` green and `nix fmt` produces no diff

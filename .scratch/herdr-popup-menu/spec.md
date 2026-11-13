@@ -103,6 +103,10 @@ disappear — the menu is the single entry point, mirroring the tmux experience.
 - **No new automated coverage** (explicit consumer decision). A good test here
   would only assert external behavior (which bindings exist, what the script
   dispatches); the consumer prefers a manual check instead.
+- **Amendment (2026-11-13, consumer decision):** the existing eval-only
+  composition suite was judged not useful and deleted wholesale during
+  ticket 02 instead of being migrated. It ran green over the finished menu
+  change (109/109) before deletion. Verification is manual on switch only.
 - **Manual verification on switch**: menu opens at `prefix+o`; every enabled
   tool dispatches and runs in the popup; Escape and unknown keys close the
   menu; the displaced `open_notification_target` behavior is confirmed.
