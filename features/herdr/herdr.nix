@@ -3,11 +3,14 @@
   dotnix.home.herdr.homeManager =
     { config
     , lib
+    , osConfig ? null
     , popup-launcher
     , pkgs
     , ...
     }:
     let
+      # `enable` gates are closures from features/popup-launchers.nix; they
+      # must run here, where `config` is the user's home-manager config.
       commandBindings = lib.concatMap
         (launcher:
           let
@@ -17,6 +20,8 @@
             builtins.trace
               "dotnix.home.herdr: omitting popup launcher '${launcher.name}' because it has no `keys.herdr` binding; add one to its record in features/popup-launchers.nix."
               [ ]
+          else if !(launcher.enable { inherit config osConfig; }) then
+            [ ]
           else
             let popup = lib.recursiveUpdate launcher { inherit key; }; in
             [

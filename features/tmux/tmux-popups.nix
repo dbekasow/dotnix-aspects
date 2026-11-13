@@ -1,6 +1,8 @@
 {
-  dotnix.home.tmux.homeManager = { config, lib, popup-launcher, ... }:
+  dotnix.home.tmux.homeManager = { config, lib, osConfig ? null, popup-launcher, ... }:
     let
+      # `enable` gates are closures from features/popup-launchers.nix; they
+      # must run here, where `config` is the user's home-manager config.
       candidates = lib.concatMap
         (launcher:
           let
@@ -10,6 +12,8 @@
             builtins.trace
               "dotnix.home.tmux: omitting popup launcher '${launcher.name}' because it has no `keys.tmux` binding; add one to its record in features/popup-launchers.nix."
               [ ]
+          else if !(launcher.enable { inherit config osConfig; }) then
+            [ ]
           else
             [
               (lib.recursiveUpdate launcher {
