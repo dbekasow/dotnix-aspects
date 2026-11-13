@@ -36,6 +36,11 @@
       programs.herdr = {
         enable = true;
         package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
+        # Herdr persists runtime state (e.g. the onboarding flag) into
+        # config.toml, which fails with EROFS on the default immutable store
+        # link. Merge declared settings into a writable file instead; declared
+        # values still win over state written by Herdr.
+        mutableSettings = lib.mkDefault true;
         # Opinionated defaults — fish is pinned independently of account login
         # shell, and the prefix matches tmux's C-Space. Theme and scrollback keep
         # herdr's defaults (catppuccin; 10 MB scrollback already exceeds tmux's
