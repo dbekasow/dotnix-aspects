@@ -14,7 +14,7 @@ script's content, and the record-override test moves to the dispatch-key
 field. The default `open_notification_target` binding displaced by
 `prefix+o` is verified on first switch.
 
-**Blocked by:** 01 (launcher records carry a single dispatch key)
+**Blocked by:** [01](./01-launcher-records-single-dispatch-key.md)
 
 **Status:** ready-for-agent
 

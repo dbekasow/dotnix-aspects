@@ -32,8 +32,11 @@
       dispatchKeys = map (l: l.key) launchers;
       # One line of sh via herdr's /bin/sh -c: the case arms dispatch the
       # keypress case-sensitively; any other key (including Escape) exits.
+      # ponytail: read -rsn1 is a bashism — fine while every consumer is
+      # NixOS (bash as /bin/sh); switch to head -c1 if a POSIX-sh consumer
+      # ever appears.
       menuScript = lib.concatStringsSep "; " (
-        (map (l: "echo '${l.key}  ${l.name}'") launchers)
+        (map (l: "echo '${l.key} → ${l.name}'") launchers)
         ++ [ "read -rsn1 k" ]
         ++ [ "case $k in ${lib.concatStringsSep " " (map (l: "${l.key}) exec ${l.command} ;;") launchers)} *) exit 0 ;; esac" ]
       );
