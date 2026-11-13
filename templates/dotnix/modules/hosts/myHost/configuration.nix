@@ -1,6 +1,6 @@
 # Native Den entity: the host and its user are registered here, their behavior
 # is composed from the dotnix namespace aspects below.
-{ dotnix, lib, ... }: {
+{ dotnix, ... }: {
   # Register this host and its account. `user` enables account-class settings;
   # `homeManager` opts into integrated Home Manager independently.
   den.hosts.x86_64-linux.myHost.users.myuser.classes = [ "user" "homeManager" ];
@@ -45,19 +45,15 @@
       disko.devices.disk.main.device = "/dev/nvme0n1"; # replace with this host's boot disk
       system.stateVersion = "26.11";
       age.rekey = {
-        # These are consumer-owned native options. Pick paths that fit this repo.
-        secretsDir = ./secrets;
-        generatedSecretsDir = ./secrets/generated;
-        localStorageDir = ./secrets/local;
-        hostPubkey = lib.optionalString
-          (builtins.pathExists ./secrets/ssh_host_ed25519_key.pub)
-          (builtins.readFile ./secrets/ssh_host_ed25519_key.pub);
-        storageMode = "local";
-        # Add consumer-owned master identities before running agenix-rekey.
+        # Resource paths come from the conventional layout
+        # (modules/hosts/<host>/secrets); override the native options to
+        # deviate. Add consumer-owned master identities before running
+        # agenix-rekey.
         masterIdentities = [ ];
       };
-      # Provide real resources through these native options when needed:
-      # security.pki.certificateFiles = [ ./certificates/internal-ca.crt ];
+      # Extra CAs: drop *.crt files into ./certificates (collected via
+      # host.certificates, included by host.core). Set
+      # security.pki.certificateFiles to deviate.
       # security.pam.u2f.settings.authfile = ./secrets/u2f-mappings;
     };
   };

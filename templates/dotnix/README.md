@@ -24,7 +24,7 @@ modules/
 flake.nix
 ```
 
-`modules/parts.nix` is the Den entry point. It imports the library's default adapter, which imports Den and the library namespace, declares the user-scope `popup-launcher` Quirk for Tmux/Herdr, and enables the `flake-scope` and `hostname` batteries. It also imports the optional development tools. The host configuration registers `myHost` and gives `myuser` the `user` and `homeManager` classes; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that account. The user aspect explicitly selects `account.users`; integrated Home Manager remains optional through its separate class. Host and home Age/Rekey aspects are selected separately and use native `age.rekey` resources defined in their owning consumer modules. Add `account.passwords` only to users who need generated passwords; it stays inactive until the host's secret directories and public key are configured. The example explicitly opts into `home.gpg-agent-gui`; `home.graphical` does not force GUI pinentry.
+`modules/parts.nix` is the Den entry point. It imports the library's default adapter, which imports Den and the library namespace, declares the user-scope `popup-launcher` Quirk for Tmux/Herdr, and enables the `flake-scope` and `hostname` batteries. It also imports the optional development tools. The host configuration registers `myHost` and gives `myuser` the `user` and `homeManager` classes; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that account. The user aspect explicitly selects `account.users`; integrated Home Manager remains optional through its separate class. Host and home Age/Rekey aspects are selected separately and wire their `age.rekey` resources from the conventional consumer layout. Add `account.passwords` only to users who need generated passwords; it stays inactive until the host's secret directories and public key are configured. The example explicitly opts into `home.gpg-agent-gui`; `home.graphical` does not force GUI pinentry.
 
 Shell selection is explicit at both scopes: `home.graphical` and `home.dms` are provided to `myuser` for Home Manager configuration, while `host.graphical` is included by the host for NixOS configuration. To select Noctalia, replace `home.dms` with `home.noctalia` in `provides.myuser.includes` and `host.dms` with `host.noctalia` in host `includes`, select `host.noctalia-greeter` instead of `host.dms-greeter`, and remove DMS-only `programs.dms-greeter.*` assignments from the host's `nixos` settings. Greeter resources remain host-owned; see the example below.
 
@@ -41,7 +41,7 @@ services.displayManager.noctalia-greeter.settings.appearance.wallpaper = {
 
 ## Usage
 
-Review `modules/hosts/myHost/configuration.nix` before building or activating. Replace the example disk device, state versions, hardware and user identity with values for your consumer. Provide valid rekey resources for both host and home before building. The template contains no master identity, and the sample disk path is not safe to use as-is.
+Review `modules/hosts/myHost/configuration.nix` before building or activating. Replace the example disk device, state versions, hardware and user identity with values for your consumer. Provide the conventional rekey resources (host and home secrets directories) before building. The template contains no master identity, and the sample disk path is not safe to use as-is.
 
 ```console
 nix develop
@@ -52,9 +52,9 @@ nix build .#nixosConfigurations.myHost.config.system.build.toplevel
 
 ## Secrets and authentication
 
-The consumer owns secret identities, vault directories, certificates and YubiKey mappings. Library features do not derive paths from host or account names. The host and home examples set their own native `age.rekey` directories and leave master identities empty for the consumer to supply. Choose paths that fit your repository; no fixed `modules/hosts/<host>/secrets` layout is required.
+The consumer owns secret identities, vault directories, certificates and YubiKey mappings. The library wires them from a conventional layout: `modules/hosts/<host>/certificates/*.crt`, `modules/hosts/<host>/secrets/{,generated/,local/}` with `ssh_host_ed25519_key.pub`, and `modules/users/<user>/secrets/{,generated/,local/}` with `home-key.pub`. Every wiring is a `mkDefault`; set the native `age.rekey` and `security.pki.*` options to deviate. Master identities stay consumer-owned and empty in the template.
 
-Use native options for additional resources in `modules/hosts/myHost/configuration.nix`, for example `security.pki.certificateFiles` and `security.pam.u2f.settings.authfile`. Select `host.yubikey-pam` only when PAM U2F is wanted; it does not need agenix-rekey or desktop support. Add `account.passwords` only when generated account passwords are wanted and host rekey resources are configured. Set `age.identityPaths` in the host or home module that owns each identity.
+Use native options for additional resources in `modules/hosts/myHost/configuration.nix`, for example `security.pki.certificateFiles` and `security.pam.u2f.settings.authfile`. Select `host.yubikey-pam` only when PAM U2F is wanted; it does not need agenix-rekey or desktop support. Add `account.passwords` only when generated account passwords are wanted and the conventional host secrets layout provides a public key. Set `age.identityPaths` in the host or home module that owns each identity.
 
 The template includes no usable credentials or master identities. Supply valid consumer-owned identities before building or managing secrets; never add private keys or real credentials to this repository. Run `nix run .#generate` and `nix run .#rekey` only after supplying resources appropriate for your consumer.
 
@@ -72,7 +72,7 @@ The library's acceptance build used its pinned nixpkgs revision `8edc0c72e3a38fa
 2. Rename the `dotnix.myuser` aspect key in `default.nix` to match `provides.<name>` in the host aspect.
 3. Select `account.users` in that aspect and add the `user` class to the account; add `homeManager` only when integrated Home Manager is wanted.
 4. Add `account.passwords` to that named user's includes only when generated passwords are wanted; configure native host `age.rekey` directories and public key.
-5. Configure the user's native Home Manager `age.identityPaths` and `age.rekey` options independently, then set existing `home.stateVersion`.
+5. Set the user's native Home Manager `age.identityPaths` and master identities; `age.rekey` resource paths come from the conventional layout. Then set existing `home.stateVersion`.
 
 ## License
 

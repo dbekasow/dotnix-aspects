@@ -6,6 +6,7 @@
       helix-keys
       helix-lsp
       delta
+      difftastic
       gh
       lazygit
       git

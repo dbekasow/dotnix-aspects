@@ -128,6 +128,19 @@ let
       hostPubkey = "home public fixture marker";
     };
   };
+  conventionalResources = evaluate {
+    consumerSelf = populatedSelf;
+    hostIncludes = with dotnix; [ host.age host.age-rekey host.certificates ];
+    userClasses = [ "user" "homeManager" ];
+    userIncludes = [ dotnix.home.age dotnix.home.age-rekey ];
+    hostModule.users.users.fixture.home = "/home/fixture";
+  };
+  conventionalDirsFollowOverride = evaluate {
+    consumerSelf = populatedSelf;
+    hostIncludes = [ dotnix.host.age dotnix.host.age-rekey ];
+    withUser = false;
+    hostModule.age.rekey.secretsDir = "${resourceTree}/relocated-secrets";
+  };
   emptyResources = evaluate {
     hostIncludes = with dotnix; [ host.age host.age-rekey host.yubikey-pam host.niri host.graphical host.dms host.stylix host.certificates ];
     userIncludes = [ dotnix.home.age dotnix.home.age-rekey dotnix.home.niri dotnix.home.stylix ];
@@ -836,6 +849,15 @@ let
     standaloneHerdrWorksWithoutHostOverlay =
       standaloneHerdr.programs.herdr.settings.keys.prefix == "ctrl+a"
       && !(lib.any (entry: entry.description == "bluetui") standaloneHerdr.programs.herdr.settings.keys.command);
+    herdrSwitchesTabsWithAltNumber =
+      terminalHerdr.home-manager.users.fixture.programs.herdr.settings.keys.switch_tab
+      == [ "prefix+1..9" "alt+1..9" ];
+    herdrDefersTabNamesToAutoTitle =
+      terminalHerdr.home-manager.users.fixture.programs.herdr.settings.ui.prompt_new_tab_name == false;
+    herdrAutostartsFromInteractiveFish =
+      lib.hasInfix "HERDR_ENV" terminalHerdr.home-manager.users.fixture.programs.fish.interactiveShellInit;
+    herdrAutostartYieldsToComposedMultiplexers =
+      !(lib.hasInfix "HERDR_ENV" popupEnabled.home-manager.users.fixture.programs.fish.interactiveShellInit);
     agentToolsResolveWithoutGlobalOverlay =
       let
         systemConfig = agentToolsWithoutGlobalOverlay;
@@ -982,6 +1004,25 @@ let
     populatedCertificateFiles =
       lib.unique populatedResources.security.pki.certificateFiles == [ "${resourceTree}/explicit-root.crt" ]
       && !(lib.elem "${resourceTree}/modules/hosts/fixture/certificates/fixture.crt" populatedResources.security.pki.certificateFiles);
+    conventionalResourcesAreWired =
+      let home = conventionalResources.home-manager.users.fixture; in
+      conventionalResources.age.rekey.secretsDir == "${resourceTree}/modules/hosts/fixture/secrets"
+      && conventionalResources.age.rekey.generatedSecretsDir == "${resourceTree}/modules/hosts/fixture/secrets/generated"
+      && conventionalResources.age.rekey.localStorageDir == "${resourceTree}/modules/hosts/fixture/secrets/local"
+      && conventionalResources.age.rekey.hostPubkey == "public fixture marker\\n"
+      && conventionalResources.age.rekey.storageMode == "local"
+      && lib.unique (map toString conventionalResources.security.pki.certificateFiles)
+      == [ "${resourceTree}/modules/hosts/fixture/certificates/fixture.crt" ]
+      && home.age.rekey.secretsDir == "${resourceTree}/modules/users/fixture/secrets"
+      && home.age.rekey.generatedSecretsDir == "${resourceTree}/modules/users/fixture/secrets/generated"
+      && home.age.rekey.localStorageDir == "${resourceTree}/modules/users/fixture/secrets/local"
+      && home.age.rekey.hostPubkey == "public fixture marker\\n"
+      && home.age.rekey.storageMode == "local";
+    conventionalDirsFollowSecretsDirOverride =
+      conventionalDirsFollowOverride.age.rekey.secretsDir == "${resourceTree}/relocated-secrets"
+      && conventionalDirsFollowOverride.age.rekey.generatedSecretsDir == "${resourceTree}/relocated-secrets/generated"
+      && conventionalDirsFollowOverride.age.rekey.localStorageDir == "${resourceTree}/relocated-secrets/local"
+      && conventionalDirsFollowOverride.age.rekey.hostPubkey == "";
     explicitNativeResourcesOverrideGuessedPaths =
       explicitNativeResources.age.rekey.secretsDir == "${resourceTree}/explicit-host-secrets"
       && explicitNativeResources.age.rekey.generatedSecretsDir == "${resourceTree}/explicit-host-generated"
