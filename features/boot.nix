@@ -1,9 +1,6 @@
 {
   dotnix.host.boot.nixos = { lib, pkgs, ... }: {
     boot = {
-      initrd.systemd.enable = true;
-      initrd.verbose = false;
-
       # VMs and nixos-anywhere dry-runs need this off.
       loader.efi.canTouchEfiVariables = lib.mkDefault true;
       loader.timeout = lib.mkDefault 3;

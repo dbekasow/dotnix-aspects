@@ -7,7 +7,13 @@
   '';
 
   flake-file.inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Ride the library's own locked universe instead of drifting with
+    # nixpkgs-unstable: a fresh consumer evaluates and builds against the
+    # exact pins the library tests. Re-pin freely once the skeleton runs.
+    nixpkgs.follows = "dotnix/nixpkgs";
+    den.follows = "dotnix/den";
+    home-manager.follows = "dotnix/home-manager";
+
     import-tree.url = "github:vic/import-tree";
 
     flake-parts = {
@@ -15,24 +21,7 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
-    den = {
-      url = "github:denful/den/7594405b45e0ce2d5a418fe104a26e17f6b1dd8f";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    dotnix = {
-      url = "github:dbekasow/dotnix-aspects";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        den.follows = "den";
-        home-manager.follows = "home-manager";
-      };
-    };
+    dotnix.url = "github:dbekasow/dotnix-aspects";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };

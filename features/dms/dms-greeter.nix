@@ -7,7 +7,7 @@
     };
   };
   dotnix.host.dms-greeter.nixos =
-    { pkgs, ... }:
+    { ... }:
     {
       imports = [ inputs.dank-greeter.nixosModules.default ];
 
@@ -19,8 +19,6 @@
           save = true;
           path = "/tmp/dms-greeter.log";
         };
-
-        quickshell.package = pkgs.quickshell;
       };
     };
 

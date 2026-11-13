@@ -4,7 +4,6 @@ let
     imports = [ dotnix.host.btrfs-root-reset.nixos ];
 
     boot = {
-      initrd.systemd.enable = true;
       initrd.systemd.emergencyAccess = true;
       initrd.supportedFilesystems.btrfs = true;
       initrd.systemd.initrdBin = [

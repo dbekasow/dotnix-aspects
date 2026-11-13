@@ -32,7 +32,6 @@ let
   };
 
   probeNode = {
-    boot.initrd.systemd.enable = true;
     boot.resumeDevice = "/dev/vda";
     boot.initrd.systemd.services.systemd-hibernate-resume = delayedResume;
     boot.initrd.systemd.services.rollback-probe = rollbackProbe;
@@ -47,7 +46,6 @@ pkgs.testers.runNixOSTest {
     ordered = { lib, ... }: {
       imports = [ dotnix.host.btrfs-root-reset.nixos ];
       boot = {
-        initrd.systemd.enable = true;
         resumeDevice = "/dev/vda";
         initrd.systemd.services.systemd-hibernate-resume = delayedResume;
         initrd.systemd.services.rollback-root.script = lib.mkForce rollbackProbe.script;
@@ -55,7 +53,6 @@ pkgs.testers.runNixOSTest {
     };
 
     cold = _: {
-      boot.initrd.systemd.enable = true;
       boot.initrd.systemd.services.rollback-probe = {
         description = "Non-destructive cold-boot rollback ordering probe";
         wantedBy = [ "initrd.target" ];

@@ -47,9 +47,9 @@
       age.rekey = {
         # Resource paths come from the conventional layout
         # (modules/hosts/<host>/secrets); override the native options to
-        # deviate. Add consumer-owned master identities before running
-        # agenix-rekey.
-        masterIdentities = [ ];
+        # deviate. Throwaway master pubkey so a fresh clone evaluates and
+        # demos against a key nobody holds; replace before going live.
+        extraEncryptionPubkeys = [ "age178wfu8598yp9vgcq3c5vwfmvtsqncypd0gkmal873yzl0y8zq5ls07q2cz" ];
       };
       # Extra CAs: drop *.crt files into ./certificates (collected via
       # host.certificates, included by host.core). Set

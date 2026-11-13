@@ -25,8 +25,9 @@
           (builtins.pathExists ./secrets/home-key.pub)
           (builtins.readFile ./secrets/home-key.pub);
         storageMode = "local";
-        # Add consumer-owned master identities before running agenix-rekey.
-        masterIdentities = [ ];
+        # Throwaway master pubkey so a fresh clone evaluates and demos
+        # against a key nobody holds; replace before going live.
+        extraEncryptionPubkeys = [ "age178wfu8598yp9vgcq3c5vwfmvtsqncypd0gkmal873yzl0y8zq5ls07q2cz" ];
       };
       # RBW (Bitwarden CLI) needs the account address as a native Home Manager
       # option; it is the user's own identity and stays out of the shared aspect.
