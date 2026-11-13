@@ -724,6 +724,7 @@ let
             width = "20%";
             height = "20%";
             keys.tmux = "z";
+            enable = _: true;
           }
           {
             name = "herdr-only";
@@ -731,6 +732,7 @@ let
             width = "20%";
             height = "20%";
             keys.herdr = "prefix+alt+q";
+            enable = _: true;
           }
         ];
       }
@@ -747,7 +749,7 @@ let
           home.username = "fixture";
           home.homeDirectory = "/home/fixture";
           home.stateVersion = "25.11";
-          programs.herdr.settings.keys.prefix = "ctrl+a";
+          programs.herdr.settings.keys.prefix = lib.mkForce "ctrl+a";
           assertions = [
             {
               assertion = !(builtins.hasAttr "osConfig" specialArgs);
@@ -860,7 +862,7 @@ let
       !(lib.hasInfix "HERDR_ENV" popupEnabled.home-manager.users.fixture.programs.fish.interactiveShellInit);
     herdrAutoTitleIsLinkedDeclaratively =
       let
-        activation = terminalHerdr.home-manager.users.fixture.home.activation.herdrAutoTitle.text;
+        activation = terminalHerdr.home-manager.users.fixture.home.activation.herdrAutoTitle.data;
       in
       lib.hasInfix "plugin link" activation
       && lib.hasInfix "herdr-auto-title" activation;
