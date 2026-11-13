@@ -15,6 +15,8 @@ in
 
     programs.fish = {
       enable = lib.mkDefault true;
+      # Empty fish_greeting disables the "Welcome to fish" banner.
+      interactiveShellInit = "set -g fish_greeting";
 
       plugins =
         with pkgs.fishPlugins;
