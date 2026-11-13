@@ -34,7 +34,7 @@ Compose host and user behavior through Den entities and aspects, as in the execu
 
   den.aspects.myHost = {
     provides.myuser.includes = [ dotnix.myuser ];
-    includes = with dotnix.host; [ core base network age-rekey ];
+    includes = with dotnix.host; [ core boot-baseline network age-rekey ];
     nixos.system.stateVersion = "26.11";
   };
 
@@ -73,13 +73,13 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 
 ## Reusable profiles
 
-Profiles are optional, purpose-named combinations of reusable features for one selection scope — domain-oriented convenience bundles, not occupant archetypes and not a base-to-workstation inheritance chain. Consumers can include individual aspects directly and make host system choices separately from user Home Manager choices. For example, a host may select `host.boot`, `host.network`, `host.disko`, `host.niri`, and `host.graphical`, while one user selects `home.niri`, `home.graphical`, `home.desktop-apps`, and `home.terminal`. Mixed profiles such as `desktop` expose independent `host.desktop` and `home.desktop` selectors; host selection never configures a user's home implicitly.
+Profiles are optional, purpose-named combinations of reusable features for one selection scope — domain-oriented convenience bundles, not occupant archetypes and not a boot-baseline-to-workstation inheritance chain. Consumers can include individual aspects directly and make host system choices separately from user Home Manager choices. For example, a host may select `host.boot`, `host.network`, `host.disko`, `host.niri`, and `host.graphical`, while one user selects `home.niri`, `home.graphical`, `home.desktop-apps`, and `home.terminal`. Mixed profiles such as `desktop` expose independent `host.desktop` and `home.desktop` selectors; host selection never configures a user's home implicitly.
 
 The profile inventory, with each profile's purpose:
 
 | Profile                                                              | Roles      | Purpose                                                                              |
 | -------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------ |
-| `base`                                                               | host       | Shared boot and journald behavior without choosing a bootloader or disk layout.      |
+| `boot-baseline`                                                      | host       | Shared boot and journald behavior without choosing a bootloader or disk layout.      |
 | `core`                                                               | host, home | Universal baseline for its role; standalone and overrides nothing.                   |
 | `shells`                                                             | home       | Login shells (fish, nushell) without their UX tooling.                               |
 | `graphical`                                                          | host, home | Graphical foundation including Stylix; compositor support and greeter stay explicit. |
@@ -91,7 +91,7 @@ The profile inventory, with each profile's purpose:
 | `terminal-herdr`                                                     | home       | `terminal` with Herdr instead of the multiplexers, via `excludes`.                   |
 | `development`                                                        | home       | Editor, VCS, and automation toolchain, including Git and its aliases.                |
 | `mail`                                                               | home       | Terminal mail: aerc, maildir.                                                        |
-| `server`                                                             | host       | Headless baseline: base, ssh, security.                                              |
+| `server`                                                             | host       | Headless baseline: boot-baseline, ssh, security.                                     |
 | `workstation`                                                        | host       | Optional laptop-oriented bundle; every member stays individually selectable.         |
 | `term-cli`, `term-monitoring`, `term-nix`, `term-secrets`, `term-ux` | home       | Occupant-granular terminal building blocks, selectable without `terminal`.           |
 
