@@ -94,11 +94,9 @@
           after-delay.enable = true;
         };
 
-        # Workspace trust
-        workspace-trust.trusted = [
-          "~/.dotnix/*"
-          "~/.dotnix-aspects/*"
-        ];
+        # workspace-trust exists only on unreleased helix master (PRs #15177,
+        # #15857); 25.07.1 rejects unknown fields. Re-add once installed helix
+        # ships it — 25.07.1 has no trust model, LSP runs everywhere anyway.
       };
     };
   };
