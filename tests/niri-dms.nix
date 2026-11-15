@@ -1,5 +1,5 @@
+{ source ? builtins.getFlake (toString ../.) }:
 let
-  source = builtins.getFlake (toString ../.);
   inputs = source.inputs // { dotnix = source; self = source; };
   inherit (inputs) nixpkgs;
   inherit (nixpkgs) lib;
@@ -16,11 +16,7 @@ let
     }:
     let
       fixture = {
-        imports = [
-          inputs.den.flakeModule
-          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
-          ({ den, ... }: { den.default.includes = [ den.batteries.flake-scope ]; })
-        ];
+        imports = [ inputs.dotnix.flakeModules.default ];
         den.hosts.${system}.fixture = {
           users.fixture.classes = [ "homeManager" ];
           instantiate = args:
@@ -88,11 +84,7 @@ let
   standaloneHome =
     let
       fixture = {
-        imports = [
-          inputs.den.flakeModule
-          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
-          ({ den, ... }: { den.default.includes = [ den.batteries.flake-scope ]; })
-        ];
+        imports = [ inputs.dotnix.flakeModules.default ];
         den.homes.${system}.fixture.pkgs = import inputs.nixpkgs {
           inherit system;
           overlays = [ inputs.niri.overlays.niri ];
@@ -146,11 +138,7 @@ let
   multiUser =
     let
       fixture = {
-        imports = [
-          inputs.den.flakeModule
-          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
-          ({ den, ... }: { den.default.includes = [ den.batteries.flake-scope ]; })
-        ];
+        imports = [ inputs.dotnix.flakeModules.default ];
         den.hosts.${system}.fixture = {
           users = {
             alice.classes = [ "homeManager" ];
@@ -206,21 +194,25 @@ let
     };
   bothShells = evaluate {
     userIncludes = with dotnix; [ home.niri home.dms home.noctalia ];
+    hostModule = {
+      boot.loader.grub = { enable = true; device = "nodev"; };
+      fileSystems."/" = { device = "/dev/fixture-root"; fsType = "ext4"; };
+    };
   };
   conflictOnly = builtins.getEnv "NIRI_DMS_CONFLICT_ONLY" == "1";
 
   assertions = {
-    integratedNiriFinalConfig = niriOnly.home.programs.niri.finalConfig != null;
+    integratedNiriFinalConfig = niriOnly.home.programs.niri.finalConfigFile != null;
     integratedNiriActivationPackage = niriOnly.home.home.activationPackage.drvPath != "";
-    integratedNiriDmsFinalConfig = niriDms.home.programs.niri.finalConfig != null;
+    integratedNiriDmsFinalConfig = niriDms.home.programs.niri.finalConfigFile != null;
     integratedNiriPackagePropagated =
       niriOnly.home.programs.niri.package.outPath == niriOnly.config.programs.niri.package.outPath;
     disabledHostCanOverrideNiri = !niriDisabled.config.programs.niri.enable;
-    disabledProviderFinalConfig = niriDisabled.home.programs.niri.finalConfig != null;
+    disabledProviderFinalConfig = niriDisabled.home.programs.niri.finalConfigFile != null;
     disabledProviderPackagePropagated =
       niriDisabled.home.programs.niri.package.outPath == niriDisabled.config.programs.niri.package.outPath;
     disabledProviderActivationPackage = niriDisabled.home.home.activationPackage.drvPath != "";
-    standaloneNiriFinalConfig = niriOnlyHome.home.programs.niri.finalConfig != null;
+    standaloneNiriFinalConfig = niriOnlyHome.home.programs.niri.finalConfigFile != null;
     standaloneNiriActivationPackage = niriOnlyHome.home.home.activationPackage.drvPath != "";
     niriHostDoesNotEnableGlobalPolkitAgent = !niriOnly.config.systemd.user.services.niri-flake-polkit.enable;
     niriHomeSelectsPolkitAgent =
@@ -245,15 +237,17 @@ let
     noctaliaUserGetsNoDmsRuntime =
       multiUser.bob.programs.noctalia.enable
       && !(multiUser.bob.systemd.user.services ? dms);
-    sameTargetShellConflictHasDiagnostic = builtins.any
-      (assertion:
-        !assertion.assertion
-        && assertion.message == "DMS and Noctalia cannot both be selected for the same Home Manager target.")
-      bothShells.home.assertions;
+    sameTargetShellConflictHasDiagnostic =
+      !(builtins.tryEval bothShells.config.system.build.toplevel.drvPath).success
+      && builtins.any
+        (assertion:
+          !assertion.assertion
+          && assertion.message == "DMS and Noctalia cannot both be selected for the same Home Manager target.")
+        bothShells.home.assertions;
     userNiriSelectionDoesNotEnableHost = !(userNiriOnly.config.programs.niri.enable or false);
     homeNiriWorksWithoutHostOverlay =
       !(overlayFreeHomeNiri.config.programs.niri.enable or false)
-      && overlayFreeHomeNiri.home.programs.niri.finalConfig != null
+      && overlayFreeHomeNiri.home.programs.niri.finalConfigFile != null
       && builtins.hasAttr "Mod+Q" overlayFreeHomeNiri.home.programs.niri.settings.binds;
     niriOnlyHasGeneralBinding = builtins.hasAttr "Mod+Q" niriOnlyHome.home.programs.niri.settings.binds;
     niriOnlyHasNoDmsBinding = !(builtins.hasAttr "Mod+Space" niriOnlyHome.home.programs.niri.settings.binds);

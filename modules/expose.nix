@@ -1,7 +1,5 @@
 { inputs, lib, ... }:
 let
-  modules = ./.;
-
   # Use pinned import-tree defaults for entry-point discovery.
   discoverModules = root: lib.pipe inputs.import-tree [
     (i: i.addPath "${root}")
@@ -14,7 +12,8 @@ let
 
   consumerAdapter = (import ./integration/default.nix) inputs.self;
 
-  devParts = map (name: "${modules}/parts/${name}") [
+  # Keep imports within the flake source instead of copying the whole modules tree.
+  devParts = map (name: ./parts + "/${name}") [
     "flake-parts.nix"
     "age.nix"
     "devshell.nix"
@@ -23,7 +22,7 @@ let
   ];
 in
 {
-  imports = featureModules ++ profileModules ++ devParts;
+  imports = featureModules ++ profileModules ++ devParts ++ [ ./parts/consumer-contract-checks.nix ];
 
   config = {
     flake-file.outputs = ''

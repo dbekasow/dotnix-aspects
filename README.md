@@ -107,7 +107,7 @@ Compose host system functions and personal Home Manager choices independently:
 | Account selection | `account.users`                                                                                                            | Consumer selects account foundation per named user; `account.passwords` is separate and opt-in.                 |
 | Home selection    | `home.core`, `home.desktop`, `home.development`, `home.mail`, `home.terminal`, `home.office`, `home.browsers`, `home.niri` | Consumer chooses personal Home Manager features and `home.stateVersion`; integrated Home Manager is optional.   |
 
-`host.core` and `home.core` are separate optional profiles; select each on its owning entity. `host.workstation` remains a convenience bundle; hosts can select its individual features instead. `host.server` provides only its intentionally small reusable behavior. `host.disko` supplies reusable geometry but no device default: every host importing it must set native `disko.devices.disk.main.device` to its own disk path. Run `nix eval --impure --file tests/headless-composition.nix` to verify the server remains independent of workstation tuning and disk configuration.
+`host.core` and `home.core` are separate optional profiles; select each on its owning entity. `host.workstation` remains a convenience bundle; hosts can select its individual features instead. `host.server` provides only its intentionally small reusable behavior. `host.disko` supplies reusable geometry but no device default: every host importing it must set native `disko.devices.disk.main.device` to its own disk path. The consumer contract checks below verify the server remains independent of workstation tuning and disk configuration.
 
 Docker selections are independent: `dotnix.host.docker` enables the rootful daemon and rootless capability, `dotnix.account.docker` opts only that account into subordinate-ID allocation and linger, and `dotnix.home.docker` adds LazyDocker and Dive. Account settings do not add Docker group membership or grant extra root privileges. Selecting the daemon or `home.development` does not persist rootless state; select `dotnix.home.docker-persistence` for each intended account, with `host.home-manager`, `host.persistence` routing, and `home.persistence`, when `.local/share/docker` should survive cleanup. Selecting a Docker aspect does not select `home.development`.
 
@@ -170,6 +170,20 @@ DMS/matugen is the single source of truth for the shell and its ~20 matugen temp
 Stylix is part of the `graphical` profiles on both roles; explicit `dotnix.host.stylix`/`dotnix.home.stylix` selections remain for hosts and homes that want theming without the rest of the graphical foundation. Set consumer wallpapers through native NixOS or Home Manager `stylix.image` options; the feature does not infer an image from consumer repository paths. Theme and font defaults remain overridable through native Stylix options.
 
 **Noctalia** is a second palette authority: it generates its own wallpaper-based palettes and must not double-theme apps — keep its built-in app templates off and let stylix own app themes. When the matugen bridge is wanted, feed matugen's output through `programs.noctalia.customPalettes` (`theme.source = "custom"`).
+
+## Consumer contract checks
+
+Run `nix fmt` and `nix flake check --no-write-lock-file --accept-flake-config` before submitting changes. The regular check evaluates the headless composition, headless security, and Niri/DMS consumer contracts through `flakeModules.default` and their final NixOS or Home Manager outputs. It also builds their check derivations alongside the existing formatter, generated-flake consistency, and pre-commit checks. The behavioral contracts are evaluated by Nix; building their marker derivations does not activate a system or prove runtime behavior.
+
+Extend the focused fixtures in `tests/` when changing a related consumer contract, or register a similarly focused fixture in `modules/parts/consumer-contract-checks.nix` so it runs with the same gate. The headless and Niri/DMS fixtures accept the library flake as an argument for pure flake evaluation; for a direct run against the checkout, use:
+
+```console
+nix eval --impure --raw --file tests/headless-composition.nix --apply 'fixture: fixture { }'
+nix eval --impure --json --file tests/niri-dms.nix --apply 'fixture: fixture { }'
+bash tests/niri-dms-conflict.sh
+```
+
+The last command separately exercises the diagnostic on a conflicting system evaluation. The separate consumer-template build and VM checks are not part of these evaluation-only contracts.
 
 ## Key Design Decisions
 

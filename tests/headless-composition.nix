@@ -1,5 +1,5 @@
+{ source ? builtins.getFlake (toString ../.) }:
 let
-  source = builtins.getFlake (toString ../.);
   inputs = source.inputs // { dotnix = source; self = source; };
   dotnix = source.denful.dotnix;
   system = "x86_64-linux";
@@ -18,11 +18,7 @@ let
     { hostIncludes ? [ ], hostModule ? { } }:
     let
       fixture = {
-        imports = [
-          inputs.den.flakeModule
-          (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
-          ({ den, ... }: { den.default.includes = [ den.batteries.flake-scope ]; })
-        ];
+        imports = [ inputs.dotnix.flakeModules.default ];
         den.hosts.${system}.fixture = { };
         den.aspects.fixture = {
           includes = hostIncludes;
