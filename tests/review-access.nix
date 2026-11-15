@@ -60,6 +60,7 @@ let
   tmuxAlice = tmux.home-manager.users.alice;
   tmuxBob = tmux.home-manager.users.bob;
   tmuxConfig = tmuxAlice.xdg.configFile."tmux/tmux.conf".text;
+  tmuxHunkEntry = ''"hunk" r 'display-popup -EE -w 90% -h 85% -T " hunk " -d "#{pane_current_path}" "${lib.getExe selectedHunk}"'';
   herdr = evaluate {
     aliceIncludes = [ dotnix.home.hunk dotnix.home.herdr ];
     bobIncludes = [ dotnix.home.herdr ];
@@ -94,8 +95,7 @@ let
       && !(builtins.elem selectedHunk tmuxBob.home.packages)
       && tmuxAlice.programs.fish.shellAbbrs.cr == lib.getExe selectedHunk
       && lib.hasInfix ''bind -N "TUI popups" o display-menu'' tmuxConfig
-      && lib.hasInfix ''"hunk" r 'display-popup -EE -w 90% -h 85%'' tmuxConfig
-      && lib.hasInfix (builtins.unsafeDiscardStringContext (lib.getExe selectedHunk)) tmuxConfig
+      && lib.hasInfix (builtins.unsafeDiscardStringContext tmuxHunkEntry) tmuxConfig
       && builtins.length (lib.splitString ''"hunk" r'' tmuxConfig) == 2
       && !(lib.hasInfix "hunk" tmuxBob.xdg.configFile."tmux/tmux.conf".text)
       && !(lib.hasInfix "-T prefix r display-popup" tmuxConfig)
