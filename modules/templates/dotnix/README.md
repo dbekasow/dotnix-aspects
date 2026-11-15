@@ -50,6 +50,20 @@ nix flake check
 nix build .#nixosConfigurations.myHost.config.system.build.toplevel
 ```
 
+## Storage, power, and optional host features
+
+The host explicitly selects `host.boot-systemd`, `host.disko`, and `host.persistence`: the example uses systemd-boot and a Btrfs layout inside LUKS, with `/persist` for selected persistent state. Review the layout and replace the sample disk before use. Disko's existing example enables FIDO2 enrollment without a client PIN and recovery-key enrollment; removing the optional `host.yubikey` feature does not disable or redesign that enrollment. Provision compatible credentials and a recovery path before installing, and review the Disko configuration before any destructive disk operation.
+
+Root reset is **not** selected by default. To opt in, add `host.btrfs-root-reset` to the host includes only after verifying a working systemd initrd and the expected Btrfs filesystem labeled `nixos`, with `@root` and an `@root-blank` snapshot. The reset deletes and recreates `@root` on boot; arrange persistence and backups for everything that must survive. It neither selects Disko nor generic persistence.
+
+Other optional host additions are independent:
+
+- `host.performance` applies laptop-oriented VM sysctl, zram, and trim tuning; review those choices against the machine and workload before selecting it.
+- `host.geolocation` selects GeoClue as the location provider and configures BeaconDB and gammastep; review the network location policy before selecting it. Other selected components may independently enable the GeoClue service.
+- `host.yubikey` enables PC/SC and YubiKey udev support. Authentication via `host.yubikey-pam` is separate and needs an appropriate native U2F authfile or NixOS default mapping; review its host-wide PAM effects before enabling it.
+
+`host.power` supplies general power services, not a hibernation recipe. When migrating a host that relied on the former workstation defaults, explicitly configure its native resume device, any swapfile resume offset and sleep mode, and its desired systemd sleep, logind key/lid, and Upower battery policy. Validate those values and the machine's hibernation support rather than copying another host's device or offset.
+
 ## Secrets and authentication
 
 The consumer owns secret identities, vault directories, certificates and YubiKey mappings. The library wires them from a conventional layout: `modules/hosts/<host>/certificates/*.crt`, `modules/hosts/<host>/secrets/{,generated/,local/}` with `ssh_host_ed25519_key.pub`, and `modules/users/<user>/secrets/{,generated/,local/}` with `home-key.pub`. Every wiring is a `mkDefault`; set the native `age.rekey` and `security.pki.*` options to deviate. Master identities stay consumer-owned and empty in the template.
