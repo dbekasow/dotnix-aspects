@@ -6,14 +6,24 @@
       account.users # create this explicitly selected OS account
       home.terminal # shells, tools, multiplexer
       home.development # editor, vcs, automation
+      home.ghostty # terminal
+      home.firefox # browser
+      home.thunderbird # mail
       home.core # universal home baseline: age, age-rekey, ssh
       home.persistence # generic persistence baseline for this home
     ];
 
     user.extraGroups = [ "wheel" "networkmanager" ];
 
-    homeManager = {
+    homeManager = { config, ... }: {
       home.stateVersion = "26.11";
+      # These launch keys belong to this consumer's chosen applications.
+      programs.niri.settings.binds = with config.lib.niri.actions; {
+        "Mod+T".action = spawn "ghostty";
+        "Mod+B".action = spawn "firefox";
+        "Mod+O".action = spawn "thunderbird";
+      };
+
       # Home identity and rekey resources are owned by this consumer home,
       # independently of host authentication.
       # Set age.identityPaths here when this home uses a local age identity.
