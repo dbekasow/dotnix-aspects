@@ -1,7 +1,6 @@
 { dotnix, ... }: {
   dotnix.home.development = {
     includes = with dotnix.home; [
-      llm-agents
       helix
       helix-keys
       helix-lsp
@@ -11,11 +10,9 @@
       lazygit
       git
       git-alias
-      ai-tools
       tuicr
       bacon
       just
-      repomix
       watchexec
     ];
   };
