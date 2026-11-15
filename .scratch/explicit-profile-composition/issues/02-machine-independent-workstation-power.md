@@ -4,7 +4,7 @@
 
 **Blocked by:** [01: Restore executable consumer contract checks](01-restore-consumer-contract-checks.md).
 
-**Status:** claimed
+**Status:** resolved
 
 **Spec:** [Canonical specification](../spec.md).
 
@@ -16,14 +16,22 @@
 
 Extend an existing host/control fixture and compare only the power/storage options promised by this slice. Do not compare entire configurations, enumerate CPU/storage combinations, or add a new Btrfs/hibernate VM.
 
-- [ ] Workstation selects only boot-baseline, Bluetooth, network, network-Wi-Fi, PipeWire, and power. It selects no bootloader, disk layout, generic persistence, root reset, performance tuning, geolocation, or YubiKey support.
-- [ ] General power retains Upower, power-profiles-daemon, and its existing diagnostic tools. Remove its Intel thermald, specific resume-device, deep-sleep, sleep-permission/delay, key/lid-action, and battery-threshold/action overrides. Let platform defaults or explicit native host settings apply; do not add detection or a new hibernation switch.
-- [ ] An otherwise equivalent consumer control fixture proves that power and workstation introduce none of those removed policies. Explicit native host bootloader, filesystem, resume, sleep, and battery choices remain effective.
-- [ ] The existing performance feature remains directly selectable with its current tuning unchanged. The other removed capabilities remain individually available.
-- [ ] The template retains its explicit Btrfs/LUKS, bootloader, persistence, and hardware reference, but selects no root reset, tuning, geolocation, or YubiKey feature by default. Explain those as opt-in additions with prerequisites and consequences.
-- [ ] Keep disk geometry, encryption/enrollment mechanics, resource identities, and state versions unchanged. Removing the YubiKey feature is not a redesign of the existing Disko enrollment example.
-- [ ] Cover the new workstation/power contract in the regular consumer gate with a small host/control scenario and explicit overrides. Reuse the existing headless-server regression instead of duplicating it. Check emitted behavior, not include-list lengths or private helper structure.
-- [ ] Update the current profile and template guidance, including the warning that a host adopting this change must explicitly preserve its previous custom hibernation recipe.
-- [ ] Formatter, full flake checks, affected behavioral checks, and template derivation evaluation pass. A completed system closure build remains part of ticket 06; do not claim evaluation proves a completed build.
+- [x] Workstation selects only boot-baseline, Bluetooth, network, network-Wi-Fi, PipeWire, and power. It selects no bootloader, disk layout, generic persistence, root reset, performance tuning, geolocation, or YubiKey support.
+- [x] General power retains Upower, power-profiles-daemon, and its existing diagnostic tools. Remove its Intel thermald, specific resume-device, deep-sleep, sleep-permission/delay, key/lid-action, and battery-threshold/action overrides. Let platform defaults or explicit native host settings apply; do not add detection or a new hibernation switch.
+- [x] An otherwise equivalent consumer control fixture proves that power and workstation introduce none of those removed policies. Explicit native host bootloader, filesystem, resume, sleep, and battery choices remain effective.
+- [x] The existing performance feature remains directly selectable with its current tuning unchanged. The other removed capabilities remain individually available.
+- [x] The template retains its explicit Btrfs/LUKS, bootloader, persistence, and hardware reference, but selects no root reset, tuning, geolocation, or YubiKey feature by default. Explain those as opt-in additions with prerequisites and consequences.
+- [x] Keep disk geometry, encryption/enrollment mechanics, resource identities, and state versions unchanged. Removing the YubiKey feature is not a redesign of the existing Disko enrollment example.
+- [x] Cover the new workstation/power contract in the regular consumer gate with a small host/control scenario and explicit overrides. Reuse the existing headless-server regression instead of duplicating it. Check emitted behavior, not include-list lengths or private helper structure.
+- [x] Update the current profile and template guidance, including the warning that a host adopting this change must explicitly preserve its previous custom hibernation recipe.
+- [x] Formatter, full flake checks, affected behavioral checks, and template derivation evaluation pass. A completed system closure build remains part of ticket 06; do not claim evaluation proves a completed build.
 
 Do not migrate the live dotnix consumer, add aliases or options, change inputs/locks, or activate a system. This slice does not redesign unrelated application or compositor behavior.
+
+## Answer
+
+Implemented in `abc76f5`, with integration synchronization `8257af5`. Workstation now contains only the specified equipment features; power keeps its services/diagnostic tool without prescribing machine-specific policy. Equivalent control/native-override assertions extend the existing headless fixture. Template storage, enrollment and hardware remain intact; optional host choices and hibernation migration are documented.
+
+Vertical power/workstation/template regressions failed before implementation and passed afterwards. Formatter, full built flake check, focused headless/Niri checks (48 baseline assertions) and real unchanged copied-template derivation evaluation exited 0. Exact commands and logs: `/tmp/epc-02-evidence/`. Template closure build is not claimed; it remains ticket 06. GeoClue can independently be enabled by another template component even though `host.geolocation` is not selected; documentation distinguishes this from selecting the location provider.
+
+The coordinator inspected the production/test diffs and reran `nix fmt` plus `nix flake check --no-write-lock-file --accept-flake-config` on the combined 02/04/05 integration at `325e051` (both exit 0; `/tmp/epc-mid-format.log`, `/tmp/epc-mid-check.log`). Conflicting shared profile, check-registration and guidance edits were combined without restoring implicit selections. Runtime, activation and incompatible non-host systems are not covered.
