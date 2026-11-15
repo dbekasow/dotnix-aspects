@@ -12,6 +12,5 @@
     zoxide
     sesh
     tmux
-    workmux # tmux-coupled: spawns agents in tmux panes
   ];
 }
