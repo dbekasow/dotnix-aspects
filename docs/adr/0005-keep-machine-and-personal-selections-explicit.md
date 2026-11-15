@@ -1,6 +1,6 @@
 # Keep machine and personal selections explicit
 
-Status: accepted target design; not implemented. Implementation requires separate approval.
+Status: accepted; implementation integrated. Verification and remaining limits are recorded in the [integration ticket](../../.scratch/explicit-profile-composition/issues/06-verify-integrated-reference-consumer.md).
 
 Optional profiles remain domain-oriented conveniences as established in
 [ADR 0002](0002-occupant-composition-stays-consumer-owned.md). Their convenience
@@ -62,6 +62,7 @@ its native device and power policy explicitly when adopting this design.
 The design supports a workstation without storage assumptions, a graphical
 family home without development or agent tools, separate Tmux and Herdr
 workflows with the same selected review popup, and a headless server without
-workstation features. These are target contracts, not claims of runtime
-verification. The existing template-build and Btrfs-VM verification gaps remain
-open; this decision does not authorize activation or implementation.
+workstation features. Focused configuration checks cover these contracts; they
+are not claims of runtime verification. See the integration ticket for the
+template-build and Btrfs-VM verification status. This decision does not
+authorize activation.

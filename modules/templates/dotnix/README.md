@@ -41,7 +41,7 @@ services.displayManager.noctalia-greeter.settings.appearance.wallpaper = {
 
 ## Usage
 
-Review `modules/hosts/myHost/configuration.nix` before building or activating. Replace the example disk device, state versions, hardware and user identity with values for your consumer. Provide the conventional rekey resources (host and home secrets directories) before building. The template contains no master identity, and the sample disk path is not safe to use as-is.
+Review `modules/hosts/myHost/configuration.nix` before building or activating. Replace the example disk device, state versions, hardware and user identity with values for your consumer. Configure the conventional rekey resources before managing real secrets. The template contains no master identity, and the sample disk path is not safe to use as-is.
 
 ```console
 nix develop
@@ -70,9 +70,9 @@ The consumer owns secret identities, vault directories, certificates and YubiKey
 
 Use native options for additional resources in `modules/hosts/myHost/configuration.nix`, for example `security.pki.certificateFiles` and `security.pam.u2f.settings.authfile`. Select `host.yubikey-pam` only when PAM U2F is wanted; it does not need agenix-rekey or desktop support. Add `account.passwords` only when generated account passwords are wanted and the conventional host secrets layout provides a public key. Set `age.identityPaths` in the host or home module that owns each identity.
 
-The template includes no usable credentials or master identities. Supply valid consumer-owned identities before building or managing secrets; never add private keys or real credentials to this repository. Run `nix run .#generate` and `nix run .#rekey` only after supplying resources appropriate for your consumer.
+The template includes no usable credentials or master identities. Supply valid consumer-owned identities before deploying or managing real secrets; never add private keys or real credentials to this repository. Run `nix run .#generate` and `nix run .#rekey` only after supplying resources appropriate for your consumer.
 
-The library's acceptance build used its pinned nixpkgs revision `8edc0c72e3a38faf5434e40d1f19431125fe4b30` as the consumer nixpkgs, with public-only fixture rekey recipients for host and home. A fresh consumer resolves its own inputs: newer unpinned nixpkgs can be incompatible with the library's pinned dependencies. In particular, the tested newer nixpkgs removed `boot.initrd.systemd.enable`, which the pinned impermanence module still reads. Choose and lock a compatible consumer input set.
+The template's `nixpkgs` input follows `dotnix/nixpkgs` by default. If a consumer changes that relationship, it owns compatibility with the library's pinned dependencies and should test and lock the resulting input set.
 
 ## Adding a host
 
