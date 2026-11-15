@@ -22,6 +22,9 @@ A coherent configuration capability that can be reused across consumers.
 **Profile**:
 An optional, purpose-named combination of reusable features for one selection scope. Profiles are domain-oriented convenience bundles, not occupant archetypes.
 
+**Configuration target**:
+One host's selected configuration, including the accounts and homes configured with it. It is distinct from the consumer's other hosts.
+
 **Host selection**:
 A consumer choice to apply reusable host-scoped configuration to an explicitly selected host.
 
