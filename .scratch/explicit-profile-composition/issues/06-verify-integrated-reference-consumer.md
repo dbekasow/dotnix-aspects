@@ -4,7 +4,7 @@
 
 **Blocked by:** [02: Make workstation and power policy machine-independent](02-machine-independent-workstation-power.md); [03: Make desktop applications and launch bindings consumer-owned](03-consumer-owned-desktop-applications.md); [04: Make agent tooling and Workmux explicit selections](04-explicit-agent-workmux-selections.md); [05: Replace Tuicr with shared Hunk review access](05-shared-hunk-review-access.md).
 
-**Status:** ready-for-agent
+**Status:** claimed
 
 **Spec:** [Canonical specification](../spec.md).
 
