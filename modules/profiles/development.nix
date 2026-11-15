@@ -12,7 +12,7 @@
       git
       git-alias
       ai-tools
-      tuicr
+      hunk
       bacon
       just
       repomix
