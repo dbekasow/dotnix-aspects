@@ -4,12 +4,6 @@
       # ── Hotkey overlay ─────────────────────────────────────────
       "Mod+Shift+Slash".action = show-hotkey-overlay;
 
-      # ── Spawn ──────────────────────────────────────────────────
-      "Mod+T".action = spawn "ghostty";
-      "Mod+B".action = spawn "firefox";
-      "Mod+E".action = spawn "thunar";
-      "Mod+O".action = spawn "thunderbird";
-
       # ── Window management ──────────────────────────────────────
       "Mod+Q".action = close-window;
       "Mod+W".action = toggle-window-floating;

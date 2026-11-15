@@ -12,11 +12,13 @@ let
     , hostModule ? { }
     , userModule ? { }
     , niriOverlay ? true
+    , extraImports ? [ ]
+    , extraUserIncludes ? (_: [ ])
     ,
     }:
     let
-      fixture = {
-        imports = [ inputs.dotnix.flakeModules.default ];
+      fixture = { dotnix, ... }: {
+        imports = [ inputs.dotnix.flakeModules.default ] ++ extraImports;
         den.hosts.${system}.fixture = {
           users.fixture.classes = [ "homeManager" ];
           instantiate = args:
@@ -40,7 +42,7 @@ let
             };
           } // hostModule;
           provides.fixture = {
-            includes = userIncludes;
+            includes = userIncludes ++ extraUserIncludes dotnix;
             homeManager = {
               home.username = "fixture";
               home.homeDirectory = "/home/fixture";
@@ -135,6 +137,17 @@ let
   dmsHome = evaluate {
     userIncludes = with dotnix; [ home.niri home.dms ];
   };
+  familyHome = evaluate {
+    hostIncludes = [ dotnix.host.persistence ];
+    userIncludes = with dotnix; [ home.graphical home.firefox home.persistence ];
+  };
+  templateHome = evaluate {
+    hostIncludes = [ dotnix.host.persistence ];
+    userIncludes = [ dotnix.home.niri ];
+    extraImports = [ ../modules/templates/dotnix/modules/users/myUser/default.nix ];
+    extraUserIncludes = d: [ d.myuser ];
+    userModule.home.stateVersion = "26.11";
+  };
   multiUser =
     let
       fixture = {
@@ -202,6 +215,52 @@ let
   conflictOnly = builtins.getEnv "NIRI_DMS_CONFLICT_ONLY" == "1";
 
   assertions = {
+    desktopCatalogHasExplicitChoices =
+      !(dotnix.host ? desktop)
+      && !(dotnix.home ? desktop)
+      && !(dotnix.home ? desktop-apps)
+      && dotnix.host ? graphical
+      && builtins.all (name: builtins.hasAttr name dotnix.home) [
+        "graphical"
+        "alacritty"
+        "anki"
+        "ghostty"
+        "handy"
+        "firefox"
+        "thunderbird"
+        "office"
+        "browsers"
+        "mail"
+      ];
+    templateHomeSelectsItsApplicationsAndLaunchKeys =
+      let
+        inherit (templateHome) home;
+        binds = home.programs.niri.settings.binds;
+      in
+      home.programs.ghostty.enable
+      && home.programs.firefox.enable
+      && home.programs.thunderbird.enable
+      && builtins.all (pkg: builtins.elem pkg home.home.packages) [
+        home.programs.ghostty.package
+        home.programs.firefox.finalPackage
+        home.programs.thunderbird.package
+      ]
+      && binds."Mod+T".action.spawn == [ "ghostty" ]
+      && binds."Mod+B".action.spawn == [ "firefox" ]
+      && binds."Mod+O".action.spawn == [ "thunderbird" ]
+      && !(builtins.hasAttr "Mod+E" binds)
+      && !home.programs.alacritty.enable
+      && !home.programs.anki.enable
+      && !home.programs.onlyoffice.enable
+      && !(builtins.any (pkg: lib.getName pkg == "handy") home.home.packages);
+    familyHomeNeedsNoDevelopmentOrAgentTools =
+      let inherit (familyHome) home;
+      in
+      home.programs.firefox.enable
+      && !home.programs.helix.enable
+      && !(familyHome.config.programs.niri.enable or false)
+      && !(builtins.any (pkg: builtins.elem (lib.getName pkg) [ "skills" "tokscale" "repomix" ]) home.home.packages)
+      && !(builtins.any (entry: entry.directory == ".pi") home.home.persistence."/persist".directories);
     integratedNiriFinalConfig = niriOnly.home.programs.niri.finalConfigFile != null;
     integratedNiriActivationPackage = niriOnly.home.home.activationPackage.drvPath != "";
     integratedNiriDmsFinalConfig = niriDms.home.programs.niri.finalConfigFile != null;
@@ -250,6 +309,12 @@ let
       && overlayFreeHomeNiri.home.programs.niri.finalConfigFile != null
       && builtins.hasAttr "Mod+Q" overlayFreeHomeNiri.home.programs.niri.settings.binds;
     niriOnlyHasGeneralBinding = builtins.hasAttr "Mod+Q" niriOnlyHome.home.programs.niri.settings.binds;
+    niriOnlyKeepsGeneralBindingsWithoutApplications =
+      let binds = niriOnlyHome.home.programs.niri.settings.binds;
+      in
+      binds."Mod+1".action.focus-workspace == [ 1 ]
+      && binds."Mod+Shift+E".action ? quit
+      && builtins.all (key: !(builtins.hasAttr key binds)) [ "Mod+T" "Mod+B" "Mod+E" "Mod+O" ];
     niriOnlyHasNoDmsBinding = !(builtins.hasAttr "Mod+Space" niriOnlyHome.home.programs.niri.settings.binds);
     niriOnlyHasNoHandyBindings =
       !(builtins.hasAttr "Mod+D" niriOnlyHome.home.programs.niri.settings.binds)
