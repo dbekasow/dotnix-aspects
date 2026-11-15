@@ -83,6 +83,16 @@ let
       && composed.bob.programs.git.enable
       && composed.bob.programs.bacon.enable
       && hasPackage pkgs.just composed.bob;
+    developmentAndTerminalShareReviewPopup =
+      let
+        tmuxConfig = composed.bob.xdg.configFile."tmux/tmux.conf".text;
+        reviewLines = builtins.filter (line: lib.hasInfix ''"hunk" r '' line) (lib.splitString "\n" tmuxConfig);
+      in
+      composed.bob.programs.tmux.enable
+      && hasPackage agentPackages.hunk composed.bob
+      && lib.hasInfix ''bind -N "TUI popups" o display-menu'' tmuxConfig
+      && builtins.length reviewLines == 1
+      && lib.hasInfix (builtins.unsafeDiscardStringContext (lib.getExe agentPackages.hunk)) (builtins.head reviewLines);
     developmentDoesNotSelectAgentTools =
       !(hasPackage agentPackages.skills composed.bob)
       && !(hasPackage agentPackages.tokscale composed.bob)
