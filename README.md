@@ -95,7 +95,7 @@ The profile inventory, with each profile's purpose:
 | `workstation`                                                        | host       | Optional laptop-oriented bundle; every member stays individually selectable.         |
 | `term-cli`, `term-monitoring`, `term-nix`, `term-secrets`, `term-ux` | home       | Occupant-granular terminal building blocks, selectable without `terminal`.           |
 
-`excludes` is the variant and subtraction mechanism: authoritative and subtree-scoped, it removes members that arrive transitively through `includes`, and the selection site can still override. `home.terminal-herdr` is the worked example: `{ includes = [ terminal herdr ]; excludes = [ tmux sesh ]; }`. Profile modules use freeform nested keys — includes-only bundles without `meta` or constraints; a `provides` nested key is the documented upgrade path if a profile ever needs them.
+`excludes` is the variant and subtraction mechanism: authoritative and subtree-scoped, it removes members that arrive transitively through `includes`; another include in the same user scope does not defeat those exclusions. `home.terminal-herdr` is the worked example: `{ includes = [ terminal herdr ]; excludes = [ tmux sesh ]; }`. Profile modules use freeform nested keys — includes-only bundles without `meta` or constraints; a `provides` nested key is the documented upgrade path if a profile ever needs them.
 
 ## Host and user composition
 
