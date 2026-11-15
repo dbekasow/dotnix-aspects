@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** claimed
+**Status:** resolved
 
 **Spec:** [Canonical specification](../spec.md).
 
@@ -24,3 +24,11 @@ This is baseline repair and check wiring, not a reason to author another set of 
 - [ ] Document how subsequent slices extend the same focused check gate, with no input or lockfile changes.
 
 This ticket repairs and connects the existing baseline; it does not assert that the future profile, Hunk, or template contracts are already implemented. Subsequent slices own their new behavior tests. Do not modify the separate live consumer, activate a system, or absorb the independent loading redesign.
+
+## Answer
+
+Implemented in `523b920`, integrated with `merge: restore consumer contract baseline`. Replaced the five obsolete Niri accesses, retained all 48 baseline assertions, and connected the focused headless, security and Niri/DMS consumer contracts through the shipped adapter to the regular check gate. Current extension commands are documented in README.
+
+The real stale-option failure was observed before repair (`attribute 'finalConfig' missing`); direct Niri evaluation now returns 48/48 true. Headless evaluation, headless-security check build, conflict diagnostic, formatter and the full flake check with checks built passed (exit 0). The coordinator independently reran `nix flake check --no-write-lock-file --accept-flake-config` after integration (exit 0).
+
+Exact commands and logs: `/tmp/epc-01-evidence/`; independent integration log: `/tmp/epc-01-main-check.log`. These are behavioral evaluations/check builds, not system activation or runtime evidence. Non-host incompatible systems were omitted by Nix; template closure acceptance remains ticket 06. Inputs and locks are unchanged.

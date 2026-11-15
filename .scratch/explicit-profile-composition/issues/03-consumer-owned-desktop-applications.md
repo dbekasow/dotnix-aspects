@@ -4,7 +4,7 @@
 
 **Blocked by:** [01: Restore executable consumer contract checks](01-restore-consumer-contract-checks.md).
 
-**Status:** ready-for-agent
+**Status:** claimed
 
 **Spec:** [Canonical specification](../spec.md).
 
