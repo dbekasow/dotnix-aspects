@@ -10,7 +10,7 @@
       lazygit
       git
       git-alias
-      tuicr
+      hunk
       bacon
       just
       watchexec

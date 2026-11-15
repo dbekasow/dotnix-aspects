@@ -25,6 +25,8 @@
           (import ../../tests/niri-dms.nix { inherit source; });
         consumer-terminal-composition = evaluated "consumer-terminal-composition"
           (import ../../tests/terminal-composition.nix { inherit source; });
+        consumer-review-access = evaluated "consumer-review-access"
+          (import ../../tests/review-access.nix { inherit source; });
       };
     };
 }
