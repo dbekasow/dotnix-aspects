@@ -9,8 +9,7 @@
   outputs = inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        inputs.den.flakeModule
-        (inputs.den.namespace "dotnix" [ inputs.dotnix true ])
+        inputs.dotnix.flakeModules.default
         ({ dotnix, ... }: {
           den.hosts.x86_64-linux.fixture-server = { };
           den.hosts.x86_64-linux.fixture-hardware-gated = { };
