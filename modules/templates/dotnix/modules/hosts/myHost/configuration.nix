@@ -26,17 +26,13 @@
       host.dms-greeter # greeter — swap for `host.noctalia-greeter`
       host.boot-baseline # shared boot behavior
       host.boot-systemd # systemd-boot loader
-      host.performance # workstation tuning
       host.bluetooth # laptop radio
       host.disko # starter Btrfs/LUKS layout; replace device below for this host
       host.persistence # selected persistence classes and /persist defaults
-      host.btrfs-root-reset # reset @root from @root-blank on this Btrfs layout
-      host.geolocation # location service
       host.network # NetworkManager and Avahi
       host.network-wifi # Wi-Fi configuration
       host.pipewire # audio
-      host.power # workstation power management and resume defaults
-      host.yubikey # hardware-backed login tools
+      host.power # general power services; sleep and resume remain host-owned
       # Select host.yubikey-pam separately after providing its native authfile.
     ];
 
