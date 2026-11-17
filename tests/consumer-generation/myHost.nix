@@ -5,7 +5,7 @@ let
   host.users.myuser.classes = [ "homeManager" ];
 
   hostAspect = selectDesktop: {
-    includes = with dotnix.host; [ age age-rekey home-manager ] ++ lib.optional selectDesktop niri;
+    includes = with dotnix.host; [ age age-rekey home-manager pipewire yubikey-pam ] ++ lib.optional selectDesktop niri;
 
     nixos = {
       boot.loader.grub.enable = true;
@@ -38,9 +38,7 @@ in
   imports = [ (inputs.dotnix + "/modules/base.nix") ]
     ++ lib.optional withDesktop (inputs.dotnix + "/modules/desktop.nix");
 
-  flake-file.outputs = ''
-    inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules)
-  '';
+  flake-file.outputs = "dendritic";
   flake-file.inputs = {
     dotnix = {
       url = "path:./library";

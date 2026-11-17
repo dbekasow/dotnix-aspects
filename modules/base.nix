@@ -3,8 +3,7 @@
   imports = [
     inputs.flake-file.flakeModules.default
     ./integration/default.nix
-    (inputs.import-tree ./features)
-    (inputs.import-tree ./profiles)
+    (inputs.import-tree [ ./features ./profiles ])
     ./parts/flake-parts.nix
   ];
 

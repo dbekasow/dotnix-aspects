@@ -42,7 +42,11 @@ jobs:
       # Without this gate, build breaks surface at the desktop switch, not
       # in CI — the DMS family (dms, dank-greeter, dms-plugins) has no binary
       # cache and compiles from source, so this is what catches them pre-merge.
+      # Use the PR's standalone dependency pins; only the template needs hardware.
       - run: >
           nix build
           /tmp/fixture#nixosConfigurations.myHost.config.system.build.toplevel
-          --no-write-lock-file --override-input dotnix "git+file://$GITHUB_WORKSPACE" --accept-flake-config
+          --reference-lock-file "$GITHUB_WORKSPACE/flake.lock"
+          --no-write-lock-file --override-input dotnix "git+file://$GITHUB_WORKSPACE"
+          --override-input nixos-hardware "github:NixOS/nixos-hardware/$(jq -er '.nodes[.nodes[.root].inputs["nixos-hardware"]].locked.rev' /tmp/fixture/flake.lock)"
+          --accept-flake-config

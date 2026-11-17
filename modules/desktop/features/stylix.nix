@@ -1,7 +1,5 @@
 { inputs, ... }:
 let
-  # Library dependency inputs (stylix modules) stay closed over the library flake.
-  libraryInputs = inputs;
   sharedConfig = { lib, pkgs, ... }: {
     stylix = {
       enable = lib.mkDefault true;
@@ -51,7 +49,7 @@ in
     imports = [
       {
         key = "dotnix:stylix:nixos";
-        imports = [ libraryInputs.stylix.nixosModules.stylix sharedConfig ];
+        imports = [ inputs.stylix.nixosModules.stylix sharedConfig ];
       }
     ];
     stylix.enableReleaseChecks = false;
@@ -62,7 +60,7 @@ in
     imports = [
       {
         key = "dotnix:stylix:homeManager";
-        imports = [ libraryInputs.stylix.homeModules.stylix sharedConfig ];
+        imports = [ inputs.stylix.homeModules.stylix sharedConfig ];
       }
     ];
     stylix.overlays.enable = false;

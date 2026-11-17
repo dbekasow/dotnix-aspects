@@ -1,9 +1,4 @@
 { inputs, ... }:
-let
-  # Library dependency inputs (the DMS modules) stay closed over the library
-  # flake.
-  libraryInputs = inputs;
-in
 {
   flake-file.inputs.dms = {
     url = "github:AvengeMedia/DankMaterialShell";
@@ -18,8 +13,8 @@ in
     {
       imports = [
         {
-          key = "${libraryInputs.dms}/nixosModules/dank-material-shell";
-          imports = [ libraryInputs.dms.nixosModules.dank-material-shell ];
+          key = "${inputs.dms}/nixosModules/dank-material-shell";
+          imports = [ inputs.dms.nixosModules.dank-material-shell ];
         }
       ];
 
@@ -61,9 +56,9 @@ in
       }
     ];
 
-    imports = with libraryInputs; [
-      dms.homeModules.dank-material-shell
-      dms.homeModules.niri
+    imports = [
+      inputs.dms.homeModules.dank-material-shell
+      inputs.dms.homeModules.niri
     ];
 
     programs.dank-material-shell = {

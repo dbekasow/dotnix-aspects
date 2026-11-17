@@ -31,7 +31,7 @@ Start from the Consumer template below, or add the library as a source-only inpu
 }
 ```
 
-For an existing Consumer, declare `dotnix` as source-only in the current generated `flake.nix` as well before the first writer run. Make Den, flake-file, flake-parts, import-tree, and nixpkgs direct inputs instead of following them through `dotnix`. The template has this bootstrap configuration already. The imported groups declare their inputs via `flake-file`; regenerate with `nix run .#write-flake`, then run `nix flake lock`. The same two commands add or remove a group and its dependencies later.
+Before the first writer run in an existing Consumer, declare `dotnix` as source-only in both your `flake-file` configuration and the current generated `flake.nix`. Replace or remove every old `follows = "dotnix/..."` in both places, including `dotnix/home-manager`: point follows at Consumer-owned inputs, declare the inputs directly, or remove them if no longer needed. Make Den, flake-file, flake-parts, import-tree, and nixpkgs direct inputs. The template already has this bootstrap configuration. The imported groups declare their inputs via `flake-file`; regenerate with `nix run .#write-flake`, then run `nix flake lock`. The same two commands add or remove a group and its dependencies later.
 
 Compose host and user behavior through Den entities and aspects, as in the executable template at `modules/templates/dotnix/modules/hosts/myHost/configuration.nix` and `modules/templates/dotnix/modules/users/myUser/default.nix`:
 
@@ -171,6 +171,8 @@ security.pam.u2f.settings.authfile = ./secrets/u2f-mappings;
 ```
 
 `dotnix.account.passwords` remains a separate per-account opt-in. It creates generated password secrets only when host rekey resources yield a host public key (explicit or from the conventional layout); otherwise users remain mutable. YubiKey-PAM does not require agenix-rekey or desktop support. Its authfile is supplied through `security.pam.u2f.settings.authfile` or the NixOS PAM default. DMS uses the native U2F authfile only when one is configured.
+
+With Desktop imported, select `dotnix.host.pavucontrol` for the graphical audio mixer or `dotnix.host.yubioath-flutter` for Yubico Authenticator on the hosts that need them. Neither is selected by a profile. `host.pipewire` still provides audio, and `host.yubikey-pam` still provides PAM U2F and the YubiKey CLI.
 
 GUI pinentry integrations are separately selectable as `dotnix.home.gpg-agent-gui` and `dotnix.home.rbw-gui`. `home.graphical` does not select or override them; consumer module definitions can still override their native pinentry options.
 

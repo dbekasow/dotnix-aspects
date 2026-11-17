@@ -32,6 +32,7 @@
       host.network # NetworkManager and Avahi
       host.network-wifi # Wi-Fi configuration
       host.pipewire # audio
+      host.pavucontrol # graphical audio mixer
       host.power # general power services; sleep and resume remain host-owned
       # Select host.yubikey-pam separately after providing its native authfile.
     ];

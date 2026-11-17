@@ -111,7 +111,11 @@ nix flake lock
 
 nix eval --json .#nixosConfigurations.myHost --apply '
   {config, pkgs, ...}:
-  let home = config.home-manager.users.myuser; in
+  let
+    home = config.home-manager.users.myuser;
+    hasSystemPackage = name: builtins.any (p: (p.pname or p.name) == name) config.environment.systemPackages;
+  in
+  assert !(hasSystemPackage "pavucontrol" || hasSystemPackage "yubioath-flutter");
   assert home.programs.direnv-instant.enable;
   assert home.programs.tmux.enable;
   assert home.programs.helix.enable;

@@ -1,6 +1,5 @@
 {
-  dotnix.host.pipewire.nixos = { pkgs, ... }: {
-    environment.systemPackages = [ pkgs.pavucontrol ];
+  dotnix.host.pipewire.nixos = {
     services.pipewire = {
       enable = true;
 

@@ -16,6 +16,6 @@
     # pam.u2f.enable installs pam_u2f into PAM services unless opted out.
     # That host-wide authentication floor is intentional.
     programs.yubikey-manager.enable = true;
-    environment.systemPackages = with pkgs; [ yubioath-flutter yubikey-manager ];
+    environment.systemPackages = [ pkgs.yubikey-manager ];
   };
 }

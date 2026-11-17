@@ -1,6 +1,6 @@
 # Scope imports and inputs to the Consumer
 
-Status: accepted design; not implemented.
+Status: accepted and implemented; the pinned library revision still needs to be published and verified remotely.
 
 Supersedes the independent-target-flake design (former ADR 0006). A Consumer owns one flake and one lockfile for all its configuration targets. The Consumer chooses which library modules and input declarations enter that flake. Den still selects which registered features apply to each host, home, and account. A mixed Consumer may load Desktop once even though only some targets use it. A WSL-only Consumer that omits Desktop must not import Desktop modules or have Desktop-only dependencies in its reachable input graph. Desktop files may still be present in the shared source tree.
 
