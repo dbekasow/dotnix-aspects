@@ -52,7 +52,7 @@ let
     pkgs = import nixpkgs { inherit system; };
   });
   fixture = {
-    imports = [ source.flakeModules.default ];
+    imports = [ (inputs.dotnix + "/modules/base.nix") ];
     den.hosts.${system}.fixture = {
       users.fixture.classes = [ "user" ];
       inherit instantiate;

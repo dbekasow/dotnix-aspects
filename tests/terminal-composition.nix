@@ -10,7 +10,7 @@ let
   evaluate = { aliceIncludes ? [ ], bobIncludes ? [ ] }:
     let
       fixture = {
-        imports = [ source.flakeModules.default ];
+        imports = [ (inputs.dotnix + "/modules/base.nix") ];
         den.hosts.${system}.fixture = {
           users.alice.classes = [ "homeManager" ];
           users.bob.classes = [ "homeManager" ];

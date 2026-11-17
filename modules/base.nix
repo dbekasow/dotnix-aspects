@@ -2,7 +2,7 @@
 {
   imports = [
     inputs.flake-file.flakeModules.default
-    (import ./integration/default.nix true)
+    ./integration/default.nix
     (inputs.import-tree ./features)
     (inputs.import-tree ./profiles)
     ./parts/flake-parts.nix

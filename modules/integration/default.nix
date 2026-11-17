@@ -1,9 +1,8 @@
-namespaceSources:
 { den, inputs, ... }:
 {
   imports = [
     inputs.den.flakeModule
-    (inputs.den.namespace "dotnix" namespaceSources)
+    (inputs.den.namespace "dotnix" true)
   ];
 
   den.default.includes = [

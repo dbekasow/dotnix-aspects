@@ -4,7 +4,7 @@
     let
       source = inputs.self;
       securityInputs = {
-        inherit (source.inputs) den flake-parts nixpkgs;
+        inherit (source.inputs) den flake-file flake-parts import-tree nixpkgs;
         dotnix = source;
         self = securityFixture;
       };

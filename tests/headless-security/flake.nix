@@ -1,15 +1,23 @@
 {
   inputs = {
-    dotnix.url = "path:../..";
-    den.follows = "dotnix/den";
-    flake-parts.follows = "dotnix/flake-parts";
-    nixpkgs.follows = "dotnix/nixpkgs";
+    dotnix = {
+      url = "path:../..";
+      flake = false;
+    };
+    den.url = "github:denful/den/7594405b45e0ce2d5a418fe104a26e17f6b1dd8f";
+    flake-file.url = "github:vic/flake-file";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+    import-tree.url = "github:vic/import-tree";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
   outputs = inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        inputs.dotnix.flakeModules.default
+        (inputs.dotnix + "/modules/base.nix")
         ({ dotnix, ... }: {
           den.hosts.x86_64-linux.fixture-server = { };
           den.hosts.x86_64-linux.fixture-hardware-gated = { };

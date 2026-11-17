@@ -1,7 +1,3 @@
-{ inputs, lib, ... }:
-let
-  consumerAdapter = import ./integration/default.nix [ inputs.self true ];
-in
 {
   imports = [
     ./base.nix
@@ -17,12 +13,6 @@ in
       }
     '';
 
-    flake.flakeModules.default = consumerAdapter;
-    flake.flakeModules.devTools.imports = [
-      inputs.flake-file.flakeModules.default
-      ./parts/flake-parts.nix
-      (import ./parts/devtools.nix { inherit inputs lib; })
-    ];
     flake.templates.default = {
       description = "Dendritic NixOS configuration using dotnix";
       path = ./templates/dotnix;

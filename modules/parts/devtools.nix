@@ -16,14 +16,13 @@
     };
   };
 
-  # The parts share options from these inputs. Pass the same input scope
-  # through to each part so the legacy adapter can use the library's inputs.
+  # Import the tooling only after all of its inputs have been locked.
   imports = lib.optionals
     (inputs ? agenix-rekey && inputs ? devshell && inputs ? git-hooks && inputs ? treefmt)
-    (map (path: import path { inherit inputs lib; }) [
+    [
       ./age.nix
       ./devshell.nix
       ./pre-commit.nix
       ./treefmt.nix
-    ]);
+    ];
 }

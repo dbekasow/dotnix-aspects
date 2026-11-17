@@ -5,6 +5,10 @@ let
   inherit (nixpkgs) lib;
   dotnix = source.denful.dotnix;
   system = "x86_64-linux";
+  groups = [
+    (inputs.dotnix + "/modules/base.nix")
+    (inputs.dotnix + "/modules/desktop.nix")
+  ];
 
   evaluate =
     { hostIncludes ? [ ]
@@ -18,7 +22,7 @@ let
     }:
     let
       fixture = { dotnix, ... }: {
-        imports = [ inputs.dotnix.flakeModules.default ] ++ extraImports;
+        imports = groups ++ extraImports;
         den.hosts.${system}.fixture = {
           users.fixture.classes = [ "homeManager" ];
           instantiate = args:
@@ -86,7 +90,7 @@ let
   standaloneHome =
     let
       fixture = {
-        imports = [ inputs.dotnix.flakeModules.default ];
+        imports = groups;
         den.homes.${system}.fixture.pkgs = import inputs.nixpkgs {
           inherit system;
           overlays = [ inputs.niri.overlays.niri ];
@@ -151,7 +155,7 @@ let
   multiUser =
     let
       fixture = {
-        imports = [ inputs.dotnix.flakeModules.default ];
+        imports = groups;
         den.hosts.${system}.fixture = {
           users = {
             alice.classes = [ "homeManager" ];
