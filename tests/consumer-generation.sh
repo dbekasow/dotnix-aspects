@@ -146,6 +146,47 @@ nix eval --impure --json --expr '
   true
 '
 
+# Opt into DevTools from the existing Base flake and lock without changing either.
+(
+  cp -R "$consumer" "$tmp/devtools"
+  cd "$tmp/devtools"
+  cat >modules/devtools.nix <<'EOF'
+{ inputs, ... }: {
+  imports = [ (inputs.dotnix + "/modules/devtools.nix") ];
+}
+EOF
+  nix run .#write-flake
+  nix flake lock
+
+  # shellcheck disable=SC2016
+  nix eval --impure --json --expr '
+    let
+      readLock = path: let lock = builtins.fromJSON (builtins.readFile path); in {
+        inherit (lock) nodes;
+        root = lock.nodes.${lock.root}.inputs;
+      };
+      base = readLock ../consumer/flake.lock;
+      optIn = readLock ./flake.lock;
+      rekey = optIn.nodes.${optIn.root.agenix-rekey}.inputs;
+      outputs = builtins.getFlake (toString ./.);
+      system = "x86_64-linux";
+    in
+    assert builtins.attrNames optIn.root == builtins.attrNames (base.root // { devshell = null; git-hooks = null; treefmt = null; });
+    assert rekey.devshell == [ "devshell" ];
+    assert rekey.pre-commit-hooks == [ "git-hooks" ];
+    assert rekey.treefmt-nix == [ "treefmt" ];
+    assert !(outputs.denful.dotnix.host ? niri || outputs.denful.dotnix.home ? graphical);
+    {
+      shell = outputs.devShells.${system}.default.drvPath;
+      formatter = outputs.formatter.${system}.drvPath;
+      pre-commit = outputs.checks.${system}.pre-commit.drvPath;
+      treefmt = outputs.checks.${system}.treefmt.drvPath;
+      generate = outputs.apps.${system}.generate.program;
+      rekey = outputs.apps.${system}.rekey.program;
+    }
+  '
+)
+
 cp flake.nix "$tmp/flake.after-first-generation"
 cp flake.lock "$tmp/lock.after-first-generation"
 

@@ -1,9 +1,4 @@
 { inputs, ... }: {
-  flake-file.inputs.treefmt = {
-    url = "github:numtide/treefmt-nix";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
-
   imports = [ inputs.treefmt.flakeModule ];
 
   perSystem = { config, ... }: {
