@@ -148,6 +148,61 @@ nix eval --impure --json --expr '
 
 cp flake.nix "$tmp/flake.after-first-generation"
 cp flake.lock "$tmp/lock.after-first-generation"
+
+check_desktop() {
+  cp modules/myHost.nix "$tmp/myHost.base.nix"
+  sed 's/withDesktop = false;/withDesktop = true;/' "$tmp/myHost.base.nix" >modules/myHost.nix
+  nix run .#write-flake
+  nix flake lock
+
+  nix eval --json .#denful.dotnix --apply '
+    dotnix:
+    assert dotnix.host ? niri && dotnix.home ? graphical;
+    true
+  '
+
+  # shellcheck disable=SC2016
+  nix eval --json .#nixosConfigurations --apply '
+    {graphicalHost, myHost, ...}:
+    let
+      graphicalHome = graphicalHost.config.home-manager.users.myuser;
+      headlessHome = myHost.config.home-manager.users.myuser;
+      hasClipboard = home: builtins.any (p: (p.pname or p.name) == "wl-clipboard") home.home.packages;
+      pinentry = pkgs: name: toString pkgs.${name} + "/bin/pinentry";
+    in
+    assert graphicalHost.config.programs.niri.enable;
+    assert !(myHost.config.programs.niri.enable or false);
+    assert hasClipboard graphicalHome && !(hasClipboard headlessHome);
+    assert graphicalHome.services.gpg-agent.pinentry.package.pname == "pinentry-gnome3";
+    assert headlessHome.services.gpg-agent.pinentry.package.pname == "pinentry-curses";
+    assert graphicalHome.programs.rbw.settings.pinentry == pinentry graphicalHost.pkgs "pinentry-gnome3";
+    assert headlessHome.programs.rbw.settings.pinentry == pinentry myHost.pkgs "pinentry-curses";
+    true
+  '
+
+  # shellcheck disable=SC2016
+  nix eval --impure --json --expr '
+    let
+      lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+      root = lock.nodes.${lock.root}.inputs;
+    in
+    assert lock.nodes.${root.niri}.locked.repo == "niri-flake";
+    assert !(root ? devshell || root ? git-hooks || root ? treefmt);
+    true
+  '
+
+  mv "$tmp/myHost.base.nix" modules/myHost.nix
+  nix run .#write-flake
+  nix flake lock
+  nix eval --json .#denful.dotnix --apply '
+    dotnix:
+    assert !(dotnix.host ? niri || dotnix.home ? graphical);
+    true
+  '
+  printf 'Desktop Consumer opt-in and removal passed\n'
+}
+check_desktop
+
 nix run .#write-flake
 nix flake lock
 cmp "$tmp/flake.after-first-generation" flake.nix

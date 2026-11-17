@@ -1,30 +1,11 @@
-{ dotnix, inputs, ... }:
+{ dotnix, inputs, lib, ... }:
 let
   system = "x86_64-linux";
-in
-{
-  imports = [ (inputs.dotnix + "/modules/base.nix") ];
+  withDesktop = false;
+  host.users.myuser.classes = [ "homeManager" ];
 
-  flake-file.outputs = ''
-    inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules)
-  '';
-  flake-file.inputs = {
-    dotnix = {
-      url = "path:./library";
-      flake = false;
-    };
-    nixpkgs.url = "github:NixOS/nixpkgs/2074cc672349f14240fb7ea90d509e0b643e9dd4";
-  };
-
-  den.hosts.${system}.myHost = {
-    users.myuser.classes = [ "homeManager" ];
-    instantiate = args: inputs.nixpkgs.lib.nixosSystem (args // {
-      pkgs = import inputs.nixpkgs { inherit system; };
-    });
-  };
-
-  den.aspects.myHost = {
-    includes = with dotnix.host; [ age age-rekey home-manager ];
+  hostAspect = selectDesktop: {
+    includes = with dotnix.host; [ age age-rekey home-manager ] ++ lib.optional selectDesktop niri;
 
     nixos = {
       boot.loader.grub.enable = true;
@@ -38,7 +19,8 @@ in
     };
 
     provides.myuser = {
-      includes = with dotnix.home; [ core terminal development gpg-agent ];
+      includes = with dotnix.home; [ core terminal development gpg-agent ]
+        ++ lib.optionals selectDesktop [ graphical gpg-agent-gui rbw-gui ];
       homeManager = {
         home.username = "myuser";
         home.homeDirectory = "/home/myuser";
@@ -51,4 +33,31 @@ in
       };
     };
   };
+in
+{
+  imports = [ (inputs.dotnix + "/modules/base.nix") ]
+    ++ lib.optional withDesktop (inputs.dotnix + "/modules/desktop.nix");
+
+  flake-file.outputs = ''
+    inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules)
+  '';
+  flake-file.inputs = {
+    dotnix = {
+      url = "path:./library";
+      flake = false;
+    };
+    nixpkgs.url = "github:NixOS/nixpkgs/2074cc672349f14240fb7ea90d509e0b643e9dd4";
+  };
+
+  den.hosts.${system} = {
+    myHost = host // {
+      instantiate = args: inputs.nixpkgs.lib.nixosSystem (args // {
+        pkgs = import inputs.nixpkgs { inherit system; };
+      });
+    };
+  } // lib.optionalAttrs withDesktop { graphicalHost = host; };
+
+  den.aspects = {
+    myHost = hostAspect false;
+  } // lib.optionalAttrs withDesktop { graphicalHost = hostAspect true; };
 }

@@ -14,7 +14,7 @@ in
 {
   imports = [
     ./base.nix
-    (inputs.import-tree ./desktop)
+    ./desktop.nix
     ./parts/consumer-contract-checks.nix
   ] ++ devParts;
 
