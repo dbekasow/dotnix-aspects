@@ -1,8 +1,8 @@
 { inputs, ... }: {
   imports = [
-    (inputs.dotnix + "/modules/base.nix")
-    (inputs.dotnix + "/modules/desktop.nix")
-    (inputs.dotnix + "/modules/devtools.nix")
+    (inputs.dotnix + "/modules/base")
+    (inputs.dotnix + "/modules/desktop")
+    (inputs.dotnix + "/modules/devtools")
   ];
 
   flake-file.outputs = "dendritic";

@@ -35,8 +35,8 @@ let
   };
 in
 {
-  imports = [ (inputs.dotnix + "/modules/base.nix") ]
-    ++ lib.optional withDesktop (inputs.dotnix + "/modules/desktop.nix");
+  imports = [ (inputs.dotnix + "/modules/base") ]
+    ++ lib.optional withDesktop (inputs.dotnix + "/modules/desktop");
 
   flake-file.outputs = "dendritic";
   flake-file.inputs = {

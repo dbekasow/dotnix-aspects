@@ -9,7 +9,7 @@ let
   selectedOverlay = _: _: { llm-agents.hunk = selectedHunk; };
 
   fixture = { aliceIncludes ? [ ], bobIncludes ? [ ], overlays ? [ ], perUserPkgs ? false }: {
-    imports = [ (inputs.dotnix + "/modules/base.nix") ];
+    imports = [ (inputs.dotnix + "/modules/base") ];
     den.hosts.${system}.fixture.users = {
       alice.classes = [ "homeManager" ];
       bob.classes = [ "homeManager" ];

@@ -10,7 +10,7 @@ let
   evaluate = { aliceIncludes ? [ ], bobIncludes ? [ ] }:
     let
       fixture = {
-        imports = [ (inputs.dotnix + "/modules/base.nix") ];
+        imports = [ (inputs.dotnix + "/modules/base") ];
         den.hosts.${system}.fixture = {
           users.alice.classes = [ "homeManager" ];
           users.bob.classes = [ "homeManager" ];

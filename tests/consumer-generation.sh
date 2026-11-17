@@ -156,7 +156,7 @@ nix eval --impure --json --expr '
   cd "$tmp/devtools"
   cat >modules/devtools.nix <<'EOF'
 { inputs, ... }: {
-  imports = [ (inputs.dotnix + "/modules/devtools.nix") ];
+  imports = [ (inputs.dotnix + "/modules/devtools") ];
 }
 EOF
   nix run .#write-flake

@@ -4,11 +4,13 @@ A reusable library of [dendritic](https://github.com/mightyiam/dendritic) NixOS 
 
 ## Feature catalog and discovery
 
-Base features and profiles live in `modules/features/` and `modules/profiles/`. Graphical features and profiles live in `modules/desktop/`. Small features can stay in one file; multi-part owners such as Helix, DMS, Niri, Firefox, and Tmux keep related parts and integrations local. Each module declares its public `dotnix.*` aspect names explicitly; filesystem names do not define public namespace paths.
+Base and Desktop each keep their features and profiles in `features/` and `profiles/` under `modules/base/` and `modules/desktop/`, respectively. Small features can stay in one file; multi-part owners such as Helix, DMS, Niri, Firefox, and Tmux keep related parts and integrations local. Each module declares its public `dotnix.*` aspect names explicitly; filesystem names do not define public namespace paths.
 
 Every role-scoped aspect lives in one of three uniform catalogs: `dotnix.host.*` for host behavior, `dotnix.home.*` for Home Manager behavior, and `dotnix.account.*` for account-level settings, so selections like `with dotnix.home; [ bat fd ripgrep ]` resolve uniformly. The top level stays reserved for cross-cutting aspects (`dotnix.popup-launchers`) and consumer-owned composites such as per-user aspects and hardware profiles; the library itself declares no other top-level aspects. A feature with behavior in multiple roles declares one role-qualified aspect per role instead of a single class-multiplexed aspect: `host.dms`/`home.dms` and `host.noctalia`/`home.noctalia` follow this role-split convention.
 
-`modules/base.nix` discovers Base features and profiles, and the standalone flake also discovers `modules/desktop/`. These explicit import roots use the pinned import-tree default: directory scans select `.nix` files and exclude paths containing relative `/_`. `default.nix` does not stop recursive scanning. This is a filename filter, not module-shape validation or a security boundary: explicitly supplied files bypass the filter, changing scan roots changes which paths are relative, and `initFilter` replaces the default predicate. Keep helpers outside discovery or under an owner-local `_private/` path and import them explicitly.
+Each group's `default.nix` is its entry point. Base and Desktop use import-tree to scan only their `features/` and `profiles/` directories; the group entry points are outside discovery. The pinned import-tree default selects `.nix` files and excludes paths containing relative `/_`. `default.nix` does not stop recursive scanning. This is a filename filter, not module-shape validation or a security boundary: explicitly supplied files bypass the filter, changing scan roots changes which paths are relative, and `initFilter` replaces the default predicate. Keep helpers outside discovery or under an owner-local `_private/` path and import them explicitly.
+
+`modules/devtools/` owns repository tooling. The library's generated flake imports `modules/standalone/`, which assembles the groups, adds the consumer contract checks, and imports `modules/templates/` to publish the template. Consumers import Base and their chosen optional groups directly, not the standalone entry point.
 
 ## Usage
 
@@ -24,9 +26,9 @@ Start from the Consumer template below, or add the library as a source-only inpu
   };
 
   imports = [
-    (inputs.dotnix + "/modules/base.nix")
-    (inputs.dotnix + "/modules/desktop.nix")  # optional
-    (inputs.dotnix + "/modules/devtools.nix") # optional
+    (inputs.dotnix + "/modules/base")
+    (inputs.dotnix + "/modules/desktop")  # optional
+    (inputs.dotnix + "/modules/devtools") # optional
   ];
 }
 ```
@@ -78,7 +80,7 @@ Base initializes Den, registers the `dotnix` namespace and custom classes, and d
 - Herdr is an explicit Tmux alternative: select `home.terminal-herdr` instead of `home.terminal` for a user who wants Herdr. The variant reuses `home.terminal` and excludes Tmux and Sesh; `home.terminal` and `home.term-ux` keep both for Tmux users. An explicit `home.workmux` beside `home.terminal-herdr` stays selected but does not satisfy Workmux's Tmux prerequisite. To use both multiplexers, compose `home.terminal` with `home.herdr` instead: the variant's Tmux and Sesh exclusions are authoritative. Selecting Herdr does not change any other user's composition.
 - AI and agent-oriented choices are explicit: select `home.ai-tools` for skills and tokscale, `home.repomix` for repository packing, and `home.llm-agents` for the Pi `.pi` persistence contribution (this contribution does not install Pi; it requires the host and home persistence selections). `home.development`, `home.terminal`, and `home.term-ux` do not select Workmux. Select `home.workmux` separately: its intended workflow requires Tmux, which the consumer must also select; it does not enable Tmux or install its configured agent.
 - `host.persistence` selects generic host persistence classes, routing, and NixOS `/persist` defaults without assuming a disk or boot layout; it works without Home Manager. Select `home.persistence` in a user's includes to apply the Home Manager `/persist` baseline only to that home. Select `host.btrfs-root-reset` separately for the existing `@root`/`@root-blank` Btrfs reset policy. Root reset neither selects generic persistence nor enables Disko; the consumer supplies a compatible machine layout.
-- Persistence contribution audit one-liner: `grep -rn 'home.persistence' modules/features/ modules/desktop/features/`
+- Persistence contribution audit one-liner: `grep -rn 'home.persistence' modules/base/features/ modules/desktop/features/`
 
 ## Reusable profiles
 
@@ -188,7 +190,7 @@ Stylix is part of the `graphical` profiles on both roles; explicit `dotnix.host.
 
 Run `nix fmt` and `nix flake check --no-write-lock-file --accept-flake-config` before submitting changes. The regular check evaluates the headless composition, headless security, Niri/DMS, terminal composition, and review-access consumer contracts through the import groups and their final NixOS or Home Manager outputs. It also builds their check derivations alongside the existing formatter, generated-flake consistency, and pre-commit checks. The behavioral contracts are evaluated by Nix; building their marker derivations does not activate a system or prove runtime behavior.
 
-Extend the focused fixtures in `tests/` when changing a related consumer contract, or register a similarly focused fixture in `modules/parts/consumer-contract-checks.nix` so it runs with the same gate. The headless, Niri/DMS, terminal composition, and review-access fixtures accept the library flake as an argument for pure flake evaluation; for a direct run against the checkout, use:
+Extend the focused fixtures in `tests/` when changing a related consumer contract, or register a similarly focused fixture in `modules/standalone/consumer-checks.nix` so it runs with the same gate. The headless, Niri/DMS, terminal composition, and review-access fixtures accept the library flake as an argument for pure flake evaluation; for a direct run against the checkout, use:
 
 ```console
 nix eval --impure --raw --file tests/headless-composition.nix --apply 'fixture: fixture { }'

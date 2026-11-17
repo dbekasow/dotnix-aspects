@@ -52,7 +52,7 @@ let
     pkgs = import nixpkgs { inherit system; };
   });
   fixture = {
-    imports = [ (inputs.dotnix + "/modules/base.nix") ];
+    imports = [ (inputs.dotnix + "/modules/base") ];
     den.hosts.${system}.fixture = {
       users.fixture.classes = [ "user" ];
       inherit instantiate;

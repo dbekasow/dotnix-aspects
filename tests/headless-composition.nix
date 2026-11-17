@@ -18,7 +18,7 @@ let
     { hostIncludes ? [ ], hostModule ? { } }:
     let
       fixture = {
-        imports = [ (inputs.dotnix + "/modules/base.nix") ];
+        imports = [ (inputs.dotnix + "/modules/base") ];
         den.hosts.${system}.fixture = { };
         den.aspects.fixture = {
           includes = hostIncludes;

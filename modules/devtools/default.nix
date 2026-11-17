@@ -4,10 +4,10 @@
   imports = lib.optionals
     (inputs ? agenix-rekey && inputs ? devshell && inputs ? git-hooks && inputs ? treefmt)
     [
-      ./parts/age.nix
-      ./parts/devshell.nix
-      ./parts/pre-commit.nix
-      ./parts/treefmt.nix
+      ./age.nix
+      ./devshell.nix
+      ./pre-commit.nix
+      ./treefmt.nix
     ];
 
   # The writer must see these declarations before the inputs can be imported.
