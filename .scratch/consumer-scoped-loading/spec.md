@@ -1,6 +1,6 @@
 # Consumer-scoped loading for Dotnix Aspects
 
-Status: ready-for-agent
+Status: resolved
 
 ## Problem Statement
 
@@ -32,7 +32,7 @@ Replace the current Consumer entry point with explicit, source-only imports. Eve
 
 - Follow [ADR 0007](../../docs/adr/0007-scope-imports-and-inputs-to-the-consumer.md). Build the replacement from the pre-target-loading baseline on `main`; retain the independent-target work and ADR as history, not as a path to merge or extend. Preserve the library's standalone development and verification workflow.
 - The Consumer pins the Aspect library as a source-only input. It owns its core flake inputs directly; it cannot follow through the former library flake to its dependency graph. Keep tracked pins reproducible and do not require a checkout-specific absolute path as the supported interface.
-- Use native `import-tree` at explicit import roots. Base must not discover Desktop files. Keep a single implementation of each feature or profile and retain the established `dotnix.host.*`, `dotnix.home.*`, and `dotnix.account.*` selection interface. Do not add a feature manifest, resolver, or host-dependent import selector.
+- Use native `import-tree` within explicit group directories (`modules/base`, `modules/desktop`, and `modules/devtools`). Base must not discover Desktop files. Only the library flake imports `modules/standalone`. Keep a single implementation of each feature or profile and retain the established `dotnix.host.*`, `dotnix.home.*`, and `dotnix.account.*` selection interface. Do not add a feature manifest, resolver, or host-dependent import selector.
 - Base contains non-graphical features and profiles, including terminal, CLI development, and shared features needed without Desktop. XDG user directories stay in Base because `home.core` includes them. Keep the input used by Hunk available independently of DevTools.
 - Desktop contains graphical foundations, compositors, shells and greeters, graphical applications, and GUI integrations. The existing Graphical profile remains an explicit Den selection, not a side effect of importing Desktop. Move the Wayland clipboard out of `term-ux`; keep it available via `home.graphical` or explicit selection. Keep CLI GPG and RBW defaults in Base and their graphical pinentry variants in Desktop. Hide no compositor or application selection inside an import group.
 - DevTools is independent of Desktop and preserves the current development shell, formatter, checks/hooks, and vault commands. Runtime Age/Rekey configuration remains usable without DevTools. Only declare optional `follows` edges where the target input exists in that group's generated graph; an upstream dependency's own transitive graph is not the same as opting into the Consumer's DevTools group.
