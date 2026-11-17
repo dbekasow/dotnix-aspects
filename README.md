@@ -12,18 +12,26 @@ Every role-scoped aspect lives in one of three uniform catalogs: `dotnix.host.*`
 
 ## Usage
 
-Add the library and Den as flake inputs. Import the library's default consumer adapter in the consumer's flake-parts entry point. The adapter imports Den's flake module and the public `denful.dotnix` namespace, enables the required batteries, and declares the shared popup Quirk. Consumers do not receive wrapped module aliases or an independent host builder.
+Start from the Consumer template below, or add the library as a source-only input and import its groups in your flake-parts configuration. Base is required. Desktop registers graphical features and their inputs; omit it for a headless-only Consumer. DevTools is independent and adds repository tooling. Each Consumer owns one generated flake and lockfile, even if its hosts select different features.
 
 ```nix
 # modules/parts.nix — same entry point used by modules/templates/dotnix
 { inputs, ... }:
 {
+  flake-file.inputs.dotnix = {
+    url = "github:dbekasow/dotnix-aspects";
+    flake = false;
+  };
+
   imports = [
-    inputs.dotnix.flakeModules.default
-    inputs.dotnix.flakeModules.devTools # optional
+    (inputs.dotnix + "/modules/base.nix")
+    (inputs.dotnix + "/modules/desktop.nix")  # optional
+    (inputs.dotnix + "/modules/devtools.nix") # optional
   ];
 }
 ```
+
+For an existing Consumer, declare `dotnix` as source-only in the current generated `flake.nix` as well before the first writer run. Make Den, flake-file, flake-parts, import-tree, and nixpkgs direct inputs instead of following them through `dotnix`. The template has this bootstrap configuration already. The imported groups declare their inputs via `flake-file`; regenerate with `nix run .#write-flake`, then run `nix flake lock`. The same two commands add or remove a group and its dependencies later.
 
 Compose host and user behavior through Den entities and aspects, as in the executable template at `modules/templates/dotnix/modules/hosts/myHost/configuration.nix` and `modules/templates/dotnix/modules/users/myUser/default.nix`:
 
@@ -45,7 +53,7 @@ Compose host and user behavior through Den entities and aspects, as in the execu
 }
 ```
 
-The example illustrates the native entry/entity contract; real hosts also need hardware, disk, identity, and secret configuration. The library exposes `flakeModules.devTools` as a flake-parts module for its devshell, pre-commit, treefmt, and agenix-rekey tooling. In a consumer importing it, use `nix develop`, `nix fmt`, and `nix flake check`. Regenerate the root flake from its `flake-file` declarations with `nix run .#write-flake`; this is separate from the vault commands `nix run .#generate` and `nix run .#rekey`. Den's native output integration creates NixOS and Home Manager outputs.
+The example illustrates the native entry/entity contract; real hosts also need hardware, disk, identity, and secret configuration. With DevTools imported, use `nix develop`, `nix fmt`, and `nix flake check`. The writer is separate from the vault commands `nix run .#generate` and `nix run .#rekey`. Den's native output integration creates NixOS and Home Manager outputs.
 
 Or start from the consumer template:
 
@@ -55,7 +63,7 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 
 ### Namespace and classes
 
-`denful.dotnix` includes namespace-owned aspect definitions and custom class declarations. The default adapter imports it through Den's namespace helper so the consumer merges class schemas and aspect providers into its own Den evaluation. Select features in Den aspects and entities; namespace discovery alone never activates them. The adapter declares the `popup-launcher` Quirk, which Den's namespace alone does not export. Selected Tmux and Herdr aspects share enabled launcher data only within the same user; each renders its own keys and runtime behavior.
+Base initializes Den, registers the `dotnix` namespace and custom classes, and declares the shared `popup-launcher` Quirk. Importing a group registers features; it does not activate them. Continue selecting features in Den aspects and entities. Selected Tmux and Herdr aspects share enabled launcher data only within the same user; each renders its own keys and runtime behavior.
 
 ## Composition rules
 
@@ -122,9 +130,9 @@ Identity defaults come from the consumer's primary `accounts.email` account: mar
 
 ## Channel choice
 
-The consumer owns its nixpkgs channel. Set `dotnix.inputs.nixpkgs.follows = "nixpkgs"` in the consumer flake to make the library and its dependent inputs follow that channel. This is a flake-level choice; no per-host channel selector is provided by this library.
+The Consumer owns its direct `nixpkgs` input. Override `flake-file.inputs.nixpkgs.url` in your Consumer to change the default channel; library dependency declarations follow this root input where supported. The source-only `dotnix` input has no dependency graph to follow through.
 
-A local `path:/home/denis/projects/dotnix-aspects` input is development-only and not portable. Nix hashes the entire directory, including `.git`, untracked and ignored files; never keep private files in that library tree. After library changes, refresh only that input with `nix flake update dotnix`, or test current code with `--no-write-lock-file --override-input dotnix path:/home/denis/projects/dotnix-aspects`. Plain `nix flake lock` does not refresh an existing local snapshot.
+After updating the library, refresh only that source with `nix flake update dotnix`. If it changes the groups' input declarations, regenerate and lock the flake as above. To try a local checkout without changing a portable lock, use `--no-write-lock-file --override-input dotnix git+file:///path/to/dotnix-aspects`.
 
 ## Secrets and authentication (conventional resources)
 
@@ -176,7 +184,7 @@ Stylix is part of the `graphical` profiles on both roles; explicit `dotnix.host.
 
 ## Consumer contract checks
 
-Run `nix fmt` and `nix flake check --no-write-lock-file --accept-flake-config` before submitting changes. The regular check evaluates the headless composition, headless security, Niri/DMS, terminal composition, and review-access consumer contracts through `flakeModules.default` and their final NixOS or Home Manager outputs. It also builds their check derivations alongside the existing formatter, generated-flake consistency, and pre-commit checks. The behavioral contracts are evaluated by Nix; building their marker derivations does not activate a system or prove runtime behavior.
+Run `nix fmt` and `nix flake check --no-write-lock-file --accept-flake-config` before submitting changes. The regular check evaluates the headless composition, headless security, Niri/DMS, terminal composition, and review-access consumer contracts through the import groups and their final NixOS or Home Manager outputs. It also builds their check derivations alongside the existing formatter, generated-flake consistency, and pre-commit checks. The behavioral contracts are evaluated by Nix; building their marker derivations does not activate a system or prove runtime behavior.
 
 Extend the focused fixtures in `tests/` when changing a related consumer contract, or register a similarly focused fixture in `modules/parts/consumer-contract-checks.nix` so it runs with the same gate. The headless, Niri/DMS, terminal composition, and review-access fixtures accept the library flake as an argument for pure flake evaluation; for a direct run against the checkout, use:
 
@@ -196,7 +204,7 @@ The last command separately exercises the diagnostic on a conflicting system eva
 
 **Secrets with agenix-rekey** — Host and home secrets use separate `dotnix.host.age-rekey` and `dotnix.home.age-rekey` selections. Consumers provide their native `age.rekey` resource options; the library supplies no repository path defaults. `dotnix.account.passwords` remains a separate per-account opt-in and requires explicit host rekey resources.
 
-**Den-native outputs** — the consumer evaluates Den host and user entities; the default adapter imports `denful.dotnix` through `den.namespace`. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
+**Den-native outputs** — Base registers `dotnix` through `den.namespace`, and the Consumer evaluates its own Den host and user entities. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
 
 ## License
 

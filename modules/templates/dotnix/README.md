@@ -20,11 +20,12 @@ modules/
   users/
     myUser/
       default.nix          # Den user aspect and Home Manager settings
-  parts.nix                # Den namespace, batteries and dev tools
-flake.nix
+  parts.nix                # source-only library input and explicit import groups
+flake.nix                  # generated from flake-file declarations
+flake.lock
 ```
 
-`modules/parts.nix` is the Den entry point. It imports the library's default adapter, which imports Den and the library namespace, declares the user-scope `popup-launcher` Quirk for Tmux/Herdr, and enables the `flake-scope` and `hostname` batteries. It also imports the optional development tools. The host configuration registers `myHost` and gives `myuser` the `user` and `homeManager` classes; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that account. The user aspect explicitly selects `account.users`; integrated Home Manager remains optional through its separate class. Host and home Age/Rekey aspects are selected separately and wire their `age.rekey` resources from the conventional consumer layout. Add `account.passwords` only to users who need generated passwords; it stays inactive until the host's secret directories and public key are configured. The example explicitly opts into `home.gpg-agent-gui`; `home.graphical` does not force GUI pinentry.
+`modules/parts.nix` imports Base from the source-only `dotnix` input. This template also imports Desktop for its graphical selections and DevTools for its repository tooling. Group imports register features; only the host and home selections apply them. The host configuration registers `myHost` and gives `myuser` the `user` and `homeManager` classes; its `provides.myuser` edge routes the user aspect from `modules/users/myUser/default.nix` into that account. The user aspect explicitly selects `account.users`; integrated Home Manager remains optional through its separate class. Host and home Age/Rekey aspects are selected separately and wire their `age.rekey` resources from the conventional consumer layout. Add `account.passwords` only to users who need generated passwords; it stays inactive until the host's secret directories and public key are configured. The example explicitly opts into `home.gpg-agent-gui`; `home.graphical` does not force GUI pinentry.
 
 Shell selection is explicit at both scopes: `home.graphical` and `home.dms` are provided to `myuser` for Home Manager configuration, while `host.graphical` is included by the host for NixOS configuration. The user aspect selects `home.ghostty`, `home.firefox`, and `home.thunderbird` individually and owns their `Mod+T`, `Mod+B`, and `Mod+O` Niri launch keys. Change those bindings when choosing different applications; the reusable Niri feature supplies general window, workspace, and session keys, not application launchers. To select Noctalia, replace `home.dms` with `home.noctalia` in `provides.myuser.includes` and `host.dms` with `host.noctalia` in host `includes`, select `host.noctalia-greeter` instead of `host.dms-greeter`, and remove DMS-only `programs.dms-greeter.*` assignments from the host's `nixos` settings. Greeter resources remain host-owned; see the example below.
 
@@ -72,7 +73,7 @@ Use native options for additional resources in `modules/hosts/myHost/configurati
 
 The template includes no usable credentials or master identities. Supply valid consumer-owned identities before deploying or managing real secrets; never add private keys or real credentials to this repository. Run `nix run .#generate` and `nix run .#rekey` only after supplying resources appropriate for your consumer.
 
-The template's `nixpkgs` input follows `dotnix/nixpkgs` by default. If a consumer changes that relationship, it owns compatibility with the library's pinned dependencies and should test and lock the resulting input set.
+The template owns its direct `nixpkgs` input and locks it alongside the dependencies for its three import groups. After changing input declarations or adding or removing a group, run `nix run .#write-flake` and then `nix flake lock`. Remove selections from a group before removing its import. Run `nix flake update dotnix` to update the library source independently.
 
 ## Adding a host
 

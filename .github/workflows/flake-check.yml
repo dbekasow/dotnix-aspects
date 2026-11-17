@@ -27,7 +27,7 @@ jobs:
         # covers: treefmt checks (nixpkgs-fmt, deadnix, statix, typos, prettier …).
         # commitizen + detect-private-keys run locally via prek, not in CI.
 
-  # Instantiate fresh consumer using exported Den namespace against checkout
+  # Instantiate a fresh Consumer with source-only imports from the checkout
   # and build its toplevel closure — the contract library checks alone miss.
   consumer-fixture:
     runs-on: ubuntu-latest
@@ -45,4 +45,4 @@ jobs:
       - run: >
           nix build
           /tmp/fixture#nixosConfigurations.myHost.config.system.build.toplevel
-          --override-input dotnix "$GITHUB_WORKSPACE" --accept-flake-config
+          --no-write-lock-file --override-input dotnix "git+file://$GITHUB_WORKSPACE" --accept-flake-config
