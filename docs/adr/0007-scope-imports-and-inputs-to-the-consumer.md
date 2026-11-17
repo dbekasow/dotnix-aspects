@@ -1,0 +1,11 @@
+# Scope imports and inputs to the Consumer
+
+Status: accepted design; not implemented.
+
+Supersedes the independent-target-flake design (former ADR 0006). A Consumer owns one flake and one lockfile for all its configuration targets. The Consumer chooses which library modules and input declarations enter that flake. Den still selects which registered features apply to each host, home, and account. A mixed Consumer may load Desktop once even though only some targets use it. A WSL-only Consumer that omits Desktop must not import Desktop modules or have Desktop-only dependencies in its reachable input graph. Desktop files may still be present in the shared source tree.
+
+Use a source-only Aspect library input (`flake = false`) so the Consumer does not inherit the library flake's full dependency graph. Offer three explicit import groups: **Base** for non-GUI configuration, **Desktop** as an opt-in for graphical features and their inputs, and **DevTools** as an independent opt-in for repository tooling. Import groups register modules; they are not Den profiles and do not activate their features. Use `import-tree`, `flake-file`'s existing writer, normal Nix locking, and native Den selections. No additional shell scripts, generated target flakes, lock seeding, or parallel selection catalogue are needed.
+
+The trade-off is intentional: a Consumer that imports Desktop locks the whole group's inputs even if it uses only some graphical features. In return there is no per-target dependency resolver or lockfile maintenance. The Niri experiment verified the two sides of the boundary with the pinned tools: omitting Desktop removed its imports and inputs, and selecting Niri for one of two targets did not enable it on the other.
+
+The public Consumer entry point moves to the new interface directly, together with the published Consumer template and the private reference Consumer. This does not remove the library's own development flake. [ADR 0004](0004-content-under-modules.md)'s content-root convention remains; its all-feature discovery strategy no longer defines the Consumer interface. This decision does not authorize deployment.
