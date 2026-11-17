@@ -3,7 +3,6 @@
   dotnix.home.term-ux.includes = with dotnix.home; [
     atuin
     carapace
-    clipboard
     direnv
     fzf
     skim

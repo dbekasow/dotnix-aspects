@@ -1,8 +1,4 @@
 { inputs, ... }:
-let
-  # Keep the agenix dependency closed over the library flake.
-  libraryInputs = inputs;
-in
 {
   flake-file.inputs.agenix = {
     url = "github:ryantm/agenix";
@@ -10,7 +6,7 @@ in
   };
 
   dotnix.host.age = {
-    nixos.imports = [ libraryInputs.agenix.nixosModules.default ];
+    nixos.imports = [ inputs.agenix.nixosModules.default ];
 
     # Impermanence contribution for the host's SSH identity.
     systemPersistence = {
@@ -19,6 +15,6 @@ in
   };
 
   dotnix.home.age = {
-    homeManager.imports = [ libraryInputs.agenix.homeManagerModules.default ];
+    homeManager.imports = [ inputs.agenix.homeManagerModules.default ];
   };
 }

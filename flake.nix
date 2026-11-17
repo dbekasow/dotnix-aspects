@@ -4,12 +4,7 @@
   outputs =
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [
-        inputs.flake-file.flakeModules.default
-        inputs.den.flakeModule
-        (inputs.den.namespace "dotnix" true)
-        ./modules/expose.nix
-      ];
+      imports = [ ./modules/expose.nix ];
     };
 
   inputs = {

@@ -99,47 +99,57 @@ consumer="$tmp/consumer"
 trap 'rm -rf -- "$tmp"' EXIT
 
 cd "$repo"
-nix flake new "$consumer" --template "path:$repo#default"
-cp "$repo/tests/consumer-generation/myHost.nix" "$consumer/modules/hosts/myHost/configuration.nix"
-(cd "$consumer" && nix flake lock --override-input dotnix "path:$repo")
+mkdir -p "$consumer/modules"
+cp tests/consumer-generation/flake.nix "$consumer/flake.nix"
+cp tests/consumer-generation/myHost.nix "$consumer/modules/myHost.nix"
+# The disposable source-only input is a snapshot of the library under test.
+cp -R --no-preserve=mode "$(nix eval --raw --impure --expr '(builtins.getFlake (toString ./.)).outPath')" "$consumer/library"
 
-eval_direnv() (
-  cd "$consumer"
-  nix eval --json --override-input dotnix "path:$repo" \
-    .#nixosConfigurations.myHost.config.home-manager.users.myuser.programs.direnv-instant.enable
-)
+cd "$consumer"
+nix run .#write-flake
+nix flake lock
 
-assert_direnv_activated() {
-  local phase="$1"
-  local enabled
-  enabled="$(eval_direnv)"
-  if [[ $enabled != true ]]; then
-    printf 'Direnv was not enabled %s: %s\n' "$phase" "$enabled" >&2
-    exit 1
-  fi
-}
+nix eval --json .#nixosConfigurations.myHost --apply '
+  {config, pkgs, ...}:
+  let home = config.home-manager.users.myuser; in
+  assert home.programs.direnv-instant.enable;
+  assert home.programs.tmux.enable;
+  assert home.programs.helix.enable;
+  assert builtins.any (p: (p.pname or p.name) == "hunk") home.home.packages;
+  assert !(builtins.any (p: (p.pname or p.name) == "wl-clipboard") home.home.packages);
+  assert home.xdg.userDirs.enable;
+  assert home.services.gpg-agent.pinentry.package.pname == "pinentry-curses";
+  assert home.programs.rbw.settings.pinentry == (toString pkgs.pinentry-curses + "/bin/pinentry");
+  assert config.age.rekey.storageMode == "local" && home.age.rekey.storageMode == "local";
+  true
+'
 
-assert_no_consumer_direnv_input() {
-  local present
-  present="$(nix eval --impure --json --expr "let lock = builtins.fromJSON (builtins.readFile $consumer/flake.lock); in builtins.hasAttr ''direnv-instant'' lock.nodes.root.inputs")"
-  if [[ $present != false ]]; then
-    printf 'Consumer root unexpectedly declares direnv-instant: %s\n' "$present" >&2
-    exit 1
-  fi
-}
+nix eval --json .#denful.dotnix --apply '
+  dotnix:
+  assert !(dotnix.host ? graphical || dotnix.host ? niri || dotnix.host ? dms);
+  assert !(dotnix.home ? graphical || dotnix.home ? clipboard || dotnix.home ? gpg-agent-gui || dotnix.home ? rbw-gui);
+  true
+'
 
-assert_direnv_activated "before generation"
-assert_no_consumer_direnv_input
+# Nix writes the reachable nodes of the lock graph, including transitive inputs.
+# shellcheck disable=SC2016
+nix eval --impure --json --expr '
+  let
+    lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+    root = lock.nodes.${lock.root}.inputs;
+    library = lock.nodes.${root.dotnix};
+    desktopRepos = [ "niri-flake" "DankMaterialShell" "dank-greeter" "dms-plugin-registry" "noctalia" "noctalia-greeter" "NUR" "stylix" ];
+  in
+  assert !library.flake && (library.inputs or {}) == {};
+  assert !(builtins.any (node: builtins.elem (node.locked.repo or "") desktopRepos) (builtins.attrValues lock.nodes));
+  assert !(root ? devshell || root ? git-hooks || root ? treefmt);
+  true
+'
 
-(cd "$consumer" && nix run --override-input dotnix "path:$repo" .#write-flake)
-assert_direnv_activated "after first generation"
-assert_no_consumer_direnv_input
-cp "$consumer/flake.nix" "$tmp/flake.after-first-generation"
-cp "$consumer/flake.lock" "$tmp/lock.after-first-generation"
-
-(cd "$consumer" && nix run --override-input dotnix "path:$repo" .#write-flake)
-assert_direnv_activated "after repeated generation"
-assert_no_consumer_direnv_input
-cmp "$tmp/flake.after-first-generation" "$consumer/flake.nix"
-cmp "$tmp/lock.after-first-generation" "$consumer/flake.lock"
-printf 'Consumer generation lifecycle passed\n'
+cp flake.nix "$tmp/flake.after-first-generation"
+cp flake.lock "$tmp/lock.after-first-generation"
+nix run .#write-flake
+nix flake lock
+cmp "$tmp/flake.after-first-generation" flake.nix
+cmp "$tmp/lock.after-first-generation" flake.lock
+printf 'Base Consumer generation lifecycle passed\n'

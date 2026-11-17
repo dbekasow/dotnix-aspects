@@ -1,12 +1,9 @@
-library:
+namespaceSources:
 { den, inputs, ... }:
-let
-  namespace = inputs.den.namespace "dotnix" [ library true ];
-in
 {
   imports = [
     inputs.den.flakeModule
-    namespace
+    (inputs.den.namespace "dotnix" namespaceSources)
   ];
 
   den.default.includes = [

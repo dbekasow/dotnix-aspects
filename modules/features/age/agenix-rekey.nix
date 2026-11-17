@@ -1,17 +1,10 @@
 { inputs, ... }:
-let
-  # Keep the agenix-rekey dependency closed over the library flake.
-  libraryInputs = inputs;
-in
 {
   flake-file.inputs.agenix-rekey = {
     url = "github:oddlama/agenix-rekey";
     inputs = {
-      devshell.follows = "devshell";
       flake-parts.follows = "flake-parts";
       nixpkgs.follows = "nixpkgs";
-      pre-commit-hooks.follows = "git-hooks";
-      treefmt-nix.follows = "treefmt";
     };
   };
 
@@ -33,7 +26,7 @@ in
         imports = [
           {
             key = "dotnix:agenix-rekey:nixos";
-            imports = [ libraryInputs.agenix-rekey.nixosModules.default ];
+            imports = [ inputs.agenix-rekey.nixosModules.default ];
           }
         ];
 
@@ -64,7 +57,7 @@ in
         imports = [
           {
             key = "dotnix:agenix-rekey:homeManager";
-            imports = [ libraryInputs.agenix-rekey.homeManagerModules.default ];
+            imports = [ inputs.agenix-rekey.homeManagerModules.default ];
           }
         ];
 

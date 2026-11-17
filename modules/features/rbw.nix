@@ -1,4 +1,3 @@
-{ dotnix, ... }:
 {
   # The Bitwarden account address defaults to the consumer's primary
   # `accounts.email` account; an explicit `programs.rbw.settings.email` still
@@ -18,12 +17,4 @@
         };
       };
     };
-
-  # Optional GUI integration, owned by the rbw feature.
-  dotnix.home.rbw-gui = {
-    includes = [ dotnix.home.rbw ];
-    homeManager = { lib, pkgs, ... }: {
-      programs.rbw.settings.pinentry = lib.mkOverride 900 pkgs.pinentry-gnome3;
-    };
-  };
 }

@@ -1,4 +1,3 @@
-{ dotnix, ... }:
 {
   dotnix.home.gpg-agent = {
     homeManager = { lib, pkgs, ... }: {
@@ -20,14 +19,6 @@
     # Impermanence contribution for gpg-agent.
     homePersistence = {
       home.persistence."/persist".directories = [ ".gnupg" ];
-    };
-  };
-
-  # Optional GUI integration, owned by the gpg-agent feature.
-  dotnix.home.gpg-agent-gui = {
-    includes = [ dotnix.home.gpg-agent ];
-    homeManager = { lib, pkgs, ... }: {
-      services.gpg-agent.pinentry.package = lib.mkOverride 900 pkgs.pinentry-gnome3;
     };
   };
 }

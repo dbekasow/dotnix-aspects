@@ -1,6 +1,6 @@
-{ inputs, ... }: {
+{ inputs, lib, ... }: {
   flake-file.inputs.home-manager = {
-    url = "github:nix-community/home-manager";
+    url = lib.mkDefault "github:nix-community/home-manager";
     inputs.nixpkgs.follows = "nixpkgs";
   };
   # Neutral wiring only — the core→HM-core sharedModules coupling lives in

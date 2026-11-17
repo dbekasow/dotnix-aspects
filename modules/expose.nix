@@ -1,16 +1,6 @@
 { inputs, lib, ... }:
 let
-  # Use pinned import-tree defaults for entry-point discovery.
-  discoverModules = root: lib.pipe inputs.import-tree [
-    (i: i.addPath "${root}")
-    (i: i.withLib lib)
-    (i: i.files)
-  ];
-
-  featureModules = discoverModules ./features;
-  profileModules = discoverModules ./profiles;
-
-  consumerAdapter = (import ./integration/default.nix) inputs.self;
+  consumerAdapter = import ./integration/default.nix [ inputs.self true ];
 
   # Keep imports within the flake source instead of copying the whole modules tree.
   devParts = map (name: ./parts + "/${name}") [
@@ -22,25 +12,24 @@ let
   ];
 in
 {
-  imports = featureModules ++ profileModules ++ devParts ++ [ ./parts/consumer-contract-checks.nix ];
+  imports = [
+    ./base.nix
+    (inputs.import-tree ./desktop)
+    ./parts/consumer-contract-checks.nix
+  ] ++ devParts;
 
   config = {
     flake-file.outputs = ''
       inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-        imports = [
-          inputs.flake-file.flakeModules.default
-          inputs.den.flakeModule
-          (inputs.den.namespace "dotnix" true)
-          ./modules/expose.nix
-        ];
+        imports = [ ./modules/expose.nix ];
       }
     '';
 
-    flake-file.inputs = {
-      den.url = "github:denful/den/7594405b45e0ce2d5a418fe104a26e17f6b1dd8f";
-      flake-file.url = "github:vic/flake-file";
-      import-tree.url = "github:vic/import-tree";
-      nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Standalone has these tooling inputs; Base Consumers need not.
+    flake-file.inputs.agenix-rekey.inputs = {
+      devshell.follows = "devshell";
+      pre-commit-hooks.follows = "git-hooks";
+      treefmt-nix.follows = "treefmt";
     };
 
     flake.flakeModules.default = consumerAdapter;
