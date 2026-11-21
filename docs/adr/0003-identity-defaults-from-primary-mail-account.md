@@ -1,6 +1,6 @@
 # Identity defaults come from the primary mail account
 
-Status: accepted
+Status: superseded by [ADR 0009](0009-keep-tool-identities-independent-of-mail.md).
 
 `home.git` and `home.rbw` default their identity options to the consumer's
 primary `accounts.email` account: `programs.git.settings.user` takes its

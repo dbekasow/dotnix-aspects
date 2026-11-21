@@ -130,7 +130,7 @@ Persistence follows the same scope separation: selected `systemPersistence` cont
 
 `home.mail` is an opt-in bundle; include it only for users who read mail. Select `home.dms`/`host.dms-greeter` or `home.noctalia`/`host.noctalia-greeter` explicitly on hosts that need a graphical session. New bundles should appear with their first real consumer, not from theory.
 
-Identity defaults come from the consumer's primary `accounts.email` account: mark one account `primary = true` (with `realName`) and `home.git` defaults `programs.git.settings.user` — name from `realName`, email from the address — while `home.rbw` defaults `programs.rbw.settings.email` to the address. Explicit per-feature settings still win, so a Git author address, vault login, or mail account address can differ where it must; when selecting `maildir`, set `programs.notmuch.settings.user.name` and `programs.notmuch.settings.user.primary_email` through their native options. Relying on the defaults without a primary account fails evaluation.
+Git and rbw do not take their identities from primary mail. Set `programs.git.settings.user.name` and `.email` to manage authorship in Home Manager. Set `programs.rbw.settings.email` when selecting rbw, including through a terminal profile. Neither requires a mail account. If the identities should move together, explicitly reuse a consumer-owned value or reference a mail account in those native settings. When selecting `maildir`, set `programs.notmuch.settings.user.name` and `programs.notmuch.settings.user.primary_email` through their native options.
 
 ## Channel choice
 

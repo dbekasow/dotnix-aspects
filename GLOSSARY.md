@@ -35,4 +35,4 @@ A consumer choice to apply reusable home-scoped configuration to one explicitly 
 A consumer choice to apply reusable account-level settings to an explicitly selected account, independently of that account's home selection.
 
 **Primary account**:
-The one email account a consumer marks primary. Identity-bearing features default to its address and real name unless the consumer sets them explicitly.
+The one email account a consumer marks primary for mail. It does not supply Git or vault identities unless the consumer explicitly references it.

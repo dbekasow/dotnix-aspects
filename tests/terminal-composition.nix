@@ -7,7 +7,24 @@ let
   pkgs = inputs.nixpkgs.legacyPackages.${system};
   agentPackages = inputs.llm-agents.packages.${system};
 
-  evaluate = { aliceIncludes ? [ ], bobIncludes ? [ ] }:
+  bobAuthor = {
+    name = "Bob Fixture";
+    email = "bob-tools@example.com";
+  };
+  bobToolSettings = {
+    programs.git.settings.user = bobAuthor;
+    programs.rbw.settings.email = bobAuthor.email;
+  };
+  primaryMailbox = name: address: {
+    accounts.email.accounts.${name} = {
+      primary = true;
+      realName = name;
+      inherit address;
+    };
+  };
+  originalMailbox = primaryMailbox "Original" "original@example.com";
+
+  evaluate = { aliceIncludes ? [ ], bobIncludes ? [ ], bobSettings ? bobToolSettings }:
     let
       fixture = {
         imports = [ (inputs.dotnix + "/modules/base") ];
@@ -33,11 +50,7 @@ let
                 home.username = "alice";
                 home.homeDirectory = "/home/alice";
                 home.stateVersion = "25.11";
-                accounts.email.accounts.fixture = {
-                  primary = true;
-                  realName = "Alice Fixture";
-                  address = "alice@example.com";
-                };
+                programs.rbw.settings.email = "alice@example.com";
               };
             };
             bob = {
@@ -46,12 +59,7 @@ let
                 home.username = "bob";
                 home.homeDirectory = "/home/bob";
                 home.stateVersion = "25.11";
-                accounts.email.accounts.fixture = {
-                  primary = true;
-                  realName = "Bob Fixture";
-                  address = "bob@example.com";
-                };
-              };
+              } // bobSettings;
             };
           };
         };
@@ -66,10 +74,13 @@ let
     };
 
   control = evaluate { };
-  composed = evaluate {
+  composition = {
     aliceIncludes = [ dotnix.home.terminal-herdr ];
     bobIncludes = with dotnix.home; [ terminal development ];
   };
+  composed = evaluate composition;
+  bobWith = bobSettings: (evaluate (composition // { inherit bobSettings; })).bob;
+  mailOnly = bobWith originalMailbox;
   explicit = evaluate {
     aliceIncludes = with dotnix.home; [ terminal-herdr workmux llm-agents ai-tools repomix ];
     bobIncludes = with dotnix.home; [ terminal workmux ];
@@ -78,6 +89,18 @@ let
     builtins.any (installed: installed.outPath == package.outPath) home.home.packages;
   persisted = home: map (entry: entry.directory) home.home.persistence."/persist".directories;
   assertions = {
+    explicitToolIdentitiesDoNotDependOnMail =
+      builtins.all
+        (home: home.programs.git.settings.user == bobAuthor && home.programs.rbw.settings.email == bobAuthor.email)
+        [
+          composed.bob
+          (bobWith (bobToolSettings // originalMailbox))
+          (bobWith (bobToolSettings // primaryMailbox "Replacement" "replacement@example.com"))
+        ];
+    primaryMailDoesNotSupplyToolIdentities =
+      !(mailOnly.programs.git.settings ? user)
+      # Home Manager declares rbw's email option even when no value is set.
+      && !(builtins.tryEval mailOnly.programs.rbw.settings.email).success;
     developmentKeepsGeneralTools =
       composed.bob.programs.helix.enable
       && composed.bob.programs.git.enable

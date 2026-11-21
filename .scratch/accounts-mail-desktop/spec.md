@@ -17,8 +17,8 @@ reusable features and optional profiles; the consumer owns occupants, concrete
 accounts, configuration targets, and selections. Preserve the role catalogs from
 [ADR 0001](../../docs/adr/0001-split-aspects-into-role-catalogs.md), consumer-owned
 composition from [ADR 0002](../../docs/adr/0002-occupant-composition-stays-consumer-owned.md),
-and primary-account identity defaults from
-[ADR 0003](../../docs/adr/0003-identity-defaults-from-primary-mail-account.md).
+and independent tool identities from
+[ADR 0009](../../docs/adr/0009-keep-tool-identities-independent-of-mail.md).
 
 The repository changed during the interview. The final baseline inspected was
 commit `5d98a33`. [ADR 0005](../../docs/adr/0005-keep-machine-and-personal-selections-explicit.md)
@@ -36,7 +36,7 @@ authorize a new abstraction, profile, or option API.
 ## Scope
 
 - A coherent consumer path from OS account selection to Home Manager selection
-  and shared identity data.
+  and consumer-owned mail, Git, and rbw identities.
 - Thunderbird and aerc using common consumer-owned IMAP/SMTP account definitions.
 - Niri with Noctalia: session lifecycle, app integration, desktop services,
   authentication, idle behavior, and a coordinated visual treatment with Ghostty.
@@ -58,18 +58,17 @@ authorize a new abstraction, profile, or option API.
 
 ## Agreed requirements
 
-### 1. Accounts and shared identity
+### 1. Accounts and independent tool identities
 
 1. Concrete OS/login accounts and email accounts remain separate concepts, both
    owned by the consumer. Home selection must remain explicit for the intended
    account and configuration target.
 2. Show a coherent account/home/identity path in the consumer reference material.
-   The reference template should demonstrate a primary email account as the
-   common source of name and address for Git and rbw, instead of unnecessarily
-   repeating those values. Use the existing ADR 0003 behavior.
-3. Explicit native overrides for genuinely different Git or vault identities
-   remain supported. A primary email account used only as an identity registry
-   must not require operating a mail stack.
+   Set Git authorship and the rbw account address through their native options.
+   Consumers can deliberately reuse the same value or reference their primary
+   mail account when the identities should move together.
+3. Changing primary mail must not silently change Git authorship or the vault
+   account. Configuring either tool identity must not require a mail account.
 4. Do not encode occupants or personal selections in the reusable library.
 
 ### 2. Mail without Proton
@@ -249,7 +248,7 @@ an approved recovery and testing procedure.
 | ID  | Scenario and expected result                                                                                                                                                                          |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | A1  | Configure an OS account and explicitly selected home; only that target receives the intended configuration.                                                                                           |
-| A2  | Change the primary email identity once; Git and rbw follow unless explicitly overridden. An identity-only account does not force mail setup.                                                          |
+| A2  | Change the primary mail account; explicit Git and rbw identities do not change unless linked by the consumer. Both tool identities can be configured without mail.                                    |
 | M1  | One consumer IMAP/SMTP definition produces usable Thunderbird and aerc account settings without credentials in the Nix store.                                                                         |
 | M2  | Close both clients; a new server message is retrieved by the next successful 15-minute cycle and indexed. No duplicate sync runs occur.                                                               |
 | M3  | Disconnect the network or lock the vault; retrieval does not prompt, failures are diagnosable, and later cycles recover when prerequisites return.                                                    |
