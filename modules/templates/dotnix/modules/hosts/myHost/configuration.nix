@@ -9,8 +9,6 @@
     # must match the user aspect name in modules/users/<user>/default.nix
     provides.myuser.includes = with dotnix; [
       myuser
-      home.graphical # graphical foundation for this user's home
-      home.niri # per-user Niri configuration and bindings
       home.gpg-agent-gui # explicit graphical pinentry integration for this user
       home.pipewire # WirePlumber state persistence for this user's home
     ];
@@ -21,7 +19,7 @@
       host.age # host-side decryption
       host.age-rekey # agenix-rekey wiring for the age.rekey resources below
       host.graphical # graphical foundation
-      host.niri # NixOS Niri support, separate from per-user configuration
+      host.niri # Niri and its integrated-home defaults
       host.dms # shell for this host and its integrated homes; or select host.noctalia
       host.dms-greeter # greeter — swap for `host.noctalia-greeter`
       host.boot-baseline # shared boot behavior

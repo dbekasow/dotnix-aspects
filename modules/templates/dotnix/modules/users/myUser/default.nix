@@ -9,7 +9,6 @@
       home.ghostty # terminal
       home.firefox # browser
       home.thunderbird # mail
-      home.core # SSH and XDG baseline
       home.age # home-side decryption
       home.age-rekey # keep the existing home vault independent of host authentication
       home.persistence # generic persistence baseline for this home
@@ -17,14 +16,8 @@
 
     user.extraGroups = [ "wheel" "networkmanager" ];
 
-    homeManager = { config, ... }: {
+    homeManager = {
       home.stateVersion = "26.11";
-      # These launch keys belong to this consumer's chosen applications.
-      programs.niri.settings.binds = with config.lib.niri.actions; {
-        "Mod+T".action = spawn "ghostty";
-        "Mod+B".action = spawn "firefox";
-        "Mod+O".action = spawn "thunderbird";
-      };
 
       # Home identity and rekey resources are owned by this consumer home,
       # independently of host authentication.
@@ -41,8 +34,7 @@
         # against a key nobody holds; replace before going live.
         extraEncryptionPubkeys = [ "age178wfu8598yp9vgcq3c5vwfmvtsqncypd0gkmal873yzl0y8zq5ls07q2cz" ];
       };
-      # RBW (Bitwarden CLI) needs the account address as a native Home Manager
-      # option; it is the user's own identity and stays out of the shared aspect.
+      # This template has no primary mail account, so set tool identities explicitly.
       programs.rbw.settings.email = "user@example.com";
       programs.git.settings.user = {
         name = "Full Name";
