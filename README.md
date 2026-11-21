@@ -165,7 +165,7 @@ Greeters are host-wide and do not inspect account ordering, Home Manager selecti
 | RBW                         | `dotnix.home.rbw`                                                 |
 | YubiKey hardware and PAM    | `dotnix.host.yubikey`, `dotnix.host.yubikey-pam`                  |
 
-Host and home `age.rekey` resources stay independently selectable, and home rekey does not require host-side age-rekey. Overriding the native `secretsDir` relocates `generated/` and `local/` with it. `masterIdentities`, `extraEncryptionPubkeys` and `age.identityPaths` remain consumer-owned and explicit, set on the host or Home Manager target that owns each identity.
+Host and home `age.rekey` resources stay independently selectable, and native home rekey does not require host-side age-rekey. For a host-provisioned identity selected on a specific host and account, use [`dotnix.home.managed-secrets`](docs/managed-home-secrets.md). Overriding the native `secretsDir` relocates `generated/` and `local/` for the native selections. `masterIdentities` and `extraEncryptionPubkeys` remain consumer-owned and explicit.
 
 ```nix
 # Consumer host module — identities stay explicit; resource paths come

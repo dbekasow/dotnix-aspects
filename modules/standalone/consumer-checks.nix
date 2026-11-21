@@ -21,6 +21,8 @@
         consumer-headless-composition = evaluated "consumer-headless-composition"
           (import ../../tests/headless-composition.nix { inherit source; });
         consumer-headless-security = securityFixture.checks.${system}.headless-security;
+        consumer-managed-home-secrets = evaluated "consumer-managed-home-secrets"
+          (import ../../tests/managed-home-secrets.nix { inherit source; });
         consumer-niri-dms = evaluated "consumer-niri-dms"
           (import ../../tests/niri-dms.nix { inherit source; });
         consumer-terminal-composition = evaluated "consumer-terminal-composition"

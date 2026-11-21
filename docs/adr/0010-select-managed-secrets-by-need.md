@@ -1,6 +1,6 @@
 # Select managed secrets only where needed
 
-Status: accepted design; implementation and scenario tests have not been verified.
+Status: accepted. Integrated-home selection and bootstrap are covered by a disposable configuration check. [Luffy's migration](../managed-home-secrets.md#luffy-migration--do-not-change-the-live-wiring-yet) remains blocked on recovery evidence.
 
 Configuring a mail account does not select a managed vault: an integrated home on NixOS under WSL can configure its mail client and use an existing login method. On a shared host, enabling secret management makes it available but does not provision a decryption identity for a home that needs no managed secrets. Unlike the desktop shell, a private key is not a host-wide default for every occupant.
 
