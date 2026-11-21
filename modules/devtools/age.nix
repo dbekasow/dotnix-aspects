@@ -2,6 +2,8 @@
   imports = [ inputs.agenix-rekey.flakeModule ];
 
   perSystem = { config, pkgs, ... }: {
+    devshells.default.packages = [ pkgs.rage pkgs.age-plugin-yubikey config.agenix-rekey.package ];
+
     # agenix-rekey moved its apps to flake.agenix-rekey.<system>.<app>, which
     # `nix run` cannot reach; re-expose the two documented flows around the
     # agenix wrapper so `nix run .#rekey` / `.#generate` keep working.

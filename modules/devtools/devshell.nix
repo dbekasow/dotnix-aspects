@@ -1,7 +1,7 @@
 { inputs, ... }: {
   imports = [ inputs.devshell.flakeModule ];
 
-  perSystem = { config, pkgs, ... }: {
+  perSystem = { pkgs, ... }: {
     devshells.default = {
       name = "dotnix";
 
@@ -28,11 +28,6 @@
         # Misc
         git
         just
-
-        # Agenix
-        rage
-        age-plugin-yubikey
-        config.agenix-rekey.package
       ];
     };
   };
