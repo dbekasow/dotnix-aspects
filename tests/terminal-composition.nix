@@ -97,10 +97,15 @@ let
           (bobWith (bobToolSettings // originalMailbox))
           (bobWith (bobToolSettings // primaryMailbox "Replacement" "replacement@example.com"))
         ];
-    primaryMailDoesNotSupplyToolIdentities =
-      !(mailOnly.programs.git.settings ? user)
-      # Home Manager declares rbw's email option even when no value is set.
-      && !(builtins.tryEval mailOnly.programs.rbw.settings.email).success;
+    primaryMailSuppliesToolDefaults =
+      mailOnly.programs.git.settings.user == { name = "Original"; email = "original@example.com"; }
+      && mailOnly.programs.rbw.settings.email == "original@example.com";
+    toolFeaturesDoNotRequireMail =
+      let home = bobWith { };
+      in home.programs.git.enable && home.programs.rbw.enable
+        && !(home.programs.git.settings ? user)
+        # Home Manager still needs an explicit rbw email to render its config.
+        && !(builtins.tryEval home.programs.rbw.settings.email).success;
     developmentKeepsGeneralTools =
       composed.bob.programs.helix.enable
       && composed.bob.programs.git.enable

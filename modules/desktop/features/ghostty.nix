@@ -8,6 +8,14 @@ let
 in
 {
   dotnix.home.ghostty.homeManager = { pkgs, ... }: {
+    imports = [
+      (import ../lib/niri-launcher.nix {
+        key = "Mod+T";
+        command = "ghostty";
+        enabled = { config, ... }: config.programs.ghostty.enable;
+      })
+    ];
+
     programs.ghostty = {
       enable = true;
 

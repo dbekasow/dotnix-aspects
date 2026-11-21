@@ -46,9 +46,9 @@ application and agent selections.
   launch bindings must match these selections; it is not merely a disconnected
   set of selection examples. It keeps an explicit Btrfs/LUKS, bootloader,
   and persistence example, but root reset becomes a documented opt-in rather
-  than a default selection. Application-specific Niri launch bindings belong
-  to the consumer; the reusable Niri feature retains general window,
-  workspace, and session keys. Geolocation, YubiKey support, and performance
+  than a default selection. Reusable application modules supply their Niri
+  launch bindings only for the selected apps in a Niri home. Consumers can
+  override them; Niri itself owns the general window, workspace, and session keys. Geolocation, YubiKey support, and performance
   tuning are documented optional additions, not template defaults.
 
 This favors visible consumer choices over shorter include lists. In particular,

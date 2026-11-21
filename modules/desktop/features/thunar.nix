@@ -1,4 +1,12 @@
 {
+  dotnix.host.thunar.provides.to-users.homeManager.imports = [
+    (import ../lib/niri-launcher.nix {
+      key = "Mod+E";
+      command = "thunar";
+      enabled = { osConfig, ... }: osConfig.programs.thunar.enable;
+    })
+  ];
+
   dotnix.host.thunar.nixos = { pkgs, ... }: {
     programs.thunar = {
       enable = true;

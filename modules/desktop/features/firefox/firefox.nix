@@ -1,5 +1,16 @@
 { inputs, ... }:
 {
+  dotnix.home.firefox.includes = [{
+    name = "firefox/niri-launcher";
+    homeManager.imports = [
+      (import ../../lib/niri-launcher.nix {
+        key = "Mod+B";
+        command = "firefox";
+        enabled = { config, ... }: config.programs.firefox.enable;
+      })
+    ];
+  }];
+
   dotnix.home.firefox.homeManager =
     { lib, pkgs, ... }:
     let

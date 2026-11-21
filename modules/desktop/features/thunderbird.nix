@@ -1,5 +1,13 @@
 {
   dotnix.home.thunderbird.homeManager = {
+    imports = [
+      (import ../lib/niri-launcher.nix {
+        key = "Mod+O";
+        command = "thunderbird";
+        enabled = { config, ... }: config.programs.thunderbird.enable;
+      })
+    ];
+
     programs.thunderbird = {
       enable = true;
 
