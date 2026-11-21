@@ -214,13 +214,13 @@ nix eval --impure --json --expr '
 '
 printf 'Work Consumer generation passed\n'
 
-# Opt into legacy DevTools with its managed secrets dependency in a disposable copy.
+# Repository tools work without vault dependencies; adding vault-tools restores the opt-in flows.
 (
   cp -R "$consumer" "$tmp/devtools"
   cd "$tmp/devtools"
   cat >modules/devtools.nix <<'EOF'
 { inputs, ... }: {
-  imports = [ (import inputs.dotnix).managedSecrets (inputs.dotnix + "/modules/devtools") ];
+  imports = [ (import inputs.dotnix).devtools ];
 }
 EOF
   nix run .#write-flake
@@ -229,30 +229,41 @@ EOF
   # shellcheck disable=SC2016
   nix eval --impure --json --expr '
     let
-      readLock = path: let lock = builtins.fromJSON (builtins.readFile path); in {
-        inherit (lock) nodes;
-        root = lock.nodes.${lock.root}.inputs;
-      };
-      base = readLock ../consumer/flake.lock;
-      optIn = readLock ./flake.lock;
-      rekey = optIn.nodes.${optIn.root.agenix-rekey}.inputs;
       outputs = builtins.getFlake (toString ./.);
       system = "x86_64-linux";
+      lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+      packages = map (p: p.pname or p.name) outputs.devShells.${system}.default.config.devshell.packages;
+      apps = (outputs.apps or {}).${system} or {};
     in
-    assert builtins.attrNames optIn.root == builtins.attrNames (base.root // { agenix = null; agenix-rekey = null; devshell = null; git-hooks = null; treefmt = null; });
-    assert rekey.devshell == [ "devshell" ];
-    assert rekey.pre-commit-hooks == [ "git-hooks" ];
-    assert rekey.treefmt-nix == [ "treefmt" ];
-    assert !(outputs.denful.dotnix.host ? niri || outputs.denful.dotnix.home ? graphical);
+    assert !(builtins.any (node: (node.locked.repo or "") == "agenix-rekey") (builtins.attrValues lock.nodes));
+    assert !(builtins.any (name: builtins.elem name packages) [ "rage" "agenix" "age-plugin-yubikey" ]);
+    assert !(apps ? generate || apps ? rekey);
     {
       shell = outputs.devShells.${system}.default.drvPath;
       formatter = outputs.formatter.${system}.drvPath;
       pre-commit = outputs.checks.${system}.pre-commit.drvPath;
       treefmt = outputs.checks.${system}.treefmt.drvPath;
-      generate = outputs.apps.${system}.generate.program;
+    }
+  '
+
+  sed -i 's/\.devtools ]/.vault-tools ]/' modules/devtools.nix
+  nix run .#write-flake
+  nix flake lock
+
+  # shellcheck disable=SC2016
+  nix eval --impure --json --expr '
+    let
+      outputs = builtins.getFlake (toString ./.);
+      system = "x86_64-linux";
+      packages = map (p: p.pname or p.name) outputs.devShells.${system}.default.config.devshell.packages;
+    in
+    assert builtins.all (name: builtins.elem name packages) [ "rage" "agenix" "age-plugin-yubikey" ];
+    {
+      inherit (outputs.apps.${system}.generate) program;
       rekey = outputs.apps.${system}.rekey.program;
     }
   '
+  printf 'Repository tools and explicit vault tooling passed\n'
 )
 
 cp flake.nix "$tmp/flake.after-first-generation"
