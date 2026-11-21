@@ -9,7 +9,9 @@
       home.ghostty # terminal
       home.firefox # browser
       home.thunderbird # mail
-      home.core # universal home baseline: age, age-rekey, ssh
+      home.core # SSH and XDG baseline
+      home.age # home-side decryption
+      home.age-rekey # keep the existing home vault independent of host authentication
       home.persistence # generic persistence baseline for this home
     ];
 

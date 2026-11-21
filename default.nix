@@ -10,6 +10,8 @@
   system = ./modules/system;
   # Integrated Home Manager and non-graphical host, home, and account features.
   home = ./modules/base/home.nix;
+  # Graphical features and their inputs; select them separately on each target.
+  desktop = ./modules/desktop;
   # Headless hardware and PAM support; no Home Manager or Desktop required.
   yubikey = ./modules/base/yubikey.nix;
   # Runtime Age/Rekey features and generated account passwords.

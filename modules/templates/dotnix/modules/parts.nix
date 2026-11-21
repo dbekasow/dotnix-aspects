@@ -1,9 +1,9 @@
-{ inputs, ... }: {
-  imports = [
-    (inputs.dotnix + "/modules/base")
-    (inputs.dotnix + "/modules/desktop")
-    (inputs.dotnix + "/modules/devtools")
-  ];
+{ inputs, ... }:
+let
+  modules = import inputs.dotnix;
+in
+{
+  imports = with modules; [ home desktop managedSecrets yubikey vault-tools ];
 
   flake-file.outputs = "dendritic";
 

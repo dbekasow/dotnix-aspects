@@ -48,7 +48,7 @@ let
 in
 {
   imports = [ modules.system modules.home ]
-    ++ lib.optional withDesktop (inputs.dotnix + "/modules/desktop");
+    ++ lib.optional withDesktop modules.desktop;
 
   flake-file.outputs = "dendritic";
   flake-file.inputs = {

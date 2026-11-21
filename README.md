@@ -37,7 +37,9 @@ Before the first writer run in an existing Consumer, declare `dotnix` as source-
 
 For a system-only account, use the Den `user` class with `account.users`, set `user.openssh.authorizedKeys.keys` to the account's public keys, and select `host.server` on the host. Neither the host nor the account needs a managed vault or generated password. Supply the host's hardware and boot configuration separately, as well as any privilege escalation and recovery policy. See the [disposable VPS example](tests/consumer-generation/vps.nix).
 
-Existing Base, Desktop, and DevTools imports still work during migration. Base includes the system catalog; Desktop registers graphical features and their inputs, and DevTools adds repository tooling. To compose a host and integrated home using those groups, see the executable template at `modules/templates/dotnix/modules/hosts/myHost/configuration.nix` and `modules/templates/dotnix/modules/users/myUser/default.nix`:
+For integrated Home Manager, import `modules.home` instead of `modules.system` (`home` includes `system`). For a headless Work consumer, add `modules.devtools` for repository tooling; neither import registers Desktop, YubiKey or managed vault features. WSL boot and mail authentication remain consumer choices. See the [Work fixture](tests/consumer-generation/myHost.nix) for a mail account with an existing credential command and independent Git settings.
+
+To compose a host and integrated home, see the executable template at `modules/templates/dotnix/modules/hosts/myHost/configuration.nix` and `modules/templates/dotnix/modules/users/myUser/default.nix`:
 
 ```nix
 { dotnix, ... }:
@@ -46,7 +48,7 @@ Existing Base, Desktop, and DevTools imports still work during migration. Base i
 
   den.aspects.myHost = {
     provides.myuser.includes = [ dotnix.myuser ];
-    includes = with dotnix.host; [ core boot-baseline network age-rekey ];
+    includes = with dotnix.host; [ core boot-baseline network ];
     nixos.system.stateVersion = "26.11";
   };
 
@@ -57,7 +59,7 @@ Existing Base, Desktop, and DevTools imports still work during migration. Base i
 }
 ```
 
-The example illustrates the native entry/entity contract; real hosts also need hardware, disk, identity, and secret configuration. With DevTools imported, use `nix develop`, `nix fmt`, and `nix flake check`. The writer is separate from the vault commands `nix run .#generate` and `nix run .#rekey`. Den's native output integration creates NixOS and Home Manager outputs.
+The example omits hardware and disk configuration. With `devtools` imported, use `nix develop`, `nix fmt`, and `nix flake check`; to extend that shell and expose `nix run .#generate` and `nix run .#rekey`, import `vault-tools` instead. Select `managedSecrets` to register runtime vault features independently of those tools. Importing `desktop` once registers the graphical catalog and inputs for the consumer, not for every host's effective configuration. See the [migration example](docs/public-import-migration.md) for preserving a mixed consumer's selections.
 
 Or start from the consumer template:
 
@@ -67,7 +69,7 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 
 ### Namespace and classes
 
-The system import and Base initialize Den and register the `dotnix` namespace. Base also provides custom persistence classes and declares the shared `popup-launcher` Quirk. Importing a group registers features; it does not activate them. Continue selecting features in Den aspects and entities. Selected Tmux and Herdr aspects share enabled launcher data only within the same user; each renders its own keys and runtime behavior.
+The `system` import initializes Den and registers the `dotnix` namespace. The `home` import also provides custom persistence classes and declares the shared `popup-launcher` Quirk. Importing a group registers features; it does not activate them. Continue selecting features in Den aspects and entities. Selected Tmux and Herdr aspects share enabled launcher data only within the same user; each renders its own keys and runtime behavior.
 
 ## Composition rules
 
@@ -211,7 +213,7 @@ The last command separately exercises the diagnostic on a conflicting system eva
 
 **Secrets with agenix-rekey** — Host and home secrets use separate `dotnix.host.age-rekey` and `dotnix.home.age-rekey` selections. Consumers provide their native `age.rekey` resource options; the library supplies no repository path defaults. `dotnix.account.passwords` remains a separate per-account opt-in and requires explicit host rekey resources.
 
-**Den-native outputs** — Base registers `dotnix` through `den.namespace`, and the Consumer evaluates its own Den host and user entities. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
+**Den-native outputs** — The system import registers `dotnix` through `den.namespace`, and the Consumer evaluates its own Den host and user entities. This library defines reusable aspects and profiles; it does not build hosts or inject profiles.
 
 ## License
 

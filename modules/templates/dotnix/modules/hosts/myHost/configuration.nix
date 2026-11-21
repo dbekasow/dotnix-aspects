@@ -17,7 +17,8 @@
 
     includes = with dotnix; [
       dell-precision-5570 # from ./hardware.nix
-      host.core # universal host baseline: locale, nix, security, certificates, ssh, age, home-manager, system-packages
+      host.core # locale, nix, security, certificates, ssh, home-manager, system-packages
+      host.age # host-side decryption
       host.age-rekey # agenix-rekey wiring for the age.rekey resources below
       host.graphical # graphical foundation
       host.niri # NixOS Niri support, separate from per-user configuration
