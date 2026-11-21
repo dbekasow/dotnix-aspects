@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Usage: bash tests/consumer-generation.sh /path/to/existing-empty-directory
+# Usage: bash tests/consumer-generation.sh EXISTING_EMPTY_DIRECTORY | --system-only
 set -euo pipefail
 
 usage() {
-  printf 'Usage: %s EXISTING_EMPTY_DIRECTORY\n' "${0##*/}" >&2
+  printf 'Usage: %s EXISTING_EMPTY_DIRECTORY | --system-only\n' "${0##*/}" >&2
 }
 
 if [[ $# -ne 1 ]]; then
@@ -53,11 +53,69 @@ refuse() {
   exit 1
 }
 
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+
+prepare_consumer() {
+  local consumer="$1" fixture="$2"
+  mkdir -p "$consumer/modules"
+  cp "$repo/tests/consumer-generation/flake.nix" "$consumer/flake.nix"
+  cp "$repo/tests/consumer-generation/$fixture" "$consumer/modules/$fixture"
+  # The disposable source-only input is a snapshot of the library under test.
+  cp -R --no-preserve=mode "$(cd "$repo" && nix eval --raw --impure --expr '(builtins.getFlake (toString ./.)).outPath')" "$consumer/library"
+}
+
+check_system() (
+  prepare_consumer "$tmp/system" vps.nix
+  cd "$tmp/system"
+  # Use a path flake so the disposable files need not be tracked by Git.
+  nix run path:.#write-flake
+  nix flake lock path:.
+
+  nix eval --json path:.#nixosConfigurations.vps --apply '
+    { config, options, ... }:
+    let user = config.users.users.operator; in
+    assert config.services.openssh.enable;
+    assert !config.services.openssh.settings.PasswordAuthentication;
+    assert user.isNormalUser;
+    assert user.openssh.authorizedKeys.keys == [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINdamAGCsQq31Uv+08lkBzoO4XLz2qYjJa8CGmj3B1Ea vps-fixture" ];
+    assert !(options ? age || options ? home-manager);
+    assert user.hashedPasswordFile == null && user.hashedPassword == null && user.password == null;
+    builtins.seq config.system.build.toplevel.drvPath true
+  '
+
+  nix eval --json path:.#denful.dotnix --apply '
+    dotnix:
+    assert !(dotnix.host ? home-manager);
+    assert (dotnix.home or {}) == {};
+    true
+  '
+
+  # The freshly generated lock includes all reachable inputs, including transitive ones.
+  # shellcheck disable=SC2016
+  nix eval --impure --json --expr '
+    let
+      lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+      root = lock.nodes.${lock.root}.inputs;
+      library = lock.nodes.${root.dotnix};
+    in
+    assert !library.flake && (library.inputs or {}) == {};
+    assert !(root ? home-manager);
+    assert !(builtins.any (node: (node.locked.repo or "") == "home-manager") (builtins.attrValues lock.nodes));
+    true
+  '
+  printf 'System-only Consumer generation passed\n'
+)
+
+if [[ $1 == --system-only ]]; then
+  tmp="$(mktemp -d "$repo/.dotnix-consumer-generation.XXXXXX")"
+  trap 'rm -rf -- "$tmp"' EXIT
+  check_system
+  exit
+fi
+
 case "/$1/" in
 *"/../"*) refuse "destination path must not contain '..' components" ;;
 esac
-
-repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 destination="$(normalize_path "$1")"
 home="$(normalize_path "${HOME:?HOME must be set}")"
 original="/home/denis/projects/dotnix-aspects"
@@ -98,13 +156,8 @@ tmp="$(mktemp -d "$destination/.dotnix-consumer-generation.XXXXXX")"
 consumer="$tmp/consumer"
 trap 'rm -rf -- "$tmp"' EXIT
 
-cd "$repo"
-mkdir -p "$consumer/modules"
-cp tests/consumer-generation/flake.nix "$consumer/flake.nix"
-cp tests/consumer-generation/myHost.nix "$consumer/modules/myHost.nix"
-# The disposable source-only input is a snapshot of the library under test.
-cp -R --no-preserve=mode "$(nix eval --raw --impure --expr '(builtins.getFlake (toString ./.)).outPath')" "$consumer/library"
-
+check_system
+prepare_consumer "$consumer" myHost.nix
 cd "$consumer"
 nix run .#write-flake
 nix flake lock

@@ -8,34 +8,36 @@ Base and Desktop each keep their features and profiles in `features/` and `profi
 
 Every role-scoped aspect lives in one of three uniform catalogs: `dotnix.host.*` for host behavior, `dotnix.home.*` for Home Manager behavior, and `dotnix.account.*` for account-level settings, so selections like `with dotnix.home; [ bat fd ripgrep ]` resolve uniformly. The top level stays reserved for cross-cutting aspects (`dotnix.popup-launchers`) and consumer-owned composites such as per-user aspects and hardware profiles; the library itself declares no other top-level aspects. A feature with behavior in multiple roles declares one role-qualified aspect per role instead of a single class-multiplexed aspect: `host.dms`/`home.dms` and `host.noctalia`/`home.noctalia` follow this role-split convention.
 
-Each group's `default.nix` is its entry point. Base and Desktop use import-tree to scan only their `features/` and `profiles/` directories; the group entry points are outside discovery. The pinned import-tree default selects `.nix` files and excludes paths containing relative `/_`. `default.nix` does not stop recursive scanning. This is a filename filter, not module-shape validation or a security boundary: explicitly supplied files bypass the filter, changing scan roots changes which paths are relative, and `initFilter` replaces the default predicate. Keep helpers outside discovery or under an owner-local `_private/` path and import them explicitly.
+The source root's [`default.nix`](default.nix) lists the named public modules. Internally, Base and Desktop use import-tree to scan only their `features/` and `profiles/` directories; the group entry points are outside discovery. The pinned import-tree default selects `.nix` files and excludes paths containing relative `/_`. `default.nix` does not stop recursive scanning. This is a filename filter, not module-shape validation or a security boundary: explicitly supplied files bypass the filter, changing scan roots changes which paths are relative, and `initFilter` replaces the default predicate. Keep helpers outside discovery or under an owner-local `_private/` path and import them explicitly.
 
-`modules/devtools/` owns repository tooling. The library's generated flake imports `modules/standalone/`, which assembles the groups, adds the consumer contract checks, and imports `modules/templates/` to publish the template. Consumers import Base and their chosen optional groups directly, not the standalone entry point.
+`modules/devtools/` owns repository tooling. The library's generated flake imports `modules/standalone/`, which assembles the groups, adds the consumer contract checks, and imports `modules/templates/` to publish the template. Consumers do not import the standalone entry point.
 
 ## Usage
 
-Start from the Consumer template below, or add the library as a source-only input and import its groups in your flake-parts configuration. Base is required. Desktop registers graphical features and their inputs; omit it for a headless-only Consumer. DevTools is independent and adds repository tooling. Each Consumer owns one generated flake and lockfile, even if its hosts select different features.
+Add the library as a source-only input and import named modules in your flake-parts configuration. Each Consumer owns one generated flake and lockfile, even if its hosts select different features. For a system-only VPS, import `system` to register the `host.server` profile, its underlying host features, and `account.users`. This does not register Home Manager or add it to the locked inputs.
 
 ```nix
-# modules/parts.nix — same entry point used by modules/templates/dotnix
+# modules/parts.nix — system-only Consumer
 { inputs, ... }:
+let
+  modules = import inputs.dotnix;
+in
 {
+  imports = [ modules.system ];
+
+  flake-file.outputs = "dendritic";
   flake-file.inputs.dotnix = {
     url = "github:dbekasow/dotnix-aspects";
     flake = false;
   };
-
-  imports = [
-    (inputs.dotnix + "/modules/base")
-    (inputs.dotnix + "/modules/desktop")  # optional
-    (inputs.dotnix + "/modules/devtools") # optional
-  ];
 }
 ```
 
 Before the first writer run in an existing Consumer, declare `dotnix` as source-only in both your `flake-file` configuration and the current generated `flake.nix`. Replace or remove every old `follows = "dotnix/..."` in both places, including `dotnix/home-manager`: point follows at Consumer-owned inputs, declare the inputs directly, or remove them if no longer needed. Make Den, flake-file, flake-parts, import-tree, and nixpkgs direct inputs. The template already has this bootstrap configuration. The imported groups declare their inputs via `flake-file`; regenerate with `nix run .#write-flake`, then run `nix flake lock`. The same two commands add or remove a group and its dependencies later.
 
-Compose host and user behavior through Den entities and aspects, as in the executable template at `modules/templates/dotnix/modules/hosts/myHost/configuration.nix` and `modules/templates/dotnix/modules/users/myUser/default.nix`:
+For a system-only account, use the Den `user` class with `account.users`, set `user.openssh.authorizedKeys.keys` to the account's public keys, and select `host.server` on the host. Neither the host nor the account needs a managed vault or generated password. Supply the host's hardware and boot configuration separately, as well as any privilege escalation and recovery policy. See the [disposable VPS example](tests/consumer-generation/vps.nix).
+
+Existing Base, Desktop, and DevTools imports still work during migration. Base includes the system catalog; Desktop registers graphical features and their inputs, and DevTools adds repository tooling. To compose a host and integrated home using those groups, see the executable template at `modules/templates/dotnix/modules/hosts/myHost/configuration.nix` and `modules/templates/dotnix/modules/users/myUser/default.nix`:
 
 ```nix
 { dotnix, ... }:
@@ -65,7 +67,7 @@ nix flake new my-config -t github:dbekasow/dotnix-aspects
 
 ### Namespace and classes
 
-Base initializes Den, registers the `dotnix` namespace and custom classes, and declares the shared `popup-launcher` Quirk. Importing a group registers features; it does not activate them. Continue selecting features in Den aspects and entities. Selected Tmux and Herdr aspects share enabled launcher data only within the same user; each renders its own keys and runtime behavior.
+The system import and Base initialize Den and register the `dotnix` namespace. Base also provides custom persistence classes and declares the shared `popup-launcher` Quirk. Importing a group registers features; it does not activate them. Continue selecting features in Den aspects and entities. Selected Tmux and Herdr aspects share enabled launcher data only within the same user; each renders its own keys and runtime behavior.
 
 ## Composition rules
 
@@ -200,7 +202,7 @@ nix eval --impure --json --file tests/review-access.nix --apply 'fixture: fixtur
 bash tests/niri-dms-conflict.sh
 ```
 
-The last command separately exercises the diagnostic on a conflicting system evaluation. The separate consumer-template build and VM checks are not part of these evaluation-only contracts.
+The last command separately exercises the diagnostic on a conflicting system evaluation. Run `bash tests/consumer-generation.sh --system-only` to generate and lock a disposable system-only Consumer and evaluate its SSH account, module catalog, and lock graph. The separate consumer-template build and VM checks are not part of these evaluation-only contracts.
 
 ## Key Design Decisions
 

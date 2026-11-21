@@ -1,9 +1,5 @@
 _:
 {
-  dotnix.account.users.user = { lib, ... }: {
-    isNormalUser = lib.mkDefault true;
-  };
-
   dotnix.account.passwords = { host, user, ... }:
     if (host.class or null) != "nixos" then
       { }
