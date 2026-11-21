@@ -42,6 +42,8 @@ services.displayManager.noctalia-greeter.settings.appearance.wallpaper = {
 
 ## Usage
 
+**Prerelease:** The shipped `dotnix` pin predates the named imports. Until a compatible source revision is published and pinned, use the local checkout override on the commands below: `--override-input dotnix git+file:///absolute/path/to/dotnix-aspects --no-write-lock-file`.
+
 Review `modules/hosts/myHost/configuration.nix` before building or activating. Replace the example disk device, state versions, hardware and user identity with values for your consumer. Set Git authorship and the rbw account independently in `modules/users/myUser/default.nix`; neither follows primary mail. Configure the conventional rekey resources before managing real secrets. The template contains no master identity, and the sample disk path is not safe to use as-is.
 
 ```console
@@ -73,7 +75,7 @@ Use native options for additional resources in `modules/hosts/myHost/configurati
 
 The template includes no usable credentials or master identities. Supply valid consumer-owned identities before deploying or managing real secrets; never add private keys or real credentials to this repository. Run `nix run .#generate` and `nix run .#rekey` only after supplying resources appropriate for your consumer.
 
-The template owns its direct `nixpkgs` input and locks it alongside the dependencies of its named imports. The `dotnix` pin must point to a revision providing those imports. When testing an unpublished library checkout, pass `--override-input dotnix git+file:///absolute/path/to/dotnix-aspects --no-write-lock-file` to the Nix command instead of changing a shared lockfile. After changing input declarations or adding or removing a group, run `nix run .#write-flake` and then `nix flake lock`. Remove selections from a group before removing its import. Run `nix flake update dotnix` to update the library source independently.
+The template owns its direct `nixpkgs` input and locks it alongside the dependencies of its named imports. The `dotnix` pin must point to a revision providing those imports. After changing input declarations or adding or removing a group, run `nix run .#write-flake` and then `nix flake lock`. Remove selections from a group before removing its import. Run `nix flake update dotnix` to update the library source independently.
 
 ## Adding a host
 

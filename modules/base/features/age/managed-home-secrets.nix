@@ -9,24 +9,27 @@
     {
       provides.${host.name}.nixos = { config, lib, options, ... }:
         let
-          hasVault = options ? age.rekey;
+          hasVault = options ? age.secrets && options ? age.rekey;
           vaultReady = hasVault
             && config.age.rekey.generatedSecretsDir != null
             && config.age.rekey.hostPubkey != ""
             && config.age.rekey.hostPubkey != options.age.rekey.hostPubkey.default;
         in
         {
-          assertions = [{
-            assertion = vaultReady;
-            message = "Managed home secrets for ${host.hostName}/${account} require host.age-rekey with a host public key and a generated secrets directory.";
-          }];
-          age.secrets = lib.mkIf vaultReady {
-            ${secretName} = {
+          config = lib.mkMerge ([
+            {
+              assertions = [{
+                assertion = vaultReady;
+                message = "Managed home secrets for ${host.hostName}/${account} require host.age and host.age-rekey with a host public key and a generated secrets directory.";
+              }];
+            }
+          ] ++ lib.optional hasVault (lib.mkIf vaultReady {
+            age.secrets.${secretName} = {
               generator.script = "ssh-ed25519";
               owner = account;
               mode = "600";
             };
-          };
+          }));
         };
     };
 

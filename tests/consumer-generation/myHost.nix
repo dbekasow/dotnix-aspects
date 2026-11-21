@@ -47,7 +47,7 @@ let
   };
 in
 {
-  imports = [ modules.system modules.home ]
+  imports = [ modules.home ]
     ++ lib.optional withDesktop modules.desktop;
 
   flake-file.outputs = "dendritic";

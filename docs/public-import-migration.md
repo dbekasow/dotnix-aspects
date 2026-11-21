@@ -20,4 +20,4 @@ For a setup like the private reference consumer:
 
 In a disposable consumer, regenerate with `nix run .#write-flake`, then run `nix flake lock`. Evaluate both the graphical and headless targets against that one lock before adopting the change. The library's [consumer-generation check](../tests/consumer-generation.sh) demonstrates this without private files or host activation.
 
-[ADR 0008](adr/0008-one-desktop-shell-per-host.md) is a separate change: after adopting host-level shell inheritance, an integrated home no longer needs to duplicate its host's shell selection. For example, keep Luffy's `host.noctalia` and its existing greeter, and remove the redundant `home.noctalia` from the integrated home composition. Leave the headless host unchanged.
+[ADR 0008](adr/0008-one-desktop-shell-per-host.md) is a separate change: after adopting host-level shell inheritance, an integrated home no longer needs to duplicate its host's shell selection. For example, keep `host.noctalia` and the existing greeter on the desktop host, and remove the redundant `home.noctalia` from its integrated home composition. Leave the headless host unchanged.

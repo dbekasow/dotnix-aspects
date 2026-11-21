@@ -6,20 +6,21 @@ let
   inherit (inputs.nixpkgs) lib;
   dotnix = source.denful.dotnix;
 
-  evaluate = hostName: { bootstrap ? false, shared ? false }:
+  evaluate = hostName: { bootstrap ? false, shared ? false, withVault ? true }:
     let
       accounts = [ "alice" ] ++ lib.optional shared "bob";
       flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-        imports = [ (source + "/modules/base") ];
+        imports = with (import source); [ home managedSecrets ];
         den.hosts.${system}.${hostName}.users = lib.genAttrs accounts (_: {
           classes = [ "user" "homeManager" ];
         });
         den.aspects.${hostName} = {
-          includes = with dotnix.host; [ age age-rekey ];
+          includes = with dotnix.host; lib.optionals withVault [ age age-rekey ];
           nixos = {
             system.stateVersion = "26.11";
             boot.loader.grub.device = "nodev";
             fileSystems."/" = { device = "fixture"; fsType = "ext4"; };
+          } // lib.optionalAttrs withVault {
             age.identityPaths = [ "/nonexistent/dotnix-test-host-identity" ];
             # Public example recipients only; this fixture never generates or decrypts.
             age.rekey.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPJDyIr/FSz1cJdcoW69R+NrWzwGK/+3gJpqD1t8L2zE";
@@ -28,7 +29,7 @@ let
           provides = lib.genAttrs accounts (account: {
             includes = [ dotnix.account.users ] ++ lib.optionals (account == "alice") (
               if bootstrap then [ dotnix.home.managed-secrets-bootstrap ]
-              else [ dotnix.home.core dotnix.home.managed-secrets ]
+              else [ dotnix.home.managed-secrets ]
             );
             homeManager = { osConfig, ... }: {
               home.stateVersion = "26.11";
@@ -45,6 +46,7 @@ let
   second = evaluate "second" { };
   bootstrap = evaluate "unregistered" { bootstrap = true; };
   missing = evaluate "unregistered" { };
+  missingVault = evaluate "unregistered" { bootstrap = true; withVault = false; };
   alice = config: config.home-manager.users.alice;
   hostIdentity = config: config.age.secrets.home-identity-alice;
   recipientDir = host: "${inputs.self.outPath}/modules/hosts/${host}/secrets/homes/alice";
@@ -67,4 +69,10 @@ if missingRecipientOnly then missing.system.build.toplevel.drvPath else
   assert (alice bootstrap).home.activationPackage.drvPath != "";
   assert builtins.all (a: a.assertion) bootstrap.assertions;
   assert builtins.any (a: !a.assertion && a.message == "alice profile: ${missingMessage}") missing.assertions;
+  assert !(missingVault ? age);
+  assert builtins.any
+    (a: !a.assertion && lib.hasPrefix
+      "Managed home secrets for unregistered/alice require host.age and host.age-rekey"
+      a.message)
+    missingVault.assertions;
   "managed home secret recipient and bootstrap checks passed"
