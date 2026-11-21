@@ -64,8 +64,7 @@ let
     };
 
   niriOnly = evaluate {
-    hostIncludes = with dotnix; [ host.niri ];
-    userIncludes = with dotnix; [ home.niri ];
+    hostIncludes = [ dotnix.host.niri ];
   };
   userNiriOnly = evaluate {
     userIncludes = with dotnix; [ home.niri ];
@@ -81,11 +80,9 @@ let
   };
   niriDms = evaluate {
     hostIncludes = with dotnix; [ host.niri host.dms ];
-    userIncludes = [ dotnix.home.niri ];
   };
   niriNoctalia = evaluate {
     hostIncludes = with dotnix; [ host.niri host.noctalia ];
-    userIncludes = [ dotnix.home.niri ];
   };
   niriNoctaliaHome = evaluate {
     userIncludes = with dotnix; [ home.niri home.noctalia ];

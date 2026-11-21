@@ -6,7 +6,7 @@ let
   host.users.myuser.classes = [ "user" "homeManager" ];
 
   hostAspect = selectDesktop: {
-    includes = with dotnix.host; [ home-manager pipewire ] ++ lib.optional selectDesktop niri;
+    includes = with dotnix.host; [ home-manager pipewire ] ++ lib.optionals selectDesktop [ graphical niri ];
 
     nixos = {
       boot.loader.grub.enable = true;
@@ -20,8 +20,8 @@ let
     };
 
     provides.myuser = {
-      includes = with dotnix.home; [ dotnix.account.users core terminal development gpg-agent aerc ]
-        ++ lib.optionals selectDesktop [ graphical gpg-agent-gui rbw-gui ];
+      includes = with dotnix.home; [ dotnix.account.users terminal development gpg-agent aerc ]
+        ++ lib.optionals selectDesktop [ gpg-agent-gui rbw-gui ];
       homeManager = {
         home.username = "myuser";
         home.homeDirectory = "/home/myuser";

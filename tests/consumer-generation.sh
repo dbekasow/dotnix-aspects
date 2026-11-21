@@ -293,6 +293,9 @@ check_desktop() {
     assert graphicalHost.config.programs.niri.enable;
     assert !(myHost.config.programs.niri.enable or false);
     assert hasClipboard graphicalHome && !(hasClipboard headlessHome);
+    assert graphicalHome.stylix.enable;
+    assert builtins.elem "niri.service" graphicalHome.systemd.user.services.niri-flake-polkit.Install.WantedBy;
+    assert !(headlessHome.systemd.user.services ? niri-flake-polkit);
     assert graphicalHome.services.gpg-agent.pinentry.package.pname == "pinentry-gnome3";
     assert headlessHome.services.gpg-agent.pinentry.package.pname == "pinentry-curses";
     assert graphicalHome.programs.rbw.settings.pinentry == pinentry graphicalHost.pkgs "pinentry-gnome3";

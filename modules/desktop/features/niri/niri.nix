@@ -1,10 +1,11 @@
-{ inputs, ... }: {
+{ dotnix, inputs, ... }: {
   flake-file.inputs.niri = {
     url = "github:epireyn/niri-flake";
     inputs.nixpkgs.follows = "nixpkgs";
     # Only niri-unstable is used, so the stable lane shares unstable pin.
     inputs.nixpkgs-stable.follows = "nixpkgs";
   };
+  dotnix.host.niri.provides.to-users.includes = [ dotnix.home.niri ];
   dotnix.host.niri.nixos = { lib, pkgs, ... }: {
     imports = [ inputs.niri.nixosModules.niri ];
 
@@ -18,15 +19,14 @@
     programs.niri.enable = true;
     programs.niri.package = pkgs.niri-unstable;
 
-    # Polkit authentication agents are selected by each user's Home Manager
-    # configuration, not enabled for every account on this host.
+    # Integrated homes manage their own Polkit agent, so don't start a global one.
     systemd.user.services.niri-flake-polkit.enable = lib.mkDefault false;
   };
 
   dotnix.home.niri.homeManager =
     { lib, pkgs, ... }:
     {
-      # Host Niri exposes its Home Manager options to every user; mark explicit home selection.
+      # Options can exist without this aspect; mark when the baseline is active.
       _module.args.dotnixHomeNiriSelected = true;
 
       imports = [ (import ../../lib/niri-home-provider.nix { inherit (inputs) niri; }) ];
