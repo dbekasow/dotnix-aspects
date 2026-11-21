@@ -1,9 +1,10 @@
-{ inputs, ... }:
+{ dotnix, inputs, ... }:
 {
   flake-file.inputs.dms = {
     url = "github:AvengeMedia/DankMaterialShell";
     inputs.nixpkgs.follows = "nixpkgs";
   };
+  dotnix.host.dms.provides.to-users.includes = [ dotnix.home.dms ];
   dotnix.host.dms.nixos =
     { config
     , lib
@@ -21,7 +22,7 @@
       programs.dank-material-shell = {
         enable = true;
 
-        # Runtime selection belongs to individual Home Manager targets.
+        # Integrated homes start DMS through Home Manager, not a global unit.
         systemd.enable = lib.mkDefault false;
 
         # DMS follows the native host U2F configuration when selected; it
@@ -57,6 +58,7 @@
     ];
 
     imports = [
+      (import ../../lib/niri-home-provider.nix { inherit (inputs) niri; })
       inputs.dms.homeModules.dank-material-shell
       inputs.dms.homeModules.niri
     ];

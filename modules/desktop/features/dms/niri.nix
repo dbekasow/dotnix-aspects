@@ -5,6 +5,10 @@ _: {
     config = lib.mkIf (!(config.programs.noctalia.enable or false)) {
       # DMS provides its own Polkit agent; do not also start Niri's per-user one.
       systemd.user.services.niri-flake-polkit.Install.WantedBy = lib.mkForce [ ];
+
+      # DMS's Niri include generator expects a Boolean, not the Niri option's
+      # unset null. Leave Stylix's mkDefault and consumer settings in charge.
+      programs.niri.settings.layout.border.enable = lib.mkOverride 1100 false;
       programs.niri.settings.binds =
         with config.lib.niri.actions;
         let

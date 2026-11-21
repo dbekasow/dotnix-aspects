@@ -102,8 +102,11 @@ authorize a new abstraction, profile, or option API.
 1. A successful authenticated greeter login starts Niri with Noctalia as the
    default session, without another session-selection step. Do not enable
    automatic login.
-2. Start one coherent shell and its required desktop services. Do not run DMS
-   and Noctalia as competing shells in the same session.
+2. Start one coherent shell and its required desktop services. Select Noctalia
+   once on the host for its integrated homes as specified in
+   [ADR 0008](../../docs/adr/0008-one-desktop-shell-per-host.md); do not repeat
+   the shell selection per home or mix DMS and Noctalia. This does not select
+   a greeter or any personal applications.
 3. Start a fresh session, not a general reconstruction of the previous apps,
    windows, and workspaces. App-specific restoration is a separate concern.
 4. After a Noctalia crash, attempt bounded automatic recovery without killing
@@ -253,7 +256,7 @@ an approved recovery and testing procedure.
 | M2  | Close both clients; a new server message is retrieved by the next successful 15-minute cycle and indexed. No duplicate sync runs occur.                                                               |
 | M3  | Disconnect the network or lock the vault; retrieval does not prompt, failures are diagnosable, and later cycles recover when prerequisites return.                                                    |
 | M4  | Change message state using one client; the other converges through server synchronization. Immediate shared offline state is not required.                                                            |
-| D1  | Password login starts one Niri/Noctalia session with required services and an appropriately provisioned unlocked keyring; it does not generally restore old apps.                                     |
+| D1  | With Noctalia selected on the host, password login starts one Niri/Noctalia session with required services and an appropriately provisioned unlocked keyring; it does not generally restore old apps. |
 | D2  | Crash Noctalia while unlocked and while locked; recovery is bounded, apps survive, and protected content is never exposed by loss of the lock UI.                                                     |
 | D3  | Consumer-selected apps are used by the relevant shortcuts, launcher actions, and file/URL opening paths.                                                                                              |
 | D4  | Audio, network, Bluetooth, file dialogs, privilege prompts, screenshots, and current-content clipboard operations work in the selected session.                                                       |

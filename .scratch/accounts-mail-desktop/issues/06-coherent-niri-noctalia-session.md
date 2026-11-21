@@ -20,7 +20,7 @@ Type: task
 
 ## Boundaries and execution approval
 
-Keep host/home/greeter selections explicit and consumer-owned. Do not introduce arbitrary application autostart, broad session restoration, or activation on the user's active desktop without separate approval.
+Select `host.noctalia` once for the host so its integrated homes receive that shell ([ADR 0008](../../../docs/adr/0008-one-desktop-shell-per-host.md)). Keep compositor, greeter, and personal application selections explicit and consumer-owned; do not repeat the shell selection per integrated home. Do not introduce arbitrary application autostart, broad session restoration, or activation on the user's active desktop without separate approval.
 
 Publication and triage readiness do not authorize execution or activation. An
 unresolved or negative prerequisite proof does not unblock implementation. If a

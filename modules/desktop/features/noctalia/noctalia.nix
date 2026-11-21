@@ -1,6 +1,6 @@
-{ inputs, lib, ... }:
-# Noctalia — the niri-first-class alternative to DMS. One shell per
-# session: import dms OR noctalia, never both. Its built-in palette
+{ dotnix, inputs, lib, ... }:
+# Noctalia — the niri-first-class alternative to DMS. Select one shell
+# per host for its integrated homes. Its built-in palette
 # engine is a second theming authority: app templates stay off (stylix
 # owns app themes) and custom palettes can be fed from matugen through
 # programs.noctalia.customPalettes when the bridge is wanted.
@@ -49,7 +49,15 @@
     };
   };
 
-  dotnix.host.noctalia.nixos = {
+  dotnix.host.noctalia.provides.to-users.includes = [ dotnix.home.noctalia ];
+  dotnix.host.noctalia.nixos = { config, ... }: {
+    assertions = [
+      {
+        assertion = !(config.programs.dank-material-shell.enable or false);
+        message = "DMS and Noctalia cannot both be selected on the same host.";
+      }
+    ];
+
     nix.settings = {
       extra-substituters = [ "https://noctalia.cachix.org" ];
       extra-trusted-public-keys = [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];

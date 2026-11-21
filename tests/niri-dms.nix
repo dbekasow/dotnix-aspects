@@ -81,38 +81,12 @@ let
   };
   niriDms = evaluate {
     hostIncludes = with dotnix; [ host.niri host.dms ];
-    userIncludes = with dotnix; [ home.niri home.dms ];
+    userIncludes = [ dotnix.home.niri ];
   };
   niriNoctalia = evaluate {
-    hostIncludes = with dotnix; [ host.niri ];
-    userIncludes = with dotnix; [ home.niri home.noctalia ];
+    hostIncludes = with dotnix; [ host.niri host.noctalia ];
+    userIncludes = [ dotnix.home.niri ];
   };
-  standaloneHome =
-    let
-      fixture = {
-        imports = groups;
-        den.homes.${system}.fixture.pkgs = import inputs.nixpkgs {
-          inherit system;
-          overlays = [ inputs.niri.overlays.niri ];
-        };
-        den.aspects.fixture.includes = with dotnix; [ home.niri ];
-        den.aspects.fixture.homeManager = { specialArgs, ... }: {
-          home.username = "fixture";
-          home.homeDirectory = "/home/fixture";
-          home.stateVersion = "25.11";
-          programs.niri.enable = true;
-          assertions = [
-            {
-              assertion = !(builtins.hasAttr "osConfig" specialArgs);
-              message = "Standalone Home Manager must not receive osConfig";
-            }
-          ];
-        };
-      };
-      flake = inputs.flake-parts.lib.mkFlake { inherit inputs; } fixture;
-    in
-    { home = flake.homeConfigurations.fixture.config; };
-  niriOnlyHome = standaloneHome;
   niriNoctaliaHome = evaluate {
     userIncludes = with dotnix; [ home.niri home.noctalia ];
   };
@@ -156,25 +130,50 @@ let
     let
       fixture = {
         imports = groups;
-        den.hosts.${system}.fixture = {
-          users = {
+        den.hosts.${system} = {
+          fixture.users = {
             alice.classes = [ "homeManager" ];
             bob.classes = [ "homeManager" ];
           };
-          instantiate = args:
-            inputs.nixpkgs.lib.nixosSystem (args // {
-              pkgs = import inputs.nixpkgs {
-                inherit system;
-                overlays = [ inputs.niri.overlays.niri ];
-              };
-            });
+          other.users.bob.classes = [ "homeManager" ];
         };
-        den.aspects.fixture = {
-          includes = with dotnix; [ host.niri host.dms ];
+        den.homes.${system}.standalone.pkgs = import inputs.nixpkgs {
+          inherit system;
+          overlays = [ inputs.niri.overlays.niri ];
+        };
+        den.aspects.standalone = {
+          includes = [ dotnix.home.niri ];
+          homeManager = { specialArgs, ... }: {
+            home.username = "bob";
+            home.homeDirectory = "/home/bob";
+            home.stateVersion = "25.11";
+            programs.niri.enable = true;
+            assertions = [
+              {
+                assertion = !(builtins.hasAttr "osConfig" specialArgs);
+                message = "Standalone Home Manager must not receive osConfig";
+              }
+            ];
+          };
+        };
+        den.aspects.other = {
           nixos = {
             system.stateVersion = "25.11";
             nixpkgs.hostPlatform = system;
-            nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+            home-manager.useGlobalPkgs = true;
+            users.users.bob = { isNormalUser = true; home = "/home/bob"; };
+          };
+          provides.bob.homeManager = {
+            home.username = "bob";
+            home.homeDirectory = "/home/bob";
+            home.stateVersion = "25.11";
+          };
+        };
+        den.aspects.fixture = {
+          includes = [ dotnix.host.dms ];
+          nixos = {
+            system.stateVersion = "25.11";
+            nixpkgs.hostPlatform = system;
             home-manager.useGlobalPkgs = true;
             users.users = {
               alice = { isNormalUser = true; home = "/home/alice"; };
@@ -183,7 +182,7 @@ let
           };
           provides = {
             alice = {
-              includes = with dotnix; [ home.niri home.dms ];
+              includes = with dotnix; [ home.niri home.firefox ];
               homeManager = {
                 home.username = "alice";
                 home.homeDirectory = "/home/alice";
@@ -191,7 +190,6 @@ let
               };
             };
             bob = {
-              includes = with dotnix; [ home.niri home.noctalia ];
               homeManager = {
                 home.username = "bob";
                 home.homeDirectory = "/home/bob";
@@ -208,15 +206,24 @@ let
       inherit config;
       alice = config.home-manager.users.alice;
       bob = config.home-manager.users.bob;
+      other = flake.nixosConfigurations.other.config.home-manager.users.bob;
+      standalone = flake.homeConfigurations.standalone.config;
     };
-  bothShells = evaluate {
-    userIncludes = with dotnix; [ home.niri home.dms home.noctalia ];
-    hostModule = {
-      boot.loader.grub = { enable = true; device = "nodev"; };
-      fileSystems."/" = { device = "/dev/fixture-root"; fsType = "ext4"; };
-    };
+  niriOnlyHome = { home = multiUser.standalone; };
+  bootable = {
+    boot.loader.grub = { enable = true; device = "nodev"; };
+    fileSystems."/" = { device = "/dev/fixture-root"; fsType = "ext4"; };
   };
-  conflictOnly = builtins.getEnv "NIRI_DMS_CONFLICT_ONLY" == "1";
+  bothShells = evaluate {
+    hostIncludes = with dotnix; [ host.niri host.dms ];
+    userIncludes = with dotnix; [ home.niri home.noctalia ];
+    hostModule = bootable;
+  };
+  bothHostShells = evaluate {
+    hostIncludes = with dotnix; [ host.niri host.dms host.noctalia ];
+    hostModule = bootable;
+  };
+  conflictOnly = builtins.getEnv "NIRI_DMS_CONFLICT_ONLY";
 
   assertions = {
     desktopCatalogHasExplicitChoices =
@@ -287,19 +294,30 @@ let
       !niriNoctalia.config.systemd.user.services.niri-flake-polkit.enable
       && builtins.elem "niri.service" niriNoctalia.home.systemd.user.services.niri-flake-polkit.Install.WantedBy;
     dmsHostRuntimeIsDisabled = !(multiUser.config.systemd.user.services.dms.enable or false);
-    aliceDmsServiceExists = multiUser.alice.systemd.user.services ? dms;
-    bobDmsServiceIsAbsent = !(multiUser.bob.systemd.user.services ? dms);
-    aliceDoesNotGetNoctaliaRuntime = !(multiUser.alice.programs.noctalia.enable or false);
-    bobNoctaliaServiceEnabled = multiUser.bob.programs.noctalia.systemd.enable;
+    bothOccupantsGetOnlyDmsRuntime = builtins.all
+      (home:
+        builtins.elem "graphical-session.target" home.systemd.user.services.dms.Install.WantedBy
+        && !(home.programs.noctalia.enable or false)
+        && home.home.activationPackage.drvPath != "")
+      [ multiUser.alice multiUser.bob ];
+    dmsDoesNotSelectNiriBaseline =
+      !(multiUser.config.programs.niri.enable or false)
+      && !(multiUser.bob.programs.niri.settings.binds ? "Mod+Q");
     dmsUserDoesNotRunNiriPolkitAgent =
       !(builtins.elem "niri.service" (multiUser.alice.systemd.user.services.niri-flake-polkit.Install.WantedBy or [ ]));
     noctaliaUserGetsAuthentication =
-      multiUser.config.security.polkit.enable
-      && (multiUser.bob.systemd.user.services ? niri-flake-polkit)
-      && builtins.elem "niri.service" multiUser.bob.systemd.user.services.niri-flake-polkit.Install.WantedBy;
+      niriNoctalia.config.security.polkit.enable
+      && (niriNoctalia.home.systemd.user.services ? niri-flake-polkit)
+      && builtins.elem "niri.service" niriNoctalia.home.systemd.user.services.niri-flake-polkit.Install.WantedBy;
     noctaliaUserGetsNoDmsRuntime =
-      multiUser.bob.programs.noctalia.enable
-      && !(multiUser.bob.systemd.user.services ? dms);
+      builtins.elem "graphical-session.target" niriNoctalia.home.systemd.user.services.noctalia.Install.WantedBy
+      && !(niriNoctalia.home.systemd.user.services ? dms)
+      && !(niriNoctalia.config.systemd.user.services.noctalia.enable or false);
+    otherTargetsGetNoShell = builtins.all
+      (home: !(home.systemd.user.services ? dms) && !(home.programs.noctalia.enable or false))
+      [ multiUser.other multiUser.standalone ];
+    personalAppsStayWithTheirOccupant = multiUser.alice.programs.firefox.enable && !multiUser.bob.programs.firefox.enable;
+    hostShellDoesNotSelectGreeter = !(multiUser.config.services.greetd.enable or false);
     sameTargetShellConflictHasDiagnostic =
       !(builtins.tryEval bothShells.config.system.build.toplevel.drvPath).success
       && builtins.any
@@ -402,8 +420,10 @@ let
   };
   failed = builtins.attrNames (lib.filterAttrs (_: passed: !passed) assertions);
 in
-if conflictOnly then
+if conflictOnly == "1" then
   bothShells.config.system.build.toplevel.drvPath
+else if conflictOnly == "host" then
+  bothHostShells.config.system.build.toplevel.drvPath
 else if failed == [ ] then
   assertions
 else

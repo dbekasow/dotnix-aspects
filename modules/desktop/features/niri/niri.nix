@@ -24,16 +24,12 @@
   };
 
   dotnix.home.niri.homeManager =
-    { lib
-    , specialArgs
-    , pkgs
-    , ...
-    }:
+    { lib, pkgs, ... }:
     {
       # Host Niri exposes its Home Manager options to every user; mark explicit home selection.
       _module.args.dotnixHomeNiriSelected = true;
 
-      imports = lib.optional (!((specialArgs.osConfig or { }) ? niri-flake)) inputs.niri.homeModules.niri;
+      imports = [ (import ../../lib/niri-home-provider.nix { inherit (inputs) niri; }) ];
 
       systemd.user.services.niri-flake-polkit = {
         Unit = {
