@@ -42,8 +42,6 @@ services.displayManager.noctalia-greeter.settings.appearance.wallpaper = {
 
 ## Usage
 
-**Prerelease:** The shipped `dotnix` pin predates the named imports. Until a compatible source revision is published and pinned, use the local checkout override on the commands below: `--override-input dotnix git+file:///absolute/path/to/dotnix-aspects --no-write-lock-file`.
-
 Review `modules/hosts/myHost/configuration.nix` before building or activating. Replace the example disk device, state versions, hardware and user identity with values for your consumer. Set Git authorship and the rbw account independently in `modules/users/myUser/default.nix`; neither follows primary mail. Configure the conventional rekey resources before managing real secrets. The template contains no master identity, and the sample disk path is not safe to use as-is.
 
 ```console

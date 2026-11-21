@@ -320,11 +320,11 @@
     "dotnix": {
       "flake": false,
       "locked": {
-        "lastModified": 1794950899,
-        "narHash": "sha256-66DG6o6PlkIfPAHrg1a1TrrdHyyQQ3uS1HSVIRWnEiA=",
+        "lastModified": 1795259774,
+        "narHash": "sha256-ORlZGKPX8BK7+8bAm67KaZAQbutxLy20rSUWS6GnbZg=",
         "owner": "dbekasow",
         "repo": "dotnix-aspects",
-        "rev": "e03e3e0645f6ffae49fa57b5e68006040a4727b7",
+        "rev": "70e58eac4b77703470314c5f12a8e40fa950b16e",
         "type": "github"
       },
       "original": {
