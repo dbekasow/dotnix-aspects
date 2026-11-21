@@ -5,9 +5,13 @@ in
 {
   dotnix.host.core.includes = with dotnix.host; [
     certificates
+    fish
+    git
     home-manager
     locale
+    nh
     nix
+    nix-ld
     security
     ssh
     system-packages
