@@ -1,6 +1,5 @@
 { dotnix, ... }: {
   dotnix.host.core.includes = with dotnix.host; [
-    age
     certificates
     home-manager
     locale
@@ -11,8 +10,6 @@
   ];
 
   dotnix.home.core.includes = with dotnix.home; [
-    age
-    age-rekey
     ssh
     xdg
   ];

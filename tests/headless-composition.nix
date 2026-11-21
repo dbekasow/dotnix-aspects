@@ -1,6 +1,7 @@
 { source ? builtins.getFlake (toString ../.) }:
 let
   inputs = source.inputs // { dotnix = source; self = source; };
+  modules = import inputs.dotnix;
   dotnix = source.denful.dotnix;
   system = "x86_64-linux";
 
@@ -15,13 +16,16 @@ let
   };
 
   evaluate =
-    { hostIncludes ? [ ], hostModule ? { } }:
+    { imports ? [ (inputs.dotnix + "/modules/base") ]
+    , select ? (_: [ ])
+    , hostModule ? { }
+    }:
     let
-      fixture = {
-        imports = [ (inputs.dotnix + "/modules/base") ];
+      fixture = { dotnix, ... }: {
+        inherit imports;
         den.hosts.${system}.fixture = { };
         den.aspects.fixture = {
-          includes = hostIncludes;
+          includes = select dotnix.host;
           nixos.imports = [ bootstrap hostModule ];
         };
       };
@@ -57,13 +61,13 @@ let
 
   control = evaluate { };
   power = evaluate {
-    hostIncludes = [ dotnix.host.power ];
+    select = host: [ host.power ];
   };
   server = evaluate {
-    hostIncludes = [ dotnix.host.server ];
+    select = host: [ host.server ];
   };
   workstation = evaluate {
-    hostIncludes = [ dotnix.host.workstation ];
+    select = host: [ host.workstation ];
   };
   nativeHost = {
     boot.resumeDevice = "/dev/vda2";
@@ -86,11 +90,15 @@ let
   };
   nativeControl = evaluate { hostModule = nativeHost; };
   nativeWorkstation = evaluate {
-    hostIncludes = [ dotnix.host.workstation ];
+    select = host: [ host.workstation ];
     hostModule = nativeHost;
   };
   optional = evaluate {
-    hostIncludes = with dotnix.host; [ performance geolocation yubikey btrfs-root-reset ];
+    select = host: [ host.performance dotnix.host.geolocation host.btrfs-root-reset ];
+  };
+  yubikey = evaluate {
+    imports = [ modules.system modules.yubikey ];
+    select = host: [ host.server host.yubikey host.yubikey-pam ];
   };
 in
 assert powerPolicy power == powerPolicy control;
@@ -162,6 +170,9 @@ assert optional.zramSwap.enable;
 assert optional.services.fstrim.enable;
 assert optional.location.provider == "geoclue2";
 assert optional.services.geoclue2.enable;
-assert optional.services.pcscd.enable;
+assert yubikey.services.pcscd.enable;
+assert yubikey.security.pam.u2f.enable;
+assert yubikey.programs.yubikey-manager.enable;
+assert !(yubikey ? age || yubikey ? home-manager);
 assert optional.boot.initrd.systemd.services ? rollback-root;
 "headless and workstation composition checks passed"

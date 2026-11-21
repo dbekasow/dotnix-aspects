@@ -2,10 +2,11 @@
 let
   system = "x86_64-linux";
   withDesktop = false;
-  host.users.myuser.classes = [ "homeManager" ];
+  modules = import inputs.dotnix;
+  host.users.myuser.classes = [ "user" "homeManager" ];
 
   hostAspect = selectDesktop: {
-    includes = with dotnix.host; [ age age-rekey home-manager pipewire yubikey-pam ] ++ lib.optional selectDesktop niri;
+    includes = with dotnix.host; [ home-manager pipewire ] ++ lib.optional selectDesktop niri;
 
     nixos = {
       boot.loader.grub.enable = true;
@@ -19,7 +20,7 @@ let
     };
 
     provides.myuser = {
-      includes = with dotnix.home; [ core terminal development gpg-agent ]
+      includes = with dotnix.home; [ dotnix.account.users core terminal development gpg-agent aerc ]
         ++ lib.optionals selectDesktop [ graphical gpg-agent-gui rbw-gui ];
       homeManager = {
         home.username = "myuser";
@@ -29,13 +30,24 @@ let
           primary = true;
           address = "fixture@example.com";
           realName = "Consumer Fixture";
+          userName = "fixture@example.com";
+          imap.host = "imap.example.com";
+          aerc.enable = true;
+          # Stand-in for a consumer's existing credential helper; never run here.
+          passwordCommand = "fixture-mail-password";
         };
+        programs.aerc.extraConfig.general.unsafe-accounts-conf = true;
+        programs.git.settings.user = {
+          name = "Fixture Author";
+          email = "author@example.com";
+        };
+        programs.rbw.settings.email = "bitwarden@example.com";
       };
     };
   };
 in
 {
-  imports = [ (inputs.dotnix + "/modules/base") ]
+  imports = [ modules.system modules.home ]
     ++ lib.optional withDesktop (inputs.dotnix + "/modules/desktop");
 
   flake-file.outputs = "dendritic";

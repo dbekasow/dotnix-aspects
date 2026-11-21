@@ -162,10 +162,12 @@ cd "$consumer"
 nix run .#write-flake
 nix flake lock
 
+# shellcheck disable=SC2016
 nix eval --json .#nixosConfigurations.myHost --apply '
-  {config, pkgs, ...}:
+  {config, options, pkgs, ...}:
   let
     home = config.home-manager.users.myuser;
+    accountsConf = home.home.file."${home.xdg.configHome}/aerc/accounts.conf".text;
     hasSystemPackage = name: builtins.any (p: (p.pname or p.name) == name) config.environment.systemPackages;
   in
   assert !(hasSystemPackage "pavucontrol" || hasSystemPackage "yubioath-flutter");
@@ -177,14 +179,21 @@ nix eval --json .#nixosConfigurations.myHost --apply '
   assert home.xdg.userDirs.enable;
   assert home.services.gpg-agent.pinentry.package.pname == "pinentry-curses";
   assert home.programs.rbw.settings.pinentry == (toString pkgs.pinentry-curses + "/bin/pinentry");
-  assert config.age.rekey.storageMode == "local" && home.age.rekey.storageMode == "local";
-  true
+  assert home.programs.aerc.enable;
+  assert pkgs.lib.hasInfix "from = Consumer Fixture <fixture@example.com>" accountsConf;
+  assert pkgs.lib.hasInfix "source-cred-cmd = fixture-mail-password" accountsConf;
+  assert home.programs.git.enable;
+  assert home.programs.git.settings.user == { name = "Fixture Author"; email = "author@example.com"; };
+  assert !(options ? age || home ? age);
+  builtins.seq home.home.activationPackage.drvPath true
 '
 
 nix eval --json .#denful.dotnix --apply '
   dotnix:
-  assert !(dotnix.host ? graphical || dotnix.host ? niri || dotnix.host ? dms);
+  assert dotnix.host ? home-manager && dotnix.home ? aerc;
+  assert !(dotnix.host ? graphical || dotnix.host ? niri || dotnix.host ? dms || dotnix.host ? yubioath-flutter);
   assert !(dotnix.home ? graphical || dotnix.home ? clipboard || dotnix.home ? gpg-agent-gui || dotnix.home ? rbw-gui);
+  assert !(dotnix.host ? yubikey || dotnix.host ? yubikey-pam);
   true
 '
 
@@ -195,21 +204,23 @@ nix eval --impure --json --expr '
     lock = builtins.fromJSON (builtins.readFile ./flake.lock);
     root = lock.nodes.${lock.root}.inputs;
     library = lock.nodes.${root.dotnix};
-    desktopRepos = [ "niri-flake" "DankMaterialShell" "dank-greeter" "dms-plugin-registry" "noctalia" "noctalia-greeter" "NUR" "stylix" ];
+    excludedRepos = [ "niri-flake" "DankMaterialShell" "dank-greeter" "dms-plugin-registry" "noctalia" "noctalia-greeter" "NUR" "stylix" "agenix" "agenix-rekey" ];
   in
   assert !library.flake && (library.inputs or {}) == {};
-  assert !(builtins.any (node: builtins.elem (node.locked.repo or "") desktopRepos) (builtins.attrValues lock.nodes));
+  assert lock.nodes.${root.home-manager}.locked.repo == "home-manager";
+  assert !(builtins.any (node: builtins.elem (node.locked.repo or "") excludedRepos) (builtins.attrValues lock.nodes));
   assert !(root ? devshell || root ? git-hooks || root ? treefmt);
   true
 '
+printf 'Work Consumer generation passed\n'
 
-# Opt into DevTools from the existing Base flake and lock without changing either.
+# Opt into legacy DevTools with its managed secrets dependency in a disposable copy.
 (
   cp -R "$consumer" "$tmp/devtools"
   cd "$tmp/devtools"
   cat >modules/devtools.nix <<'EOF'
 { inputs, ... }: {
-  imports = [ (inputs.dotnix + "/modules/devtools") ];
+  imports = [ (import inputs.dotnix).managedSecrets (inputs.dotnix + "/modules/devtools") ];
 }
 EOF
   nix run .#write-flake
@@ -228,7 +239,7 @@ EOF
       outputs = builtins.getFlake (toString ./.);
       system = "x86_64-linux";
     in
-    assert builtins.attrNames optIn.root == builtins.attrNames (base.root // { devshell = null; git-hooks = null; treefmt = null; });
+    assert builtins.attrNames optIn.root == builtins.attrNames (base.root // { agenix = null; agenix-rekey = null; devshell = null; git-hooks = null; treefmt = null; });
     assert rekey.devshell == [ "devshell" ];
     assert rekey.pre-commit-hooks == [ "git-hooks" ];
     assert rekey.treefmt-nix == [ "treefmt" ];

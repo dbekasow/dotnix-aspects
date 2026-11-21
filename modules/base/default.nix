@@ -1,11 +1,12 @@
-{ inputs, ... }:
+{ dotnix, ... }:
 {
   imports = [
-    ../system
-    (inputs.import-tree [ ./features ./profiles ])
+    ./home.nix
+    ./managed-secrets.nix
+    ./yubikey.nix
   ];
 
-  den.quirks.popup-launcher = {
-    description = "Enabled popup launcher records shared by selected user-scope aspects";
-  };
+  # Preserve the previous core selections for legacy Base imports only.
+  dotnix.host.core.includes = [ dotnix.host.age ];
+  dotnix.home.core.includes = with dotnix.home; [ age age-rekey ];
 }
