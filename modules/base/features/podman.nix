@@ -1,4 +1,4 @@
-{
+{ dotnix, ... }: {
   dotnix.host.podman.nixos = { lib, ... }: {
     virtualisation.podman.enable = true;
 
@@ -12,6 +12,8 @@
   };
 
   dotnix.home.podman = {
+    includes = [ dotnix.account.podman ];
+
     homeManager = { lib, ... }: {
       services.podman = {
         enable = true;
