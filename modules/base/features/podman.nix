@@ -6,11 +6,11 @@
     autoSubUidGidRange = lib.mkDefault true;
   };
 
-  dotnix.home.podman.homeManager = { pkgs, ... }: {
-    home.packages = [ pkgs.podman ];
-  };
+  dotnix.home.podman = {
+    homeManager = { pkgs, ... }: {
+      home.packages = [ pkgs.podman ];
+    };
 
-  dotnix.home.podman-persistence.homePersistence = {
-    home.persistence."/persist".directories = [ ".local/share/containers/storage" ];
+    homePersistence.home.persistence."/persist".directories = [ ".local/share/containers/storage" ];
   };
 }
