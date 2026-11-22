@@ -30,8 +30,4 @@ in
   dotnix.home.fish.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/fish" ];
   };
-
-  dotnix.account.fish.user = { lib, pkgs, ... }: {
-    shell = lib.mkDefault pkgs.fish;
-  };
 }

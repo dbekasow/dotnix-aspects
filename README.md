@@ -73,7 +73,7 @@ The `system` import initializes Den and registers the `dotnix` namespace. The `h
 
 ## Composition rules
 
-- **`host.core` includes Fish, Git with LFS, nix-ld, and nh** with its weekly cleanup and existing `NH_FLAKE` default for hosts with users. Fish is installed system-wide; choosing it as an account's login shell still requires `account.fish`. The minimal `host.server` profile does not inherit `host.core`.
+- **`host.core` includes Fish, Git with LFS, nix-ld, and nh** with its weekly cleanup and existing `NH_FLAKE` default for hosts with users. Fish is installed system-wide; set `user.shell` in the user's aspect to choose it as the login shell. The minimal `host.server` profile does not inherit `host.core`.
 - **Integrated homes get a baseline.** `host.home-manager` (included by `host.core`) supplies SSH and XDG defaults to its integrated homes. It does not provision accounts or select Age/Rekey. Select `home.core` directly for a standalone home that needs those defaults.
 - **State history belongs to its owner.** Set `system.stateVersion` in each host and `home.stateVersion` for each HM user to their existing installed values; Den does not infer or advance them.
 - **Host axis vs. user axis.** Consumers select aspects on `den.hosts.<system>.<host>` and user entities; Den's native output integration creates NixOS and Home Manager outputs.
