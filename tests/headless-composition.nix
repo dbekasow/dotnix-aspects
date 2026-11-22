@@ -100,6 +100,21 @@ let
     imports = [ modules.system modules.yubikey ];
     select = host: [ host.server host.yubikey host.yubikey-pam ];
   };
+  systemOnly = evaluate { imports = [ modules.system ]; };
+  tailscale = evaluate {
+    imports = [ modules.system ];
+    select = host: [ host.tailscale ];
+  };
+  persistenceOnly = evaluate {
+    imports = [ modules.home ];
+    select = host: [ host.persistence ];
+  };
+  persistentTailscale = evaluate {
+    imports = [ modules.home ];
+    select = host: [ host.tailscale host.persistence ];
+  };
+  hasTailscaleState = config:
+    builtins.any (entry: entry.directory == "/var/lib/tailscale") config.environment.persistence."/persist".directories;
 in
 assert powerPolicy power == powerPolicy control;
 assert power.services.upower.enable;
@@ -175,4 +190,16 @@ assert yubikey.security.pam.u2f.enable;
 assert yubikey.programs.yubikey-manager.enable;
 assert !(yubikey ? age || yubikey ? home-manager);
 assert optional.boot.initrd.systemd.services ? rollback-root;
+assert !systemOnly.services.tailscale.enable;
+assert !(systemOnly.systemd.services ? tailscaled);
+assert tailscale.services.tailscale.enable;
+assert tailscale.systemd.services ? tailscaled;
+assert !(tailscale.environment ? persistence);
+assert !(tailscale.systemd.services.tailscaled.unitConfig ? RequiresMountsFor);
+assert !persistenceOnly.services.tailscale.enable;
+assert !hasTailscaleState persistenceOnly;
+assert persistentTailscale.services.tailscale.enable;
+assert hasTailscaleState persistentTailscale;
+assert builtins.any (mount: mount.where == "/var/lib/tailscale" && mount.what == "/persist/var/lib/tailscale") persistentTailscale.systemd.mounts;
+assert persistentTailscale.systemd.services.tailscaled.unitConfig.RequiresMountsFor == "/var/lib/tailscale";
 "headless and workstation composition checks passed"

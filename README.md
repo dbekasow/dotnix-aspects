@@ -168,9 +168,12 @@ Greeters are host-wide and do not inspect account ordering, Home Manager selecti
 | Host/home agenix-rekey      | `dotnix.host.age-rekey`, `dotnix.home.age-rekey`                  |
 | System certificates         | `dotnix.host.certificates` (collects the host CA directory above) |
 | OpenSSH server/client       | `dotnix.host.ssh`, `dotnix.home.ssh`                              |
+| Tailscale host service      | `dotnix.host.tailscale` (available through `modules.system`)      |
 | GnuPG and GPG Agent         | `dotnix.host.gnupg`, `dotnix.home.gpg-agent`                      |
 | RBW                         | `dotnix.home.rbw`                                                 |
 | YubiKey hardware and PAM    | `dotnix.host.yubikey`, `dotnix.host.yubikey-pam`                  |
+
+Tailscale enrollment, tailnet access policy, and firewall rules are consumer-owned. Select `host.persistence` from `modules.home` separately to persist Tailscale state under `/persist`.
 
 Host and home `age.rekey` resources stay independently selectable, and native home rekey does not require host-side age-rekey. For a host-provisioned identity selected on a specific host and account, use [`dotnix.home.managed-secrets`](docs/managed-home-secrets.md). Overriding the native `secretsDir` relocates `generated/` and `local/` for the native selections. `masterIdentities` and `extraEncryptionPubkeys` remain consumer-owned and explicit.
 
