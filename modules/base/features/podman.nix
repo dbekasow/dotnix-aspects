@@ -12,27 +12,11 @@
   };
 
   dotnix.home.podman = {
-    homeManager = { config, lib, ... }: {
+    homeManager = { lib, ... }: {
       services.podman = {
         enable = true;
         # Home Manager's timer also prunes images, so require explicit opt-in.
         autoUpdate.enable = lib.mkDefault false;
-      };
-
-      systemd.user.services.podman-image-prune = {
-        Unit.Description = "Prune dangling rootless Podman images";
-        Service = {
-          Type = "oneshot";
-          ExecStart = "${lib.getExe config.services.podman.package} image prune -f";
-        };
-      };
-      systemd.user.timers.podman-image-prune = {
-        Unit.Description = "Prune dangling rootless Podman images weekly";
-        Timer = {
-          OnCalendar = "weekly";
-          Persistent = true;
-        };
-        Install.WantedBy = [ "timers.target" ];
       };
     };
 
