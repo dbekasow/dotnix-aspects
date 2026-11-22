@@ -12,7 +12,13 @@
   };
 
   dotnix.home.podman = {
-    homeManager.services.podman.enable = true;
+    homeManager = { lib, ... }: {
+      services.podman = {
+        enable = true;
+        # Home Manager's timer also prunes images, so require explicit opt-in.
+        autoUpdate.enable = lib.mkDefault false;
+      };
+    };
 
     homePersistence.home.persistence."/persist".directories = [ ".local/share/containers/storage" ];
   };
