@@ -10,6 +10,7 @@
       lazygit
       git
       git-alias
+      jj
       hunk
       bacon
       just
