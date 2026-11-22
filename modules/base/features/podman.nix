@@ -1,4 +1,4 @@
-{ dotnix, ... }: {
+{
   dotnix.host.podman.nixos = { lib, ... }: {
     virtualisation.podman.enable = true;
 
@@ -7,12 +7,10 @@
     systemd.user.sockets.podman.enable = lib.mkDefault false;
   };
 
-  dotnix.account.podman.user = { lib, ... }: {
-    autoSubUidGidRange = lib.mkDefault true;
-  };
-
   dotnix.home.podman = {
-    includes = [ dotnix.account.podman ];
+    user = { lib, ... }: {
+      autoSubUidGidRange = lib.mkDefault true;
+    };
 
     homeManager = { lib, ... }: {
       services.podman = {
