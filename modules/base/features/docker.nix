@@ -1,4 +1,4 @@
-{
+{ dotnix, ... }: {
   dotnix.host.docker.nixos = _: {
     virtualisation.docker = {
       enable = true;
@@ -19,6 +19,8 @@
     linger = lib.mkDefault true;
   };
 
+  dotnix.home.docker.includes = [ dotnix.account.docker dotnix.home.docker-persistence ];
+
   dotnix.home.docker.homeManager = { pkgs, ... }: {
     programs.lazydocker.enable = true;
     programs.fish.shellAbbrs.lzd = "lazydocker";
@@ -26,8 +28,6 @@
     home.packages = [ pkgs.dive ];
   };
 
-  # Rootless Docker stores images and containers in this account's home.
-  # Select explicitly only when that state should survive persistence cleanup.
   dotnix.home.docker-persistence.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/docker" ];
   };

@@ -7,9 +7,9 @@
     shell = lib.mkDefault pkgs.nushell;
   };
 
-  dotnix.home.nushell.includes = [ dotnix.account.nushell dotnix.home.nushell.provides.config ];
+  dotnix.home.nushell.includes = [ dotnix.account.nushell dotnix.home.nushell.provides.without-shell ];
 
-  dotnix.home.nushell.provides.config.homeManager = { lib, ... }: {
+  dotnix.home.nushell.provides.without-shell.homeManager = { lib, ... }: {
     programs.nushell.enable = lib.mkDefault true;
   };
 }

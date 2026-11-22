@@ -15,9 +15,9 @@ in
     shell = lib.mkDefault pkgs.fish;
   };
 
-  dotnix.home.fish.includes = [ dotnix.account.fish dotnix.home.fish.provides.config ];
+  dotnix.home.fish.includes = [ dotnix.account.fish dotnix.home.fish.provides.without-shell ];
 
-  dotnix.home.fish.provides.config.homeManager = { lib, pkgs, ... }: {
+  dotnix.home.fish.provides.without-shell.homeManager = { lib, pkgs, ... }: {
     home.shell.enableFishIntegration = lib.mkDefault true;
 
     programs.fish = {
@@ -34,7 +34,7 @@ in
     };
   };
 
-  dotnix.home.fish.provides.config.homePersistence = {
+  dotnix.home.fish.provides.without-shell.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/fish" ];
   };
 }
