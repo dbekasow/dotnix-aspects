@@ -11,9 +11,7 @@
             name = lib.mkDefault gitUser.name;
             email = lib.mkDefault gitUser.email;
           };
-          ui = lib.mkIf (config.programs.helix.enable && config.programs.helix.package != null) {
-            editor = lib.mkDefault (lib.getExe config.programs.helix.package);
-          };
+          ui.editor = lib.mkDefault (lib.getExe config.programs.helix.package);
         };
       };
     };
