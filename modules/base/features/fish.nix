@@ -1,3 +1,4 @@
+{ dotnix, ... }:
 let
   mkPlugins = map (it: {
     inherit (it) src;
@@ -10,7 +11,13 @@ in
     programs.fish.useBabelfish = lib.mkDefault true;
   };
 
-  dotnix.home.fish.homeManager = { lib, pkgs, ... }: {
+  dotnix.account.fish.user = { lib, pkgs, ... }: {
+    shell = lib.mkDefault pkgs.fish;
+  };
+
+  dotnix.home.fish.includes = [ dotnix.account.fish dotnix.home.fish.provides.config ];
+
+  dotnix.home.fish.provides.config.homeManager = { lib, pkgs, ... }: {
     home.shell.enableFishIntegration = lib.mkDefault true;
 
     programs.fish = {
@@ -27,7 +34,7 @@ in
     };
   };
 
-  dotnix.home.fish.homePersistence = {
+  dotnix.home.fish.provides.config.homePersistence = {
     home.persistence."/persist".directories = [ ".local/share/fish" ];
   };
 }
