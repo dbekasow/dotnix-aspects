@@ -74,7 +74,7 @@
       nssmdns4 = true;
       # publish was on: a laptop broadcasting mDNS records into an unknown
       # WLAN is unnecessary broadcast traffic and an info leak.
-      publish.enable = false;
+      settings.publish.disable-publishing = lib.mkDefault true;
     };
 
     environment.systemPackages = with pkgs; [

@@ -1,12 +1,13 @@
 {
-  dotnix.host.pipewire.nixos = {
+  dotnix.host.pipewire.nixos = { config, ... }: {
+    environment.systemPackages = [ config.services.pipewire.package.jack ];
+
     services.pipewire = {
       enable = true;
 
       alsa.enable = true;
       alsa.support32Bit = true;
 
-      jack.enable = true;
       pulse.enable = true;
 
       # wireplumber ships with pipewire.enable; only the codec tuning is

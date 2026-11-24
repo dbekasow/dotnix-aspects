@@ -7,8 +7,8 @@ set -euo pipefail
 repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 temp_dir="${TMPDIR:-/tmp}/den-password-recipe-$$"
 if [[ -e $temp_dir ]]; then
-  printf 'temporary path already exists: %s\n' "$temp_dir" >&2
-  exit 1
+	printf 'temporary path already exists: %s\n' "$temp_dir" >&2
+	exit 1
 fi
 mkdir "$temp_dir"
 trap 'rm -rf -- "$temp_dir"' EXIT
@@ -34,13 +34,13 @@ openssl_drv=$(nix eval --impure --no-write-lock-file --raw --expr '
 openssl_out=$(nix build --no-link --no-write-lock-file --print-out-paths "${openssl_drv}^bin")
 openssl_bin="$openssl_out/bin/openssl"
 if [[ ! -x $openssl_bin ]]; then
-  printf 'nixpkgs OpenSSL executable missing: %s\n' "$openssl_bin" >&2
-  exit 1
+	printf 'nixpkgs OpenSSL executable missing: %s\n' "$openssl_bin" >&2
+	exit 1
 fi
 openssl_prefix=${openssl_bin%/bin/openssl}
 
 nix_expr=$(
-  cat <<'NIX'
+	cat <<'NIX'
 let
   source = builtins.getFlake (builtins.getEnv "PASSWORD_RECIPE_REPO");
   inputs = source.inputs // { dotnix = source; self = source; };
@@ -98,16 +98,16 @@ actual_hash=$(bash -c "$generator_script" </dev/null)
 synthetic_plaintext='synthetic-password-for-test'
 expected_hash=''
 if [[ $actual_hash == \$6\$* ]]; then
-  salt=${actual_hash#\$6\$}
-  salt=${salt%%\$*}
-  if [[ -n $salt ]]; then
-    expected_hash=$(printf '%s' "$synthetic_plaintext" | "$openssl_bin" passwd -6 -salt "$salt" -stdin)
-  fi
+	salt=${actual_hash#\$6\$}
+	salt=${salt%%\$*}
+	if [[ -n $salt ]]; then
+		expected_hash=$(printf '%s' "$synthetic_plaintext" | "$openssl_bin" passwd -6 -salt "$salt" -stdin)
+	fi
 fi
 if [[ -z $expected_hash || $actual_hash != "$expected_hash" ]]; then
-  expected_hash=$(printf '%s' "$synthetic_plaintext" | "$openssl_bin" passwd -6 -salt regression-salt -stdin)
-  printf 'password recipe hash mismatch\nactual:   %s\nexpected: %s\n' "$actual_hash" "$expected_hash" >&2
-  exit 1
+	expected_hash=$(printf '%s' "$synthetic_plaintext" | "$openssl_bin" passwd -6 -salt regression-salt -stdin)
+	printf 'password recipe hash mismatch\nactual:   %s\nexpected: %s\n' "$actual_hash" "$expected_hash" >&2
+	exit 1
 fi
 
 printf 'password recipe hash matches synthetic plaintext: %s\n' "$actual_hash"

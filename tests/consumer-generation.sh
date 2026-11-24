@@ -3,75 +3,75 @@
 set -euo pipefail
 
 usage() {
-  printf 'Usage: %s EXISTING_EMPTY_DIRECTORY | --system-only\n' "${0##*/}" >&2
+	printf 'Usage: %s EXISTING_EMPTY_DIRECTORY | --system-only\n' "${0##*/}" >&2
 }
 
 if [[ $# -ne 1 ]]; then
-  usage
-  exit 2
+	usage
+	exit 2
 fi
 if [[ -z $1 ]]; then
-  usage
-  exit 2
+	usage
+	exit 2
 fi
 
 normalize_path() {
-  local path="$1"
-  local component
-  local -a components=() stack=()
-  [[ $path == /* ]] || path="$PWD/$path"
-  IFS=/ read -r -a components <<<"$path"
-  for component in "${components[@]}"; do
-    case "$component" in
-    "" | .) ;;
-    ..)
-      if ((${#stack[@]} > 0)); then
-        unset "stack[$((${#stack[@]} - 1))]"
-      fi
-      ;;
-    *) stack+=("$component") ;;
-    esac
-  done
+	local path="$1"
+	local component
+	local -a components=() stack=()
+	[[ $path == /* ]] || path="$PWD/$path"
+	IFS=/ read -r -a components <<<"$path"
+	for component in "${components[@]}"; do
+		case "$component" in
+		"" | .) ;;
+		..)
+			if ((${#stack[@]} > 0)); then
+				unset "stack[$((${#stack[@]} - 1))]"
+			fi
+			;;
+		*) stack+=("$component") ;;
+		esac
+	done
 
-  local normalized="/"
-  for component in "${stack[@]}"; do
-    if [[ $normalized == / ]]; then
-      normalized+="$component"
-    else
-      normalized+="/$component"
-    fi
-  done
-  printf '%s\n' "$normalized"
+	local normalized="/"
+	for component in "${stack[@]}"; do
+		if [[ $normalized == / ]]; then
+			normalized+="$component"
+		else
+			normalized+="/$component"
+		fi
+	done
+	printf '%s\n' "$normalized"
 }
 
 within_or_equal() {
-  [[ $1 == "$2" || $1 == "$2/"* ]]
+	[[ $1 == "$2" || $1 == "$2/"* ]]
 }
 
 refuse() {
-  printf 'Refusing consumer generation destination: %s\n' "$1" >&2
-  exit 1
+	printf 'Refusing consumer generation destination: %s\n' "$1" >&2
+	exit 1
 }
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 
 prepare_consumer() {
-  local consumer="$1" fixture="$2"
-  mkdir -p "$consumer/modules"
-  cp "$repo/tests/consumer-generation/flake.nix" "$consumer/flake.nix"
-  cp "$repo/tests/consumer-generation/$fixture" "$consumer/modules/$fixture"
-  # The disposable source-only input is a snapshot of the library under test.
-  cp -R --no-preserve=mode "$(cd "$repo" && nix eval --raw --impure --expr '(builtins.getFlake (toString ./.)).outPath')" "$consumer/library"
+	local consumer="$1" fixture="$2"
+	mkdir -p "$consumer/modules"
+	cp "$repo/tests/consumer-generation/flake.nix" "$consumer/flake.nix"
+	cp "$repo/tests/consumer-generation/$fixture" "$consumer/modules/$fixture"
+	# The disposable source-only input is a snapshot of the library under test.
+	cp -R --no-preserve=mode "$(cd "$repo" && nix eval --raw --impure --expr '(builtins.getFlake (toString ./.)).outPath')" "$consumer/library"
 }
 
 check_system() (
-  prepare_consumer "$tmp/system" vps.nix
-  cd "$tmp/system"
-  # Use a path flake so the disposable files need not be tracked by Git.
-  nix run path:.#write-flake
-  nix flake lock path:.
+	prepare_consumer "$tmp/system" vps.nix
+	cd "$tmp/system"
+	# Use a path flake so the disposable files need not be tracked by Git.
+	nix run path:.#write-flake
+	nix flake lock path:.
 
-  nix eval --json path:.#nixosConfigurations.vps --apply '
+	nix eval --json path:.#nixosConfigurations.vps --apply '
     { config, options, ... }:
     let user = config.users.users.operator; in
     assert config.services.openssh.enable;
@@ -83,16 +83,16 @@ check_system() (
     builtins.seq config.system.build.toplevel.drvPath true
   '
 
-  nix eval --json path:.#denful.dotnix --apply '
+	nix eval --json path:.#denful.dotnix --apply '
     dotnix:
     assert !(dotnix.host ? home-manager);
     assert (dotnix.home or {}) == {};
     true
   '
 
-  # The freshly generated lock includes all reachable inputs, including transitive ones.
-  # shellcheck disable=SC2016
-  nix eval --impure --json --expr '
+	# The freshly generated lock includes all reachable inputs, including transitive ones.
+	# shellcheck disable=SC2016
+	nix eval --impure --json --expr '
     let
       lock = builtins.fromJSON (builtins.readFile ./flake.lock);
       root = lock.nodes.${lock.root}.inputs;
@@ -103,14 +103,14 @@ check_system() (
     assert !(builtins.any (node: (node.locked.repo or "") == "home-manager") (builtins.attrValues lock.nodes));
     true
   '
-  printf 'System-only Consumer generation passed\n'
+	printf 'System-only Consumer generation passed\n'
 )
 
 if [[ $1 == --system-only ]]; then
-  tmp="$(mktemp -d "$repo/.dotnix-consumer-generation.XXXXXX")"
-  trap 'rm -rf -- "$tmp"' EXIT
-  check_system
-  exit
+	tmp="$(mktemp -d "$repo/.dotnix-consumer-generation.XXXXXX")"
+	trap 'rm -rf -- "$tmp"' EXIT
+	check_system
+	exit
 fi
 
 case "/$1/" in
@@ -123,28 +123,28 @@ private="/home/denis/projects/dotnix"
 
 [[ $destination != / ]] || refuse 'filesystem root is not a suitable destination'
 for protected in "$repo" "$home" "$original" "$private"; do
-  if within_or_equal "$destination" "$protected" || within_or_equal "$protected" "$destination"; then
-    refuse "destination overlaps protected path '$protected'"
-  fi
+	if within_or_equal "$destination" "$protected" || within_or_equal "$protected" "$destination"; then
+		refuse "destination overlaps protected path '$protected'"
+	fi
 done
 
 current="/"
 IFS=/ read -r -a components <<<"$destination"
 for component in "${components[@]}"; do
-  [[ -n $component ]] || continue
-  if [[ $current == / ]]; then
-    current+="$component"
-  else
-    current+="/$component"
-  fi
-  [[ ! -L $current ]] || refuse "destination path contains symlink '$current'"
+	[[ -n $component ]] || continue
+	if [[ $current == / ]]; then
+		current+="$component"
+	else
+		current+="/$component"
+	fi
+	[[ ! -L $current ]] || refuse "destination path contains symlink '$current'"
 done
 [[ -d $destination ]] || refuse "destination must be an existing directory: $destination"
 destination="$(cd "$destination" && pwd -P)"
 for protected in "$repo" "$home" "$original" "$private"; do
-  if within_or_equal "$destination" "$protected" || within_or_equal "$protected" "$destination"; then
-    refuse "destination overlaps protected path '$protected'"
-  fi
+	if within_or_equal "$destination" "$protected" || within_or_equal "$protected" "$destination"; then
+		refuse "destination overlaps protected path '$protected'"
+	fi
 done
 
 shopt -s dotglob nullglob
@@ -216,18 +216,18 @@ printf 'Work Consumer generation passed\n'
 
 # DevTools supplies repository and vault tooling without selecting runtime vault features.
 (
-  cp -R "$consumer" "$tmp/devtools"
-  cd "$tmp/devtools"
-  cat >modules/devtools.nix <<'EOF'
+	cp -R "$consumer" "$tmp/devtools"
+	cd "$tmp/devtools"
+	cat >modules/devtools.nix <<'EOF'
 { inputs, ... }: {
   imports = [ (import inputs.dotnix).devtools ];
 }
 EOF
-  nix run .#write-flake
-  nix flake lock
+	nix run .#write-flake
+	nix flake lock
 
-  # shellcheck disable=SC2016
-  nix eval --impure --json --expr '
+	# shellcheck disable=SC2016
+	nix eval --impure --json --expr '
     let
       outputs = builtins.getFlake (toString ./.);
       system = "x86_64-linux";
@@ -246,26 +246,26 @@ EOF
       rekey = outputs.apps.${system}.rekey.program;
     }
   '
-  printf 'Repository and vault tooling passed\n'
+	printf 'Repository and vault tooling passed\n'
 )
 
 cp flake.nix "$tmp/flake.after-first-generation"
 cp flake.lock "$tmp/lock.after-first-generation"
 
 check_desktop() {
-  cp modules/myHost.nix "$tmp/myHost.base.nix"
-  sed 's/withDesktop = false;/withDesktop = true;/' "$tmp/myHost.base.nix" >modules/myHost.nix
-  nix run .#write-flake
-  nix flake lock
+	cp modules/myHost.nix "$tmp/myHost.base.nix"
+	sed 's/withDesktop = false;/withDesktop = true;/' "$tmp/myHost.base.nix" >modules/myHost.nix
+	nix run .#write-flake
+	nix flake lock
 
-  nix eval --json .#denful.dotnix --apply '
+	nix eval --json .#denful.dotnix --apply '
     dotnix:
     assert dotnix.host ? niri && dotnix.home ? graphical;
     true
   '
 
-  # shellcheck disable=SC2016
-  nix eval --json .#nixosConfigurations --apply '
+	# shellcheck disable=SC2016
+	nix eval --json .#nixosConfigurations --apply '
     {graphicalHost, myHost, ...}:
     let
       graphicalHome = graphicalHost.config.home-manager.users.myuser;
@@ -286,8 +286,8 @@ check_desktop() {
     true
   '
 
-  # shellcheck disable=SC2016
-  nix eval --impure --json --expr '
+	# shellcheck disable=SC2016
+	nix eval --impure --json --expr '
     let
       lock = builtins.fromJSON (builtins.readFile ./flake.lock);
       root = lock.nodes.${lock.root}.inputs;
@@ -297,15 +297,15 @@ check_desktop() {
     true
   '
 
-  mv "$tmp/myHost.base.nix" modules/myHost.nix
-  nix run .#write-flake
-  nix flake lock
-  nix eval --json .#denful.dotnix --apply '
+	mv "$tmp/myHost.base.nix" modules/myHost.nix
+	nix run .#write-flake
+	nix flake lock
+	nix eval --json .#denful.dotnix --apply '
     dotnix:
     assert !(dotnix.host ? niri || dotnix.home ? graphical);
     true
   '
-  printf 'Desktop Consumer opt-in and removal passed\n'
+	printf 'Desktop Consumer opt-in and removal passed\n'
 }
 check_desktop
 

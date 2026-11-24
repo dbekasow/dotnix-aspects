@@ -12,7 +12,7 @@
   }];
 
   dotnix.home.firefox.homeManager =
-    { lib, pkgs, ... }:
+    { lib, options, pkgs, ... }:
     let
       addons = pkgs.nur.repos.rycee.firefox-addons
         or inputs.nur.legacyPackages.${pkgs.stdenv.hostPlatform.system}.repos.rycee.firefox-addons;
@@ -145,6 +145,9 @@
           };
 
       }
+      (lib.optionalAttrs (options ? stylix.targets.firefox.profileNames) {
+        stylix.targets.firefox.profileNames = lib.mkDefault [ "default" ];
+      })
     ];
 
   dotnix.home.firefox.niri.homeManager =
@@ -177,10 +180,7 @@
     };
 
   dotnix.home.firefox.stylix.homeManager = {
-    stylix.targets.firefox = {
-      profileNames = [ "default" ];
-      colorTheme.enable = true;
-    };
+    stylix.targets.firefox.colorTheme.enable = true;
   };
 
   dotnix.home.firefox.homePersistence = { lib, config, ... }: {
