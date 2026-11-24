@@ -33,11 +33,9 @@
         };
     };
 
-  dotnix.home.managed-secrets = { host, user, inputs, ... }:
+  dotnix.home.managed-secrets = { host, user, ... }:
     let
       account = user.userName;
-      recipientDir = "${inputs.self}/modules/hosts/${host.hostName}/secrets/homes/${account}";
-      recipientFile = "${recipientDir}/home-key.pub";
       secretName = "home-identity-${account}";
     in
     {
@@ -45,19 +43,32 @@
       homeManager = { config, lib, options, osConfig, ... }:
         let
           dummyKey = options.age.rekey.hostPubkey.default;
+          homeSecretsDir = config.age.rekey.secretsDir;
+          hostSecretsDir = osConfig.age.rekey.secretsDir or null;
+          recipientFile = if homeSecretsDir == null then null else
+          "${homeSecretsDir}/hosts/${host.hostName}/home-key.pub";
         in
         {
-          # These defaults supersede the native aspect's account-wide layout.
-          # Ordinary native definitions still win, e.g. for an existing vault.
-          age.rekey.hostPubkey = lib.mkOverride 900 (
-            if builtins.pathExists recipientFile then builtins.readFile recipientFile else dummyKey
-          );
-          age.rekey.localStorageDir = lib.mkOverride 900 "${recipientDir}/local";
           age.identityPaths = lib.optional (builtins.hasAttr secretName (osConfig.age.secrets or { }))
             osConfig.age.secrets.${secretName}.path;
+
+          age.rekey = {
+            # These defaults supersede the native aspect's account-wide layout.
+            # Ordinary native definitions still win, e.g. for an existing vault.
+            hostPubkey = lib.mkOverride 900 (
+              if recipientFile != null && builtins.pathExists recipientFile then builtins.readFile recipientFile else dummyKey
+            );
+            localStorageDir = lib.mkOverride 900 (
+              if hostSecretsDir == null then
+                throw "Managed home secrets for ${host.hostName}/${account} require a host age.rekey.secretsDir or an explicit home age.rekey.localStorageDir."
+              else "${hostSecretsDir}/homes/${account}/local"
+            );
+          };
+
           assertions = [{
             assertion = lib.trim config.age.rekey.hostPubkey != "" && config.age.rekey.hostPubkey != dummyKey;
-            message = "Managed home secrets for ${host.hostName}/${account} are missing a recipient public key: ${recipientFile}";
+            message = "Managed home secrets for ${host.hostName}/${account} are missing a recipient public key: "
+              + (if recipientFile == null then "set home age.rekey.secretsDir or age.rekey.hostPubkey" else recipientFile);
           }];
         };
     };
