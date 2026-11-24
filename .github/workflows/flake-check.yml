@@ -36,6 +36,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0 # Nix needs revCount for the git+file input below.
       - uses: DeterminateSystems/determinate-nix-action@8d87e8d5e5b8a8309d4281094560f127d9a265f1 # v3
       - run: nix flake new /tmp/fixture -t .#default --accept-flake-config
       # Build instead of eval: eval only proves the derivation constructs.

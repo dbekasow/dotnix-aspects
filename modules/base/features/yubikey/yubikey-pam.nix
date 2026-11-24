@@ -1,4 +1,15 @@
+{ dotnix, ... }:
 {
+  dotnix.host.yubikey-pam-age = {
+    includes = [ dotnix.host.yubikey-pam ];
+    nixos = { config, lib, ... }: {
+      age.secrets.u2f.generator.script = _: ''
+        printf '# nix shell nixpkgs#pam_u2f -c pamu2fcfg -u $(whoami) -o pam://$(hostname) -i pam://$(hostname)'
+      '';
+      security.pam.u2f.settings.authfile = lib.mkDefault config.age.secrets.u2f.path;
+    };
+  };
+
   dotnix.host.yubikey-pam.nixos = { lib, pkgs, ... }: {
     # Consumers supply an authfile through the native
     # `security.pam.u2f.settings.authfile` option, or use its NixOS default.

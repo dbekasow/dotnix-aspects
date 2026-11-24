@@ -101,8 +101,9 @@ let
     select = host: [ host.server host.yubikey host.yubikey-pam ];
   };
   systemOnly = evaluate { imports = [ modules.system ]; };
+  withServer = evaluate { imports = [ modules.system modules.server ]; };
   tailscale = evaluate {
-    imports = [ modules.system ];
+    imports = [ modules.system modules.server ];
     select = host: [ host.tailscale ];
   };
   persistenceOnly = evaluate {
@@ -110,7 +111,7 @@ let
     select = host: [ host.persistence ];
   };
   persistentTailscale = evaluate {
-    imports = [ modules.home ];
+    imports = [ modules.home modules.server ];
     select = host: [ host.tailscale host.persistence ];
   };
   hasTailscaleState = config:
@@ -192,7 +193,11 @@ assert !(yubikey ? age || yubikey ? home-manager);
 assert optional.boot.initrd.systemd.services ? rollback-root;
 assert !systemOnly.services.tailscale.enable;
 assert !(systemOnly.systemd.services ? tailscaled);
+assert !withServer.services.tailscale.enable;
+assert !(withServer.systemd.services ? tailscaled);
 assert tailscale.services.tailscale.enable;
+assert tailscale.services.tailscale.authKeyFile == null;
+assert !(tailscale ? age);
 assert tailscale.systemd.services ? tailscaled;
 assert !(tailscale.environment ? persistence);
 assert !(tailscale.systemd.services.tailscaled.unitConfig ? RequiresMountsFor);

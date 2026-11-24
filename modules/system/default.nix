@@ -7,7 +7,6 @@
     ../base/profiles/boot-baseline.nix
     ../base/profiles/server.nix
     ./features/ssh.nix
-    ./features/tailscale.nix
     ./features/users.nix
   ];
 }
