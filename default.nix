@@ -1,11 +1,7 @@
 # Public flake-parts modules. Import this source-only input, not its flake.
 {
-  # Repository shell, formatter, and checks, without vault tooling.
-  devtools = ./modules/devtools/repo.nix;
-
-  # Extends devtools with the vault shell packages and generate/rekey apps.
-  vault-tools = ./modules/devtools/vault.nix;
-
+  # Repository shell, formatter, checks, and vault commands.
+  devtools = ./modules/devtools;
   # NixOS server features and system accounts, without Home Manager.
   system = ./modules/system;
   # Optional server services; import only for consumers that select them.

@@ -3,7 +3,7 @@ let
   modules = import inputs.dotnix;
 in
 {
-  imports = with modules; [ home desktop managedSecrets yubikey vault-tools ];
+  imports = with modules; [ home desktop managedSecrets yubikey devtools ];
 
   flake-file.outputs = "dendritic";
 

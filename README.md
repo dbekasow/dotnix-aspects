@@ -59,7 +59,7 @@ To compose a host and integrated home, see the executable template at `modules/t
 }
 ```
 
-The example omits hardware and disk configuration. With `devtools` imported, use `nix develop`, `nix fmt`, and `nix flake check`; to extend that shell and expose `nix run .#generate` and `nix run .#rekey`, import `vault-tools` instead. Select `managedSecrets` to register runtime vault features independently of those tools. Importing `desktop` once registers the graphical catalog and inputs for the consumer, not for every host's effective configuration. See the [migration example](docs/public-import-migration.md) for preserving a mixed consumer's selections.
+The example omits hardware and disk configuration. With `devtools` imported, use `nix develop`, `nix fmt`, and `nix flake check`. The same import provides the vault commands `nix run .#generate` and `nix run .#rekey`. Select `managedSecrets` to register runtime vault features independently of those tools. Importing `desktop` once registers the graphical catalog and inputs for the consumer, not for every host's effective configuration. See the [migration example](docs/public-import-migration.md) for preserving a mixed consumer's selections.
 
 Or start from the consumer template:
 
@@ -168,12 +168,12 @@ Greeters are host-wide and do not inspect account ordering, Home Manager selecti
 | Host/home agenix-rekey      | `dotnix.host.age-rekey`, `dotnix.home.age-rekey`                  |
 | System certificates         | `dotnix.host.certificates` (collects the host CA directory above) |
 | OpenSSH server/client       | `dotnix.host.ssh`, `dotnix.home.ssh`                              |
-| Tailscale host service      | `dotnix.host.tailscale` (available through `modules.system`)      |
+| Tailscale host service      | `dotnix.host.tailscale` (opt-in via `modules.server`)             |
 | GnuPG and GPG Agent         | `dotnix.host.gnupg`, `dotnix.home.gpg-agent`                      |
 | RBW                         | `dotnix.home.rbw`                                                 |
 | YubiKey hardware and PAM    | `dotnix.host.yubikey`, `dotnix.host.yubikey-pam`                  |
 
-Tailscale enrollment, tailnet access policy, and firewall rules are consumer-owned. Select `host.persistence` from `modules.home` separately to persist Tailscale state under `/persist`.
+Import `modules.server` alongside `modules.system` or `modules.home`; it does not activate any services by itself. For declarative Tailscale enrollment, configure the host's Age secret as `age.secrets.tailscale-auth-key`. The aspect defaults `services.tailscale.authKeyFile` to that secret's decrypted runtime path and leaves it unset if there is no such secret. The Consumer owns the encrypted file, tailnet access policy, and firewall rules. Select `host.persistence` from `modules.home` separately to persist Tailscale state under `/persist`.
 
 Host and home `age.rekey` resources stay independently selectable, and native home rekey does not require host-side age-rekey. For a host-provisioned identity selected on a specific host and account, use [`dotnix.home.managed-secrets`](docs/managed-home-secrets.md). Overriding the native `secretsDir` relocates `generated/` and `local/` for the native selections. `masterIdentities` and `extraEncryptionPubkeys` remain consumer-owned and explicit.
 

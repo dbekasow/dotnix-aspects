@@ -214,7 +214,7 @@ nix eval --impure --json --expr '
 '
 printf 'Work Consumer generation passed\n'
 
-# Repository tools work without vault dependencies; adding vault-tools restores the opt-in flows.
+# DevTools supplies repository and vault tooling without selecting runtime vault features.
 (
   cp -R "$consumer" "$tmp/devtools"
   cd "$tmp/devtools"
@@ -232,38 +232,21 @@ EOF
       outputs = builtins.getFlake (toString ./.);
       system = "x86_64-linux";
       lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+      root = lock.nodes.${lock.root}.inputs;
       packages = map (p: p.pname or p.name) outputs.devShells.${system}.default.config.devshell.packages;
-      apps = (outputs.apps or {}).${system} or {};
     in
-    assert !(builtins.any (node: (node.locked.repo or "") == "agenix-rekey") (builtins.attrValues lock.nodes));
-    assert !(builtins.any (name: builtins.elem name packages) [ "rage" "agenix" "age-plugin-yubikey" ]);
-    assert !(apps ? generate || apps ? rekey);
+    assert root ? devshell && root ? git-hooks && root ? treefmt && root ? agenix-rekey;
+    assert builtins.all (name: builtins.elem name packages) [ "rage" "agenix" "age-plugin-yubikey" ];
     {
       shell = outputs.devShells.${system}.default.drvPath;
       formatter = outputs.formatter.${system}.drvPath;
       pre-commit = outputs.checks.${system}.pre-commit.drvPath;
       treefmt = outputs.checks.${system}.treefmt.drvPath;
-    }
-  '
-
-  sed -i 's/\.devtools ]/.vault-tools ]/' modules/devtools.nix
-  nix run .#write-flake
-  nix flake lock
-
-  # shellcheck disable=SC2016
-  nix eval --impure --json --expr '
-    let
-      outputs = builtins.getFlake (toString ./.);
-      system = "x86_64-linux";
-      packages = map (p: p.pname or p.name) outputs.devShells.${system}.default.config.devshell.packages;
-    in
-    assert builtins.all (name: builtins.elem name packages) [ "rage" "agenix" "age-plugin-yubikey" ];
-    {
-      inherit (outputs.apps.${system}.generate) program;
+      generate = outputs.apps.${system}.generate.program;
       rekey = outputs.apps.${system}.rekey.program;
     }
   '
-  printf 'Repository tools and explicit vault tooling passed\n'
+  printf 'Repository and vault tooling passed\n'
 )
 
 cp flake.nix "$tmp/flake.after-first-generation"

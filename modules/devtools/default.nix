@@ -1,4 +1,8 @@
 {
-  # Keep the combined tooling for the standalone flake and the legacy template.
-  imports = [ ./vault.nix ];
+  imports = [
+    ./devshell.nix
+    ./pre-commit.nix
+    ./treefmt.nix
+    ./age.nix
+  ];
 }
