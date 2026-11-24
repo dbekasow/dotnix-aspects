@@ -23,6 +23,8 @@
         };
 
         compose.editor = "hx";
+        # These accounts contain no credentials in the generated accounts.conf.
+        general.unsafe-accounts-conf = true;
       };
     };
   };
