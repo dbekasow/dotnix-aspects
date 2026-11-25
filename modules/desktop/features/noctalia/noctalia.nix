@@ -24,9 +24,17 @@
       settings = {
         bar.default = {
           background_opacity = 0.85;
+          center = lib.mkDefault [ "clock" "weather" ];
           end = lib.mkDefault [ "tray" "notifications" "clipboard" "battery" "control-center" "session" ];
         };
-        widget.tray.drawer = true;
+        widget = {
+          tray.drawer = true;
+          weather.show_condition = false;
+          battery = {
+            display_mode = "graphic";
+            show_label = false;
+          };
+        };
 
         # IP-based; no personal data lands in the shared aspect.
         location.auto_locate = true;
