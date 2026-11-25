@@ -13,7 +13,7 @@
         primary = builtins.head (builtins.attrNames host.users);
         inherit (config.users.users."${primary}") home;
       in
-      { NH_FLAKE = lib.mkDefault "${home}/.dotnix"; }
+      { NH_FLAKE = lib.mkDefault "${home}/projects/.dotnix"; }
     );
   };
 }
