@@ -7,7 +7,7 @@ let
   };
 in
 {
-  dotnix.home.ghostty.homeManager = { pkgs, ... }: {
+  dotnix.home.ghostty.homeManager = { lib, pkgs, ... }: {
     imports = [
       (import ../lib/niri-launcher.nix {
         key = "Mod+T";
@@ -23,7 +23,8 @@ in
         app-notifications = "no-clipboard-copy";
         # Keep blur off to limit compositing cost.
         background-blur = false;
-        background-opacity = 0.98;
+        # Avoid emitting a second opacity from the Stylix terminal default.
+        background-opacity = lib.mkOverride 90 0.94;
         background-opacity-cells = true;
         confirm-close-surface = false;
         cursor-opacity = 0.75;

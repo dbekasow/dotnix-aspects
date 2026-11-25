@@ -85,8 +85,19 @@ let
     hostIncludes = with dotnix; [ host.niri host.noctalia ];
   };
   niriNoctaliaHome = evaluate {
-    userIncludes = with dotnix; [ home.niri home.noctalia ];
+    userIncludes = with dotnix; [ home.niri home.noctalia home.stylix home.ghostty ];
   };
+  noctaliaCustomBarHome = evaluate {
+    userIncludes = with dotnix; [ home.noctalia home.stylix ];
+    userModule.programs.noctalia.settings.bar.default.end = [ "clock" ];
+  };
+  noctaliaSettings = niriNoctaliaHome.home.programs.noctalia.settings;
+  ghosttySettings = niriNoctaliaHome.home.programs.ghostty.settings;
+  hasCompositorBlur = appId: lib.any
+    (rule: rule.background-effect.blur == true && lib.any
+      (match: match.app-id != null && builtins.match match.app-id appId != null)
+      rule.matches)
+    niriNoctaliaHome.home.programs.niri.settings.window-rules;
   noctaliaOnlyHome = evaluate {
     userIncludes = with dotnix; [ home.noctalia ];
   };
@@ -372,6 +383,22 @@ let
       ];
     noctaliaNiriConfigGenerated = niriNoctaliaHome.home.xdg.configFile.niri-config.enable;
     noctaliaIsEnabled = niriNoctaliaHome.home.programs.noctalia.enable;
+    noctaliaBarDefaultsWithStylix =
+      noctaliaSettings.bar.default.background_opacity == 0.85
+      && noctaliaSettings.bar.default.end == [ "tray" "notifications" "clipboard" "battery" "control-center" "session" ]
+      && noctaliaSettings.widget.tray.drawer
+      && !(noctaliaSettings.bar ? background_opacity)
+      && noctaliaSettings.shell.font_family == niriNoctaliaHome.home.stylix.fonts.sansSerif.name;
+    noctaliaBarListIsOverridable =
+      noctaliaCustomBarHome.home.programs.noctalia.settings.bar.default.end == [ "clock" ];
+    noctaliaWeatherDoesNotChangeStylixIdlePolicy =
+      noctaliaSettings.location.auto_locate && noctaliaSettings.weather.enabled
+      && !(noctaliaSettings ? idle);
+    ghosttyUsesNiriBlur =
+      hasCompositorBlur "com.mitchellh.ghostty" && hasCompositorBlur "Alacritty"
+      && !(hasCompositorBlur "comXmitchellhXghostty")
+      && ghosttySettings.background-blur == [ false ]
+      && ghosttySettings.background-opacity == [ 0.94 ];
     noctaliaServiceEnabled = niriNoctaliaHome.home.programs.noctalia.systemd.enable;
     noctaliaUsesPinnedPackage =
       niriNoctaliaHome.home.programs.noctalia.package.outPath

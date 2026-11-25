@@ -198,6 +198,8 @@ Stylix is part of the `graphical` profiles on both roles; explicit `dotnix.host.
 
 **Noctalia** is a second palette authority: it generates its own wallpaper-based palettes and must not double-theme apps — keep its built-in app templates off and let stylix own app themes. When the matugen bridge is wanted, feed matugen's output through `programs.noctalia.customPalettes` (`theme.source = "custom"`).
 
+Override the right bar widget list with `programs.noctalia.settings.bar.default.end`. To replace the entire `settings` value with raw TOML or a TOML file, use `lib.mkForce`; this also replaces any Stylix settings in that value.
+
 ## Consumer contract checks
 
 Run `nix fmt` and `nix flake check --no-write-lock-file --accept-flake-config` before submitting changes. The regular check evaluates the headless composition, headless security, Niri/DMS, terminal composition, and review-access consumer contracts through the import groups and their final NixOS or Home Manager outputs. It also builds their check derivations alongside the existing formatter, generated-flake consistency, and pre-commit checks. The behavioral contracts are evaluated by Nix; building their marker derivations does not activate a system or prove runtime behavior.

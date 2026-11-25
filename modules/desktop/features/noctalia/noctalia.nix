@@ -21,42 +21,26 @@
       enable = true;
       systemd.enable = true;
 
-      # Upstream keeps the lockscreen and lock_before_suspend on but ships every
-      # idle.behavior.* disabled, so an idle session never locks. Mirror the DMS
-      # timeouts (noctalia cannot split AC/battery); mkDefault lets hosts retune.
-      # Only real deltas against upstream defaults — rewriting defaults makes
-      # noctalia re-serialize its config on every start.
-      settings = lib.mkDefault {
-        # Enables the backdrop layer that the niri layer-rule places in the
-        # overview; see noctalia/niri.nix.
-        backdrop.enabled = true;
+      settings = {
+        bar.default = {
+          background_opacity = 0.85;
+          end = lib.mkDefault [ "tray" "notifications" "clipboard" "battery" "control-center" "session" ];
+        };
+        widget.tray.drawer = true;
 
-        # Single source for weather/night-light/theme scheduling. IP-based, so
-        # no personal data lands in the shared aspect; hosts can pin an address
-        # or latitude/longitude instead (mkDefault is overridable).
+        # IP-based; no personal data lands in the shared aspect.
         location.auto_locate = true;
         weather.enabled = true;
-
-        # Upstream default is 10; matches power.nix's upower percentageCritical.
-        battery.warning_threshold = 20;
-
-        idle.behavior = {
-          lock = { enabled = true; timeout = 300; action = "lock"; };
-          screen-off = { enabled = true; timeout = 600; action = "screen_off"; };
-          lock-and-suspend = { enabled = true; timeout = 1800; action = "lock_and_suspend"; };
-        };
       };
     };
   };
 
   dotnix.host.noctalia.provides.to-users.includes = [ dotnix.home.noctalia ];
   dotnix.host.noctalia.nixos = { config, ... }: {
-    assertions = [
-      {
-        assertion = !(config.programs.dank-material-shell.enable or false);
-        message = "DMS and Noctalia cannot both be selected on the same host.";
-      }
-    ];
+    assertions = [{
+      assertion = !(config.programs.dank-material-shell.enable or false);
+      message = "DMS and Noctalia cannot both be selected on the same host.";
+    }];
 
     nix.settings = {
       extra-substituters = [ "https://noctalia.cachix.org" ];

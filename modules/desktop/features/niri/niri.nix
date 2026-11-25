@@ -95,7 +95,7 @@
           # computed once instead of per window. GPU cost is real, so only the
           # transparent apps in this stack get the rule.
           {
-            matches = [{ app-id = "^(ghostty|Alacritty)$"; }];
+            matches = [{ app-id = "^(com[.]mitchellh[.]ghostty|ghostty|Alacritty)$"; }];
             background-effect.blur = true;
           }
         ];
