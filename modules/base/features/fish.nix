@@ -7,7 +7,7 @@ let
 in
 {
   dotnix.host.fish.nixos = { lib, ... }: {
-    programs.fish.enable = lib.mkDefault true;
+    programs.fish.enable = true;
     programs.fish.useBabelfish = lib.mkDefault true;
   };
 
@@ -21,7 +21,7 @@ in
     home.shell.enableFishIntegration = lib.mkDefault true;
 
     programs.fish = {
-      enable = lib.mkDefault true;
+      enable = true;
       # Empty fish_greeting disables the "Welcome to fish" banner.
       interactiveShellInit = "set -g fish_greeting";
 

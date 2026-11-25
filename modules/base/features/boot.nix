@@ -19,7 +19,7 @@
 
       # Only hosts without an impermanence-style rollback gain anything
       # from a wiped /tmp; kept as the fleet default.
-      tmp.cleanOnBoot = true;
+      tmp.cleanOnBoot = lib.mkDefault true;
     };
 
     # Fleet timeout policy; hosts stay free to tighten or loosen.

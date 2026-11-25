@@ -2,7 +2,7 @@
   dotnix.host.ssh = {
     nixos = { lib, pkgs, ... }: {
       services.openssh = {
-        enable = lib.mkDefault true;
+        enable = true;
 
         settings = {
           # "prohibit-password" is the upstream default, so no explicit

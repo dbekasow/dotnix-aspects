@@ -2,7 +2,7 @@
 let
   sharedConfig = { lib, pkgs, ... }: {
     stylix = {
-      enable = lib.mkDefault true;
+      enable = true;
       autoEnable = lib.mkDefault true;
 
       base16Scheme = lib.mkDefault "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";

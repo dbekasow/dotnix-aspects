@@ -1,7 +1,7 @@
 {
-  dotnix.host.nix-ld.nixos = { lib, pkgs, ... }: {
+  dotnix.host.nix-ld.nixos = { pkgs, ... }: {
     programs.nix-ld = {
-      enable = lib.mkDefault true;
+      enable = true;
       libraries = with pkgs; [
         openssl
         stdenv.cc.cc
