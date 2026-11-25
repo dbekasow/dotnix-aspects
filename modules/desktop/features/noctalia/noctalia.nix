@@ -24,12 +24,16 @@
       settings = {
         bar.default = {
           background_opacity = 0.85;
-          center = lib.mkDefault [ "clock" "weather" ];
+          center = lib.mkDefault [ "clock" "clock-weather-gap" "weather" ];
           end = lib.mkDefault [ "tray" "notifications" "clipboard" "battery" "control-center" "session" ];
         };
         widget = {
           tray.drawer = true;
           weather.show_condition = false;
+          clock-weather-gap = {
+            type = "spacer";
+            length = 4;
+          };
           battery = {
             display_mode = "graphic";
             show_label = false;

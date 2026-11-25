@@ -394,6 +394,11 @@ let
     noctaliaWeatherDoesNotChangeStylixIdlePolicy =
       noctaliaSettings.location.auto_locate && noctaliaSettings.weather.enabled
       && !(noctaliaSettings ? idle);
+    thunarUsesNiriBlur = lib.any
+      (rule: rule.background-effect.blur == true && rule.opacity == 0.94 && lib.any
+        (match: match.app-id != null && builtins.match match.app-id "thunar" != null)
+        rule.matches)
+      niriNoctaliaHome.home.programs.niri.settings.window-rules;
     ghosttyUsesNiriBlur =
       hasCompositorBlur "com.mitchellh.ghostty" && hasCompositorBlur "Alacritty"
       && !(hasCompositorBlur "comXmitchellhXghostty")

@@ -98,6 +98,11 @@
             matches = [{ app-id = "^(com[.]mitchellh[.]ghostty|ghostty|Alacritty)$"; }];
             background-effect.blur = true;
           }
+          {
+            matches = [{ app-id = "^(thunar|org[.]xfce[.]Thunar)$"; }];
+            opacity = 0.94;
+            background-effect.blur = true;
+          }
         ];
       };
     };
